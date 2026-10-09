@@ -220,7 +220,7 @@
       "demographics": "年齡層・性別",
       "joinedLabel": "註冊時間",
       "lastLoginLabel": "最後登入",
-      "lastSeenLabel": "App 最後造訪",
+      "lastSeenLabel": "最後造訪",
       "location": "位置（大約）",
       "noLocation": "無紀錄",
       "tripsTitle": "建立的行程（累計 {{count}} 個）",

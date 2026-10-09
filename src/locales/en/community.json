@@ -222,7 +222,7 @@
       "demographics": "Age · gender",
       "joinedLabel": "Joined at",
       "lastLoginLabel": "Last login",
-      "lastSeenLabel": "Last app visit",
+      "lastSeenLabel": "Last visit",
       "location": "Location (approx.)",
       "noLocation": "No record",
       "tripsTitle": "Trips ({{count}} created in total)",

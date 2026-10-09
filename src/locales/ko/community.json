@@ -220,7 +220,7 @@
       "demographics": "나잇대·성별",
       "joinedLabel": "가입일시",
       "lastLoginLabel": "마지막 로그인",
-      "lastSeenLabel": "앱 마지막 접속",
+      "lastSeenLabel": "마지막 접속",
       "location": "위치(대략)",
       "noLocation": "기록 없음",
       "tripsTitle": "만든 여행 (누적 {{count}}개)",

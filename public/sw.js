@@ -21,10 +21,17 @@
 // 캐시에 영원히 쌓인다(청크는 개수 제한이 없다 — IMAGE_CACHE_NAME과 다름).
 // 매 빌드마다 이름 자체가 달라지면 activate 핸들러가 이전 이름의 캐시를 통째로
 // 지워서 이 문제가 구조적으로 재발하지 않는다.
-const CACHE_NAME = 'triptic-2026-09-27T12-07-48-596Z';
-/** 외부 이미지(도시 사진·위키백과 썸네일·커뮤니티 사진 등) 전용 — 개수 제한으로 무한히 커지지 않게 */
-const IMAGE_CACHE_NAME = 'triptic-images-v1';
-const IMAGE_CACHE_MAX_ENTRIES = 150;
+const CACHE_NAME = 'triptic-2026-10-09T16-44-20-736Z';
+/**
+ * 외부 이미지(도시 사진·위키백과 썸네일·커뮤니티 사진 등) 전용 — 개수 제한으로 무한히 커지지 않게.
+ *
+ * ⚠️ opaque 응답(cross-origin no-cors)은 절대 저장하지 않는다. 브라우저는 내용을 볼 수 없는
+ * opaque 응답의 용량을 정보 유출 방지용으로 항목당 수 MB(Chrome은 약 7MB)씩 부풀려 계산한다 —
+ * 실제로는 수백 KB인 사진 150장이 설정 화면에 1GB 가까운 "오프라인 캐시"로 찍히던 원인이었다.
+ * 이름을 v2로 올린 것도 그 때문이다: activate 핸들러가 v1(부풀려진 옛 캐시)을 통째로 지운다.
+ */
+const IMAGE_CACHE_NAME = 'triptic-images-v2';
+const IMAGE_CACHE_MAX_ENTRIES = 100;
 
 // App shell files
 const APP_SHELL = [
@@ -39,8 +46,7 @@ const APP_SHELL = [
 
 // External CDN resources
 const CDN_ASSETS = [
-  'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css',
-  'https://cdn.jsdelivr.net/gh/sun-typeface/SUIT/fonts/variable/woff2/SUIT-Variable.css'
+  'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css'
 ];
 
 const PRECACHE_ASSETS = [...APP_SHELL, ...CDN_ASSETS];
@@ -80,8 +86,17 @@ function isNetworkOnly(url) {
   return false;
 }
 
+/**
+ * 광고·제휴·분석 쪽 요청 — 서비스 워커가 손대지 않는다. 예전엔 이것까지 대신 받아 와서, 애드센스 신호(sodar)를 CORS로
+ * 받으려다 실패한 오류가 콘솔에 쌓였고, 서비스 워커가 끼는 요청만 많아졌다(2026-10-04).
+ */
+const THIRD_PARTY_SKIP = /(^|\.)(googlesyndication\.com|doubleclick\.net|adtrafficquality\.google|googleadservices\.com|google\.com|googletagmanager\.com|posthog\.com|sentry\.io|cloudflareinsights\.com)$/;
+
+/** 우리 파일 말고 서비스 워커가 저장하는 외부 파일은 웹폰트(CSS·글꼴 파일)뿐이다 */
+const FONT_HOSTS = new Set(['cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com']);
+
 function isImageRequest(request, url) {
-  return request.destination === 'image' && url.origin !== self.location.origin;
+  return request.destination === 'image' && url.origin !== self.location.origin && !THIRD_PARTY_SKIP.test(url.hostname);
 }
 
 /** 오래된 항목부터 지워 개수를 제한한다(Cache API의 keys()는 삽입 순서) */
@@ -93,14 +108,35 @@ async function trimCache(name, maxEntries) {
   }
 }
 
-/** 오프라인 폴백 — 캐시된 index.html 반환 */
+/**
+ * 저장해 둔 앱 화면(index.html)이 가리키는 파일까지 이 캐시에 다 있다는 표시 — 설치 때 index.html을 읽어 그 안의
+ * /assets/ 파일(첫 JS·CSS·홈 청크·번역 파일)을 같이 저장하고, 전부 성공하면 남긴다.
+ * 예전엔 index.html만 저장해서, 네트워크가 안 될 때 꺼내 준 화면이 이미 없어진(이전 배포의) 파일을 찾다가
+ * 아무것도 못 그리고 흰 화면으로 멈출 수 있었다(2026-10-04 아이폰 흰 화면 의심 원인).
+ */
+const SHELL_COMPLETE_KEY = './__shell-complete';
+
+/** index.html 안의 /assets/ 파일 주소(모듈 스크립트·CSS·미리받기 목록·번역 파일 목록) */
+function shellAssetUrls(html) {
+  return [...new Set(html.match(/\/assets\/[A-Za-z0-9._-]+\.(?:js|css)/g) || [])];
+}
+
+/** 오프라인·멈춘 연결 폴백 — 파일까지 다 저장된 앱 화면만 돌려준다(아니면 undefined) */
 async function getOfflineFallback() {
   const cache = await caches.open(CACHE_NAME);
+  if (!(await cache.match(SHELL_COMPLETE_KEY))) return undefined;
   return (
     (await cache.match('./index.html')) ||
     (await cache.match('index.html')) ||
     (await cache.match('./'))
   );
+}
+
+/** 이동(페이지) 요청이 이 시간 안에 응답이 없으면 저장해 둔 앱 화면을 먼저 보여 준다(응답은 뒤에서 받아 캐시만 갱신) */
+const NAVIGATION_TIMEOUT_MS = 4000;
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /** Install: Precache app shell and CDN resources */
@@ -128,6 +164,21 @@ self.addEventListener('install', (event) => {
         if (!rootResp) await cache.put('./', indexResp.clone());
         const plainIndex = await cache.match('index.html');
         if (!plainIndex) await cache.put('index.html', indexResp.clone());
+
+        // 이 index.html이 가리키는 파일도 같이 — 해시 이름이라 HTTP 캐시에 있으면 그대로 쓴다(대부분 방금 받은 것)
+        const assets = shellAssetUrls(await indexResp.clone().text());
+        const results = await Promise.allSettled(
+          assets.map(async (url) => {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`${response.status} ${url}`);
+            await cache.put(url, response);
+          })
+        );
+        if (assets.length > 0 && results.every((r) => r.status === 'fulfilled')) {
+          await cache.put(SHELL_COMPLETE_KEY, new Response('1'));
+        } else {
+          console.warn('[SW] App shell assets incomplete — offline fallback disabled for this version');
+        }
       }
     }).then(() => self.skipWaiting())
   );
@@ -158,31 +209,43 @@ self.addEventListener('fetch', (event) => {
   // 0. 개인 데이터·동적 API: 캐시 없이 네트워크로만
   if (isNetworkOnly(url)) return;
 
-  // 1. Google Maps API script: bypass cache
-  if (isGoogleMapsScript(url)) {
-    event.respondWith(
-      fetch(event.request).catch((err) => {
-        console.warn('[SW] Google Maps script failed to load (offline):', err.message);
-        return Promise.reject(err);
-      })
-    );
-    return;
-  }
+  // 1. Google Maps 스크립트·광고·분석: 서비스 워커를 거치지 않고 브라우저가 직접
+  if (isGoogleMapsScript(url) || THIRD_PARTY_SKIP.test(url.hostname)) return;
 
-  // 2. Navigation / HTML: Network-first with offline fallback
+  // 2. Navigation / HTML: Network-first. 응답이 4초 안에 없으면(멈춘 연결) 저장해 둔 앱 화면, 실패하면 한 번 더 시도 후
+  //    저장해 둔 앱 화면. 휴대폰이 잠들었다 깬 직후 첫 요청은 죽은 연결에 실려 멈추거나 바로 실패하곤 한다.
   if (event.request.mode === 'navigate' || event.request.headers.get('accept')?.includes('text/html')) {
+    const fromNetwork = () =>
+      fetch(event.request).then(async (networkResponse) => {
+        if (networkResponse.ok) {
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(event.request, networkResponse.clone());
+        }
+        return networkResponse;
+      });
     event.respondWith(
-      fetch(event.request)
-        .then(async (networkResponse) => {
-          if (networkResponse.ok) {
-            const cache = await caches.open(CACHE_NAME);
-            cache.put(event.request, networkResponse.clone());
+      (async () => {
+        const network = fromNetwork();
+        try {
+          const first = await Promise.race([network, delay(NAVIGATION_TIMEOUT_MS).then(() => null)]);
+          if (first) return first;
+          const fallback = await getOfflineFallback();
+          if (fallback) {
+            event.waitUntil(network.catch(() => {}));
+            return fallback;
           }
-          return networkResponse;
-        })
-        .catch(async () => {
-          return await getOfflineFallback();
-        })
+          return await network;
+        } catch {
+          try {
+            await delay(300);
+            return await fromNetwork();
+          } catch (err) {
+            const fallback = await getOfflineFallback();
+            if (fallback) return fallback;
+            throw err;
+          }
+        }
+      })()
     );
     return;
   }
@@ -209,25 +272,35 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 4. 외부 이미지: 캐시 우선 + 개수 제한
+  // 4. 외부 이미지: 캐시 우선 + 개수 제한. CORS로 받아 실제 크기가 보이는 응답만 저장한다
   if (isImageRequest(event.request, url)) {
     event.respondWith(
       (async () => {
         const cache = await caches.open(IMAGE_CACHE_NAME);
         const cached = await cache.match(event.request);
         if (cached) return cached;
-        const response = await fetch(event.request);
-        if (response.ok || response.type === 'opaque') {
-          await cache.put(event.request, response.clone());
-          event.waitUntil(trimCache(IMAGE_CACHE_NAME, IMAGE_CACHE_MAX_ENTRIES));
+        try {
+          const response = await fetch(event.request.url, {
+            mode: 'cors',
+            credentials: 'omit',
+            referrerPolicy: event.request.referrerPolicy,
+          });
+          if (response.ok) {
+            await cache.put(event.request, response.clone());
+            event.waitUntil(trimCache(IMAGE_CACHE_NAME, IMAGE_CACHE_MAX_ENTRIES));
+          }
+          return response;
+        } catch {
+          // CORS 헤더가 없는 서버 — 화면에는 그대로 보여 주되 저장은 하지 않는다(opaque)
+          return fetch(event.request);
         }
-        return response;
       })()
     );
     return;
   }
 
-  // 5. Static assets: Cache-first
+  // 5. 우리 파일과 웹폰트만 캐시 우선. 그 밖의 외부 요청(제휴 스크립트 등)은 브라우저가 직접 받는다
+  if (url.origin !== self.location.origin && !FONT_HOSTS.has(url.hostname)) return;
   event.respondWith(
     (async () => {
       const cachedResponse = await caches.match(event.request);
@@ -235,7 +308,8 @@ self.addEventListener('fetch', (event) => {
 
       try {
         const networkResponse = await fetch(event.request);
-        if (networkResponse.ok || networkResponse.type === 'opaque') {
+        // opaque(제3자 스크립트 등)는 저장하지 않는다 — 위 IMAGE_CACHE_NAME 주석 참고
+        if (networkResponse.ok) {
           const cache = await caches.open(CACHE_NAME);
           cache.put(event.request, networkResponse.clone());
         }

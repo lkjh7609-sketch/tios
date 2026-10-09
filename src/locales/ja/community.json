@@ -220,7 +220,7 @@
       "demographics": "年代・性別",
       "joinedLabel": "登録日時",
       "lastLoginLabel": "最終ログイン",
-      "lastSeenLabel": "アプリ最終アクセス",
+      "lastSeenLabel": "最終アクセス",
       "location": "位置（おおよそ）",
       "noLocation": "記録なし",
       "tripsTitle": "作成した旅行（累計 {{count}}件）",
