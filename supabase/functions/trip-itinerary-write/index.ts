@@ -24,6 +24,7 @@ import { getDayCity } from '../../../src/features/plan/dayCities.ts';
 import { MEAL_META } from '../../../src/features/plan/map/meals.ts';
 import { haversineKm } from '../../../src/features/plan/map/geo.ts';
 import { dayIndexForDate } from '../../../src/features/documents/commitBooking.ts';
+import { carryPaidBy } from '../../../src/features/plan/expensePayer.ts';
 import type {
   PlaceItem,
   HotelsData,
@@ -127,11 +128,6 @@ Deno.serve(async (req) => {
     global: { headers: { Authorization: authHeader } },
   });
 
-  const {
-    data: { user },
-  } = await userClient.auth.getUser();
-  if (!user) return jsonResponse({ error: '인증이 유효하지 않습니다.' }, 401, headers);
-
   let body: RequestBody;
   try {
     body = await req.json();
@@ -140,11 +136,22 @@ Deno.serve(async (req) => {
   }
   if (!body.tripId) return jsonResponse({ error: 'tripId가 필요합니다.' }, 400, headers);
 
-  const { data: trip, error: tripErr } = await userClient
-    .from('trips')
-    .select('id, start_date, end_date, base_currency, city, city_lat, city_lng')
-    .eq('id', body.tripId)
-    .single();
+  // 서로 상관없는 조회 셋을 한꺼번에 — 로그인 확인·여행 읽기·이미 저장된 낸 사람(옛 화면 보호)을 하나씩 기다리면 저장이 그만큼 느려졌다.
+  // 셋 다 사용자 JWT로 보내므로 RLS가 그대로 적용된다(로그인이 안 됐으면 아래에서 401로 끝낸다).
+  const [authRes, tripRes, storedRes] = await Promise.all([
+    userClient.auth.getUser(),
+    userClient.from('trips').select('id, start_date, end_date, base_currency, city, city_lat, city_lng').eq('id', body.tripId).single(),
+    // 낸 사람(paidBy)을 모르는 옛 화면의 저장도 일행의 경비를 만든 사람 것으로 바꾸지 않게, DB에 이미 있는 같은 줄에서 채운다.
+    // 못 읽어도 저장은 막지 않는다(그때는 옛 화면의 낸 사람 없는 경비만 만든 사람 것으로 돌아간다).
+    userClient
+      .from('expenses')
+      .select('description, amount, category, paid_by, trip_days(day_index)')
+      .eq('trip_id', body.tripId)
+      .not('paid_by', 'is', null),
+  ]);
+  if (!authRes.data.user) return jsonResponse({ error: '인증이 유효하지 않습니다.' }, 401, headers);
+
+  const { data: trip, error: tripErr } = tripRes;
   if (tripErr || !trip) return jsonResponse({ error: '여행을 찾을 수 없습니다.' }, 404, headers);
   if (!trip.start_date || !trip.end_date) {
     return jsonResponse({ error: '여행 기간이 설정되지 않았습니다.' }, 400, headers);
@@ -318,9 +325,28 @@ Deno.serve(async (req) => {
     }
 
     const baseCurrency = trip.base_currency ?? 'KRW';
+
+    // 낸 사람(paidBy) 채우기 — 위에서 미리 읽어 둔 저장된 줄을 쓴다
+    const expensesWithPayer = carryPaidBy(
+      expensesData,
+      ((storedRes.data ?? []) as unknown as {
+        description: string;
+        amount: number | string;
+        category: string | null;
+        paid_by: string | null;
+        trip_days: { day_index: number } | { day_index: number }[] | null;
+      }[]).map((r) => ({
+        day_index: Array.isArray(r.trip_days) ? (r.trip_days[0]?.day_index ?? null) : (r.trip_days?.day_index ?? null),
+        description: r.description,
+        amount: r.amount,
+        category: r.category,
+        paid_by: r.paid_by,
+      })),
+    );
+
     const expensesPayload: Record<string, unknown>[] = [];
     for (let day = 1; day <= totalDays; day++) {
-      for (const exp of expensesData[day] ?? []) {
+      for (const exp of expensesWithPayer[day] ?? []) {
         const expCurrency = exp.currency ?? baseCurrency;
         expensesPayload.push({
           day_index: day,
@@ -330,6 +356,7 @@ Deno.serve(async (req) => {
           currency: expCurrency,
           fx_rate_to_base: expCurrency !== baseCurrency ? (exp.fxRateToBase ?? null) : null,
           payment_method: exp.paymentMethod ?? null,
+          paid_by: exp.paidBy ?? null,
         });
       }
     }

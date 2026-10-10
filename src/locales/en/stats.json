@@ -5,7 +5,6 @@
   "empty": {
     "title": "No finished trips yet",
     "body": "Stats build up here once a trip is over. Trips whose end date has passed are counted.",
-    "upcoming": "{{count}} upcoming trip(s)",
     "cta": "Go to my trips"
   },
   "summary": {
@@ -24,7 +23,15 @@
     "world": "{{count}} of 195 countries ({{percent}}%)",
     "unknown": "{{count}} place(s) couldn't be matched to a country and are left out of country and continent stats.",
     "continents": "By continent",
-    "continentNote": "Based on number of trips"
+    "continentNote": "Based on number of trips",
+    "visits": "{{count}} trip(s)",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "reset": "Reset view",
+    "hintTouch": "Use two fingers to zoom and move",
+    "hintMouse": "Drag to move · double-click or use +/− to zoom",
+    "countriesButton": "See {{count}} visited countries",
+    "countriesTitle": "Countries visited"
   },
   "expense": {
     "title": "Spending",

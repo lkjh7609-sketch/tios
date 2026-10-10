@@ -2,6 +2,13 @@
 
 > 이 저장소를 여는 Claude는 먼저 이 파일을 읽는다. 사용자(이재헌)와 admin·lkjh 두 계정이 같은 저장소를 쓴다(브랜치 `admin/*`, `lkjh/*` → PR → main). 문서는 `docs/updates/4-v1.1.0/changelog.md`(현재 단계 기록)에 날짜별로 쌓는다.
 
+## 📱 이 폴더는 앱 전용 복제본 (2026-10-11)
+
+- 경로 `~/Desktop/Dev/triptic-ios`, 원격 `origin` = `lkjh7609-sketch/tios` (웹 저장소 `Triptic`과 **별개**). 웹 운영(triptic.my)은 `~/Triptic`에서 계속한다.
+- **Vercel 연결 금지**(`.vercel` 삭제함, `vercel` 명령 쓰지 않는다). 빌드·배포는 Codemagic만.
+- 웹 저장소와 헷갈리지 말 것: 여기서 push/PR 해도 웹은 배포되지 않는다. 웹에 필요한 수정은 `~/Triptic`에서 따로 한다.
+- 2026-10-11 Google Maps 키가 옛 커밋(2026-07-08 `index.html`)에 노출돼 두 저장소 히스토리에서 지우고 키를 폐기했다. **비밀값은 코드·문서·채팅에 쓰지 않는다.**
+
 ## 🚧 iOS 앱 출시 — 보류 중 (2026-10-08 결정)
 
 **보류 이유**: 앱 출시와 함께 넣으려는 **항공 검색 결과(앱 안 목록)를 Kayak 운영 API로 제공**할 계획인데 Kayak 운영 키가 아직 안 나왔다(샌드박스만 통과, 2026-10-08 후속 메일 보냄). 마이리얼트립에도 항공 검색 결과 API를 문의 중. **API가 오면 그때 재개한다.**
@@ -18,6 +25,7 @@
 ### 이미 main에 있는 앱 관련 코드 (웹에서는 동작하지 않아야 한다)
 - PR #9 앱 소셜 로그인: `src/shared/api/nativeAuth.ts`(인앱 브라우저 → `com.triptic.travel://auth/callback?code=` 복귀, 앱에서만 PKCE), `@capacitor/app`·`@capacitor/browser`, Info.plist URL scheme. ⚠️ Supabase Authentication → URL Configuration → Redirect URLs에 `com.triptic.travel://auth/callback` 등록 필요(운영 설정, 사용자).
 - 앱에서 바깥 링크는 인앱 브라우저(`src/shared/externalLink.ts`), 호텔 탭은 웹=검색창 위젯 / 앱=구글 자동완성+우리 화면 결과(`HotelsScreen`).
+- **웹 항공 탭(2026-10-09)**: 모든 언어에서 우리 화면의 운임 목록(Ignav) + 예약은 Trip.com KR(한국어)/Kiwi.com(그 외, Travelpayouts) 딥링크. 앱 재개 때 이 구조를 쓸지는 사용자 결정(Kayak은 보류).
 - Kayak 연결은 **전부 제거됨**(PR #7, 커밋 `bae400c`) — Kayak 운영 키가 오면 그 이전 상태(항공 결과 목록은 `f09a626`에서 만들었다)를 되살려 항공에 붙인다. 호텔은 Agoda로 대체됨(화면에 제휴사 이름을 쓰지 않는다는 사용자 결정).
 
 ### 반드시 기억할 함정
