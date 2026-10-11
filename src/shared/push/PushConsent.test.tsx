@@ -6,11 +6,13 @@ const push = vi.hoisted(() => ({
   permission: 'prompt' as 'prompt' | 'granted' | 'denied' | null,
   register: vi.fn().mockResolvedValue(true),
   mutate: vi.fn(),
+  openSettings: vi.fn(),
 }));
 vi.mock('@/shared/platform', () => ({ isNativeApp: () => true }));
 vi.mock('./registerPush', () => ({
   readPushPermission: () => Promise.resolve(push.permission),
   registerPushNotifications: (...args: unknown[]) => push.register(...args),
+  openPushSettings: () => push.openSettings(),
 }));
 vi.mock('@/shared/hooks/useProfile', () => ({
   useProfile: () => ({ data: { notification_prefs: { preDeparture: false, flightChanges: false, communityReplies: false, marketing: false, enabled: false } } }),
@@ -24,6 +26,7 @@ beforeEach(() => {
   push.register.mockClear();
   push.register.mockResolvedValue(true);
   push.mutate.mockClear();
+  push.openSettings.mockClear();
   push.permission = 'prompt';
 });
 
@@ -43,6 +46,16 @@ describe('PushConsent', () => {
     });
     expect(push.register).toHaveBeenCalledWith('u1');
     expect(localStorage.getItem('triptic-push-asked-u1')).toBe('1');
+  });
+
+  it('"받을게요"인데 iOS에서 이미 거부된 기기면 iPhone 설정으로 안내하는 창이 뜬다', async () => {
+    push.permission = 'denied';
+    push.register.mockResolvedValue(false);
+    render(<PushConsent userId="u1" />);
+    fireEvent.click(await screen.findByRole('button', { name: '받을게요' }));
+    expect(await screen.findByRole('dialog', { name: 'iPhone 설정에서 켜 주세요' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '설정 열기' }));
+    expect(push.openSettings).toHaveBeenCalledTimes(1);
   });
 
   it('iOS 권한이 이미 정해진 기기(허용·거부)라도 새 계정에는 묻는다', async () => {

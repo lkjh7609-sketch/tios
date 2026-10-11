@@ -62,6 +62,8 @@ export async function registerPushNotifications(userId: string, options: { promp
     const needsAsk = current.receive === 'prompt' || current.receive === 'prompt-with-rationale';
     if (needsAsk && !prompt) return false;
     const permission = needsAsk ? await PushNotifications.requestPermissions() : current;
+    // 웹 인스펙터에서 "권한 창이 안 떴다"를 가려내는 용도 — 이미 정해진 권한이면 iOS는 창을 다시 띄우지 않는다
+    console.info(`[push] permission ${current.receive} -> ${permission.receive}`);
     if (permission.receive !== 'granted') return false;
 
     if (!listenersReady) {
@@ -82,6 +84,13 @@ export async function registerPushNotifications(userId: string, options: { promp
     captureError(err, { context: 'registerPushNotifications' });
     return false;
   }
+}
+
+/** iPhone 설정의 이 앱 화면을 연다 — iOS는 한 번 정해진(거부한) 알림 권한을 앱이 다시 물을 수 없어 설정에서 켜야 한다 */
+export function openPushSettings(): void {
+  if (!isNativeApp()) return;
+  // Capacitor iOS는 앱 밖 주소로의 이동을 UIApplication.open으로 넘겨 준다 — app-settings:는 이 앱의 설정 화면
+  window.location.href = 'app-settings:';
 }
 
 /** 로그아웃 직전 — 이 기기의 토큰을 서버에서 지운다(실패해도 로그아웃은 막지 않는다) */

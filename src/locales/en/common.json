@@ -213,7 +213,11 @@
       "message": "Get reminders before your trip departs.\nWe'll also let you know about replies and comments.\n\nYou can change this anytime in\nSettings > Notification settings.",
       "later": "Not now",
       "allow": "Turn on",
-      "osDenied": "Please allow Triptic notifications in iPhone Settings."
+      "osDenied": "Please allow Triptic notifications in iPhone Settings.",
+      "settingsTitle": "Turn it on in iPhone Settings",
+      "settingsMessage": "Notifications were turned off for this app earlier, so it can't ask again.\n\nGo to Settings > Triptic > Notifications\nand turn on Allow Notifications.",
+      "settingsLater": "Later",
+      "settingsOpen": "Open Settings"
     }
   }
 }

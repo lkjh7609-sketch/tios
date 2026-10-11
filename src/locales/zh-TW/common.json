@@ -213,7 +213,11 @@
       "message": "可以在旅行出發前收到提醒，\n也會通知你留言與回覆的消息。\n\n通知可隨時在\n設定 > 通知設定 中更改。",
       "later": "稍後再說",
       "allow": "開啟通知",
-      "osDenied": "請在 iPhone 設定中允許 Triptic 通知。"
+      "osDenied": "請在 iPhone 設定中允許 Triptic 通知。",
+      "settingsTitle": "請到 iPhone 設定中開啟",
+      "settingsMessage": "此裝置先前未允許通知，App 無法再次詢問。\n\n請到 設定 > Triptic > 通知，\n開啟「允許通知」。",
+      "settingsLater": "稍後",
+      "settingsOpen": "開啟設定"
     }
   }
 }
