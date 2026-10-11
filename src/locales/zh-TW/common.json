@@ -127,16 +127,54 @@
     "ariaUnread": "通知(未讀 {{count}} 則)",
     "empty": "沒有新通知。",
     "dismiss": "清除「{{title}}」的通知",
-    "week": "距離出發還有 {{days}} 天",
-    "dayBefore": "明天出發",
-    "today": "今天出發!旅途愉快",
-    "note": "會通知留言、回覆與按讚，以及出發前 7 天、前一天、當天與目的地旅遊警示。行程提醒僅在開啟 App 時顯示。",
+    "note": "會通知留言與回覆(含推播)、按讚、出發前 7 天、3 天與當天、目的地旅遊警示、同行與共同編輯動態，以及營運通知。",
     "community": {
       "post_comment": "{{name}} 在你的貼文留言",
       "comment_reply": "{{name}} 回覆了你的留言",
       "post_like": "{{name}} 喜歡你的貼文",
       "comment_like": "{{name}} 喜歡你的留言",
       "someone": "某人"
+    },
+    "app": {
+      "trip_week": "旅行快到囉 · 距離出發 7 天",
+      "trip_soon": "旅行快到囉 · 距離出發 3 天",
+      "trip_today": "今天就是出發日，祝你旅途愉快～",
+      "companion_applied": "{{name}} 申請與你同行",
+      "companion_accepted": "同行申請已通過",
+      "companion_rejected": "這次無法同行",
+      "companion_matched": "同行已確認，到聊天室對一下行程吧",
+      "companion_message": "{{name}} 傳來訊息",
+      "companion_message_many": "有 {{count}} 則新訊息",
+      "companion_review": "一起旅行的感覺如何？請留下評價",
+      "collab_joined": "{{name}} 加入了這趟旅行",
+      "collab_left": "{{name}} 離開了這趟旅行",
+      "collab_removed": "你已被移出這趟旅行的共同編輯",
+      "ops_content_removed": {
+        "post": "你的貼文依營運政策已被隱藏",
+        "comment": "你的留言依營運政策已被隱藏",
+        "companion_post": "你的同行貼文依營運政策已被隱藏"
+      },
+      "ops_report_result": {
+        "actioned": "我們已確認你的檢舉並採取處理",
+        "dismissed": "我們已審查你的檢舉，無需處理"
+      },
+      "heading": {
+        "trip_week": "我的旅行",
+        "trip_soon": "我的旅行",
+        "trip_today": "我的旅行",
+        "travel_alert": "旅遊警示",
+        "companion_applied": "同行",
+        "companion_accepted": "同行",
+        "companion_rejected": "同行",
+        "companion_matched": "同行",
+        "companion_message": "同行聊天",
+        "companion_review": "同行評價",
+        "ops_content_removed": "營運通知",
+        "ops_report_result": "檢舉結果",
+        "collab_joined": "共同編輯",
+        "collab_left": "共同編輯",
+        "collab_removed": "共同編輯"
+      }
     },
     "announcement": {
       "notice": "有新的公告",

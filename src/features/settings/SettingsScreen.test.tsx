@@ -8,7 +8,7 @@ const state = vi.hoisted(() => ({
   signOut: vi.fn().mockResolvedValue(undefined),
   mutate: vi.fn(),
   admin: false,
-  profile: { id: 'u1', display_name: '관리자', handle: 'dfxrj', plan: 'pro', locale: 'ko', temp_unit: 'c', distance_unit: 'km', base_currency: 'KRW', notification_prefs: { preDeparture: true, flightChanges: false, communityReplies: true, marketing: false }, avatar_url: null } as Record<string, unknown>,
+  profile: { id: 'u1', display_name: '관리자', handle: 'dfxrj', plan: 'pro', locale: 'ko', temp_unit: 'c', distance_unit: 'km', base_currency: 'KRW', notification_prefs: { trip: true, community: true, companion: true, collab: true }, avatar_url: null } as Record<string, unknown>,
 }));
 
 vi.mock('@/shared/hooks/useSession', () => ({ useSession: () => ({ user: { id: 'u1', email: 'a@b.c', user_metadata: {} }, loading: false }) }));
@@ -56,7 +56,7 @@ describe('SettingsScreen (모바일)', () => {
   it('상위 메뉴를 누르면(경로 /settings/알림) 그 메뉴의 세부 설정만 보이고 뒤로 링크가 있다', () => {
     renderAt('/settings/notifications');
     expect(screen.getByRole('heading', { name: '알림 설정' })).toBeInTheDocument();
-    expect(screen.getByText('출발 전 리마인더')).toBeInTheDocument();
+    expect(screen.getByText('내 여행 알림')).toBeInTheDocument();
     expect(screen.queryByText('오프라인 캐시')).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: '뒤로' })).toHaveAttribute('href', '/settings');
   });
@@ -73,25 +73,25 @@ describe('SettingsScreen (모바일)', () => {
     expect(screen.getByText('내 정보 변경 창')).toBeInTheDocument();
   });
 
-  it('알림 설정 맨 위에 "알림 허용" 토글이 있고, 끄면 세부 알림이 모두 꺼진다', () => {
+  it('알림 설정 맨 위에 "알림 허용" 토글이 있고, 끄면 전체 허용만 꺼지고 묶음 설정은 그대로다', () => {
     renderAt('/settings/notifications');
     const master = screen.getByRole('checkbox', { name: '알림 허용' });
     expect(master).toBeChecked();
-    expect(screen.getByRole('checkbox', { name: '출발 전 리마인더' })).toBeEnabled();
+    expect(screen.getByRole('checkbox', { name: '내 여행 알림' })).toBeEnabled();
     fireEvent.click(master);
     expect(state.mutate).toHaveBeenCalledWith({
-      notification_prefs: expect.objectContaining({ enabled: false, preDeparture: false, flightChanges: false, communityReplies: false, marketing: false }),
+      notification_prefs: expect.objectContaining({ enabled: false, trip: true, community: true }),
     });
   });
 
   it('알림 허용이 꺼져 있으면 세부 알림은 눌러지지 않는다', () => {
     const original = state.profile;
-    state.profile = { ...state.profile, notification_prefs: { preDeparture: false, flightChanges: false, communityReplies: false, marketing: false, enabled: false } };
+    state.profile = { ...state.profile, notification_prefs: { trip: false, community: false, companion: false, collab: false, enabled: false } };
     renderAt('/settings/notifications');
     state.profile = original;
     expect(screen.getByRole('checkbox', { name: '알림 허용' })).not.toBeChecked();
-    expect(screen.getByRole('checkbox', { name: '출발 전 리마인더' })).toBeDisabled();
-    expect(screen.getByRole('checkbox', { name: '커뮤니티 답글' })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: '내 여행 알림' })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: '커뮤니티 알림' })).toBeDisabled();
   });
 
   it('운영 콘솔 줄은 운영자에게만 보이고 /admin으로 간다(앱에는 주소창이 없어서)', () => {

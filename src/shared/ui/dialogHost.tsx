@@ -48,6 +48,14 @@ function enqueue(request: Request) {
   if (!current) next();
 }
 
+/** 첫 답만 쓴다 — 확인 창(ConfirmDialog)은 확인을 눌러도 onClose를 먼저 부른다 */
+function settleConfirm(request: ConfirmRequest, value: boolean) {
+  if (request.settled) return;
+  request.settled = true;
+  request.resolve(value);
+  next();
+}
+
 const cancelText = () => i18next.t('common:action.cancel');
 const confirmText = () => i18next.t('common:action.confirm');
 
@@ -138,20 +146,10 @@ export function DialogHost() {
         cancelLabel={request.cancelLabel}
         confirmLabel={request.confirmLabel}
         danger={request.danger}
-        onConfirm={() => {
-          if (request.settled) return;
-          request.settled = true;
-          request.resolve(true);
-          next();
-        }}
+        onConfirm={() => settleConfirm(request, true)}
         onClose={() => {
           // 확인을 누르면 onClose 직후 onConfirm이 불린다 — 같은 틱이 끝난 뒤에도 답이 없을 때만 취소로 본다
-          queueMicrotask(() => {
-            if (request.settled) return;
-            request.settled = true;
-            request.resolve(false);
-            next();
-          });
+          queueMicrotask(() => settleConfirm(request, false));
         }}
       />
     );
