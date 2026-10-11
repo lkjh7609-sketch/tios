@@ -34,6 +34,42 @@ export interface ExtraOption {
 
 const DEBOUNCE_MS = 200;
 
+/**
+ * 도시 자동완성 요청 — 새 Places API(AutocompleteSuggestion)는 요청마다 화면 언어를 지정해, 한국어 화면에서 "뉴욕"·"ニューヨーク"·"紐約"·"new york"
+ * 어느 쪽으로 쳐도 같은 도시가 나온다. 예전 AutocompleteService는 지도 스크립트를 처음 불러올 때 정한 언어 하나로만 찾아, 앱(TestFlight)에서
+ * "뉴욕"이 안 나오고 "new york"만 나왔다(2026-10-11). 새 API를 못 쓰는 상태(키 설정 등)면 예전 방식으로 한 번 더 시도한다.
+ */
+async function fetchCityPredictions(
+  places: google.maps.PlacesLibrary,
+  input: string,
+  language: string,
+  sessionToken: google.maps.places.AutocompleteSessionToken,
+): Promise<google.maps.places.AutocompletePrediction[]> {
+  try {
+    const { suggestions } = await places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+      input,
+      language,
+      includedPrimaryTypes: ['(cities)'],
+      sessionToken,
+    });
+    return suggestions
+      .map((s) => s.placePrediction)
+      .filter((p): p is google.maps.places.PlacePrediction => !!p)
+      .map((p) => ({
+        place_id: p.placeId,
+        description: p.text.text,
+        structured_formatting: { main_text: p.mainText?.text ?? '', secondary_text: p.secondaryText?.text ?? '' },
+      })) as google.maps.places.AutocompletePrediction[];
+  } catch {
+    return new Promise((resolve) => {
+      new google.maps.places.AutocompleteService().getPlacePredictions(
+        { input, types: ['(cities)'], sessionToken },
+        (results) => resolve(results ?? []),
+      );
+    });
+  }
+}
+
 /** 입력칸에 보일 글자 — 도시는 행정구역 접미사를 뗀 이름, 추가 항목(호텔 등)으로 고른 장소는 이름 그대로 */
 function shownText(place: SelectedPlace): string {
   return place.placeId?.startsWith('agoda:') ? place.name : cityDisplayName(place.address || place.name);
@@ -111,15 +147,10 @@ export function CityAutocomplete({
           });
       }
       try {
-        await loadGoogleMapsPlaces();
+        const places = await loadGoogleMapsPlaces();
         token.current ??= new google.maps.places.AutocompleteSessionToken();
-        const service = new google.maps.places.AutocompleteService();
-        service.getPlacePredictions(
-          { input: next, types: ['(cities)'], sessionToken: token.current },
-          (results) => {
-            if (id === requestId.current) setPredictions(results ?? []);
-          },
-        );
+        const found = await fetchCityPredictions(places, next, i18n.language, token.current);
+        if (id === requestId.current) setPredictions(found);
       } catch {
         if (id === requestId.current) setPredictions([]);
       }
