@@ -13,7 +13,7 @@ import styles from './NotificationBell.module.css';
 export function NotificationBell() {
   const { t } = useTranslation('common');
   const { countryName, levelName } = useAlertLabels();
-  const { signedIn, items, unreadCount, markAllRead, dismiss } = useTripNotifications();
+  const { signedIn, items, unreadCount, markAllRead, dismiss, clearAll } = useTripNotifications();
   const [open, setOpen] = useState(false);
   // 폰(앱): 말풍선 대신 아래에서 올라오는 시트(PopoverSheet) — 바깥 누르기는 그 시트의 어두운 배경이 맡는다
   const phone = useMediaQuery('(max-width: 1023px)');
@@ -103,9 +103,16 @@ export function NotificationBell() {
       </button>
 
       {open ? (
-        <PopoverSheet phone={phone} onClose={() => setOpen(false)}>
-        <div className={styles.panel} role="dialog" aria-label={t('notifications.title')}>
-          <h2 className={styles.heading}>{t('notifications.title')}</h2>
+        <PopoverSheet phone={phone} from="top" onClose={() => setOpen(false)}>
+        <div className={styles.panel} role="dialog" aria-label={t('notifications.title')} data-top-sheet={phone ? '' : undefined}>
+          <div className={styles.headRow}>
+            <h2 className={styles.heading}>{t('notifications.title')}</h2>
+            {items.length > 0 ? (
+              <button type="button" className={styles.clearAll} onClick={clearAll}>
+                {t('notifications.clearAll')}
+              </button>
+            ) : null}
+          </div>
           {items.length === 0 ? (
             <p className={styles.empty}>{t('notifications.empty')}</p>
           ) : (

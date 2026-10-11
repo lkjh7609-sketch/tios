@@ -123,6 +123,7 @@
   },
   "notifications": {
     "title": "Notifications",
+    "clearAll": "Clear all",
     "aria": "Notifications",
     "ariaUnread": "Notifications ({{count}} unread)",
     "empty": "No new notifications.",

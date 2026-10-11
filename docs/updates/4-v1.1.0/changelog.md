@@ -11,6 +11,7 @@
 - **서버가 알림을 만든다**: `0112_notifications_v2.sql` — `app_notifications` 표(RLS: 본인만 읽기·읽음 표시·지우기), 동행·공동 편집·운영 조치 트리거, `generate_trip_notifications()` 크론, 푸시 트리거(`push_after_notification` → send-push). 예전엔 앱을 열 때 기기에서 계산했던 출발·경보 알림(`alertNotices`·`tripReminders`)은 지웠고, 종은 서버 알림을 1분마다 읽는다(읽음·지움이 기기를 옮겨도 같다). 채팅은 대화방마다 한 줄로 묶어 새 메시지가 오면 맨 위로 올리고 개수를 센다.
 - **설정**: 예전 토글 4개(출발 전 리마인더·항공편 변경·커뮤니티 답글·마케팅)를 지우고 묶음 4개 토글로(`NotificationPrefs` = trip/community/companion/collab + `enabled`). 예전 키는 `normalizeNotificationPrefs`가 새 키로 옮긴다. 마이그레이션이 기존 회원 값도 옮긴다.
 - **send-push**: `app_notification` 종류 추가(언어별 문구 ko/en/ja/zh-TW, 누르면 갈 경로 포함), `trip_reminders` 삭제, 좋아요는 안 보냄. 잠금 화면에는 글 내용 없음.
+- **종 알림 패널(폰)**: 아래에서 올라오던 시트를 **위에서 내려오는 카드**로 바꿨다(`PopoverSheet from="top"`, 다이나믹 아일랜드·상태 표시줄 아래 안전 영역에서 시작, `sheetSlideDown`). 머리줄에 **전체 삭제**(서버 알림 2종은 `user_id`로 한 번에 지우고 목록은 바로 비움, 운영자 공지는 이 기기에서 지움, 4개 언어 `notifications.clearAll`).
 - **같이 고친 것**: 설정 화면의 `useIsAdminViewer`가 조기 return 뒤에 있던 훅 순서 위반, `dialogHost`의 렌더 중 객체 수정(eslint 오류 2건).
 - **운영 적용(사용자 실행)**: 내 도구로 0112 적용이 두 번 취소돼 **Supabase SQL 편집기에서 직접 실행**해야 한다(0103은 폐기 — 운영에 적용한 적 없음). 순서: ① `send-push` 배포 + APNs 비밀값 ② 0112 실행 ③ 웹 저장소(`~/Triptic`) 설정 화면도 같은 묶음 키로 바꾸기(안 바꾸면 웹에서 예전 키를 다시 쓰고 새 키는 무시됨).
 

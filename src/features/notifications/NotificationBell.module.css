@@ -61,11 +61,41 @@
   text-align: left;
 }
 
+.headRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 8px 0 0;
+}
+
 .heading {
   margin: 0;
   padding: 0 16px 8px;
   font-size: 0.9375rem;
   font-weight: 700;
+}
+
+.clearAll {
+  appearance: none;
+  flex: none;
+  min-height: 32px;
+  margin-bottom: 4px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .clearAll:hover {
+    background: var(--surface-subtle);
+  }
 }
 
 .empty {
@@ -161,7 +191,7 @@
   color: var(--text-tertiary, var(--text-secondary));
 }
 
-/* 모바일(앱): PopoverSheet(문서 맨 끝에 그린 시트) 안에서 말풍선 모양을 풀고 아래에 붙는 시트로 */
+/* 모바일(앱): PopoverSheet(from="top", 문서 맨 끝에 그린 시트) 안에서 말풍선 모양을 풀고 위에서 내려오는 카드로 — 다이나믹 아일랜드 아래에서 시작한다 */
 @media (max-width: 1023px) {
   .panel {
     position: relative;
@@ -173,22 +203,23 @@
     box-sizing: border-box;
     width: 100%;
     min-width: 0;
-    max-height: 80dvh;
+    max-height: calc(100dvh - env(safe-area-inset-top) - 96px);
     margin: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+    padding-top: var(--space-4);
+    padding-bottom: var(--space-3);
     border: 0;
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    box-shadow: none;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg, 0 10px 30px rgb(0 0 0 / 0.25));
   }
 
-  .panel::before {
+  .panel::after {
     content: '';
     display: block;
     width: 36px;
     height: 5px;
-    margin: -4px auto 12px;
+    margin: 12px auto 0;
     border-radius: 9999px;
     background: var(--border-strong);
   }

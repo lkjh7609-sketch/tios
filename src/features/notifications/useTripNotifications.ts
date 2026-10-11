@@ -4,14 +4,16 @@ import { format, subDays } from 'date-fns';
 import { useSession } from '@/shared/hooks/useSession';
 import {
   dismissNotification,
+  dismissNotifications,
   markNotificationsRead,
   readNotificationState,
   subscribeNotifications,
 } from './notificationStore';
 import { useAnnouncements } from '@/features/notices/useAnnouncements';
-import { APP_ID_PREFIX, deleteAppNotice, listAppNotices, markAppNoticesRead, type AppNotice } from './appNotices';
+import { APP_ID_PREFIX, deleteAllAppNotices, deleteAppNotice, listAppNotices, markAppNoticesRead, type AppNotice } from './appNotices';
 import {
   COMMUNITY_ID_PREFIX,
+  deleteAllCommunityNotices,
   deleteCommunityNotice,
   listCommunityNotices,
   markCommunityNoticesRead,
@@ -85,6 +87,22 @@ export function useTripNotifications() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: communityKey(userId) }),
   });
 
+  // 전체 삭제 — 서버 알림은 목록부터 비워 바로 사라지게 하고(실패하면 다시 읽는다), 운영자 공지는 이 기기에서 지운다
+  const clearAllServer = useMutation({
+    mutationFn: async () => {
+      await Promise.all([deleteAllCommunityNotices(userId!), deleteAllAppNotices(userId!)]);
+    },
+    onMutate: () => {
+      queryClient.setQueryData(communityKey(userId), []);
+      queryClient.setQueryData(appKey(userId), []);
+    },
+    onSettled: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: communityKey(userId) }),
+        queryClient.invalidateQueries({ queryKey: appKey(userId) }),
+      ]),
+  });
+
   const state = useSyncExternalStore(
     subscribeNotifications,
     () => (userId ? readNotificationState(userId) : null),
@@ -126,6 +144,14 @@ export function useTripNotifications() {
       );
       if (items.some((i) => i.kind === 'community' && i.unread)) markCommunityRead.mutate();
       if (items.some((i) => i.kind === 'app' && i.unread)) markAppRead.mutate();
+    },
+    clearAll: () => {
+      if (!userId) return;
+      dismissNotifications(
+        userId,
+        items.filter((i) => i.kind === 'announcement').map((i) => i.id),
+      );
+      if (items.some((i) => i.kind !== 'announcement')) clearAllServer.mutate();
     },
     dismiss: (id: string) => {
       if (!userId) return;

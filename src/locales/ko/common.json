@@ -123,6 +123,7 @@
   },
   "notifications": {
     "title": "알림",
+    "clearAll": "전체 삭제",
     "aria": "알림",
     "ariaUnread": "알림 (안 읽음 {{count}}개)",
     "empty": "새 알림이 없어요.",

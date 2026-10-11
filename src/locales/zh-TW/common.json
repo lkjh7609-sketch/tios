@@ -123,6 +123,7 @@
   },
   "notifications": {
     "title": "通知",
+    "clearAll": "全部清除",
     "aria": "通知",
     "ariaUnread": "通知(未讀 {{count}} 則)",
     "empty": "沒有新通知。",

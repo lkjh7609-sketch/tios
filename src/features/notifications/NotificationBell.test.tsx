@@ -8,7 +8,7 @@ import { NotificationBell } from './NotificationBell';
 const session = vi.hoisted(() => ({ user: { id: 'u1' } as { id: string } | null }));
 const announce = vi.hoisted(() => ({ rows: [] as unknown[] }));
 vi.mock('@/features/notices/useAnnouncements', () => ({ useAnnouncements: () => ({ data: announce.rows }) }));
-const community = vi.hoisted(() => ({ rows: [] as unknown[], markRead: vi.fn(), remove: vi.fn() }));
+const community = vi.hoisted(() => ({ rows: [] as unknown[], markRead: vi.fn(), remove: vi.fn(), removeAll: vi.fn() }));
 vi.mock('./communityNotices', async () => {
   const actual = await vi.importActual<typeof import('./communityNotices')>('./communityNotices');
   return {
@@ -16,13 +16,17 @@ vi.mock('./communityNotices', async () => {
     listCommunityNotices: async () => (community.rows as Parameters<typeof actual.toCommunityNotice>[0][]).map(actual.toCommunityNotice),
     markCommunityNoticesRead: async () => community.markRead(),
     deleteCommunityNotice: async (id: string) => community.remove(id),
+    deleteAllCommunityNotices: async (userId: string) => {
+      community.removeAll(userId);
+      community.rows = [];
+    },
   };
 });
 
 vi.mock('@/shared/hooks/useSession', () => ({
   useSession: () => ({ user: session.user, loading: false }),
 }));
-const app = vi.hoisted(() => ({ rows: [] as unknown[], markRead: vi.fn(), remove: vi.fn() }));
+const app = vi.hoisted(() => ({ rows: [] as unknown[], markRead: vi.fn(), remove: vi.fn(), removeAll: vi.fn() }));
 vi.mock('./appNotices', async () => {
   const actual = await vi.importActual<typeof import('./appNotices')>('./appNotices');
   return {
@@ -30,6 +34,10 @@ vi.mock('./appNotices', async () => {
     listAppNotices: async () => (app.rows as Parameters<typeof actual.toAppNotice>[0][]).map(actual.toAppNotice),
     markAppNoticesRead: async () => app.markRead(),
     deleteAppNotice: async (id: string) => app.remove(id),
+    deleteAllAppNotices: async (userId: string) => {
+      app.removeAll(userId);
+      app.rows = [];
+    },
   };
 });
 
@@ -53,10 +61,12 @@ beforeEach(() => {
   app.rows = [];
   app.markRead.mockClear();
   app.remove.mockClear();
+  app.removeAll.mockClear();
   community.rows = [];
   announce.rows = [];
   community.markRead.mockClear();
   community.remove.mockClear();
+  community.removeAll.mockClear();
 });
 
 describe('NotificationBell', () => {
@@ -86,6 +96,22 @@ describe('NotificationBell', () => {
     fireEvent.click(await screen.findByRole('button', { name: /알림/ }));
     fireEvent.click(screen.getByRole('button', { name: '도쿄 여행 알림 지우기' }));
     await waitFor(() => expect(app.remove).toHaveBeenCalledWith('a1'));
+  });
+
+  it('전체 삭제를 누르면 서버 알림과 이 기기의 공지가 모두 지워지고 빈 상태가 된다', async () => {
+    app.rows = [row('a1', 'trip_today', { title: '도쿄 여행' }, { trip_id: 't1' })];
+    community.rows = [
+      { id: 'n1', kind: 'post_like', actor_name: '여행자', post_id: 'p1', comment_id: null, post_title: '제목', post_body: '', created_at: new Date().toISOString(), read_at: null },
+    ];
+    announce.rows = [{ id: 'z1', title: '공지', kind: 'notice', version: null, published_at: new Date().toISOString() }];
+    setup();
+    fireEvent.click(await screen.findByRole('button', { name: /알림/ }));
+    await screen.findByText('공지');
+    fireEvent.click(screen.getByRole('button', { name: '전체 삭제' }));
+    await waitFor(() => expect(app.removeAll).toHaveBeenCalledWith('u1'));
+    expect(community.removeAll).toHaveBeenCalledWith('u1');
+    expect(screen.getByText('새 알림이 없어요.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '전체 삭제' })).not.toBeInTheDocument();
   });
 
   it('알림이 없으면 빈 상태를 보여 준다', () => {

@@ -71,6 +71,17 @@ export function dismissNotification(userId: string, id: string) {
   });
 }
 
+/** 여러 알림을 한 번에 지운다(이 기기에만 기록되는 운영자 공지용) */
+export function dismissNotifications(userId: string, ids: string[]) {
+  const cur = readNotificationState(userId);
+  const add = ids.filter((id) => !cur.dismissed.includes(id));
+  if (add.length === 0) return;
+  write(userId, {
+    read: [...cur.read, ...add.filter((id) => !cur.read.includes(id))],
+    dismissed: [...cur.dismissed, ...add],
+  });
+}
+
 export function subscribeNotifications(listener: Listener): () => void {
   listeners.add(listener);
   const onStorage = (e: StorageEvent) => {
