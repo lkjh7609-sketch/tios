@@ -26,15 +26,15 @@ import { CATEGORY_ICONS } from './categoryIcons';
 import type { PostCategory } from './postMeta';
 import { useFollowedDestinationIds, useToggleFollow } from './hooks/useCommunitySafety';
 import {
-  useChannelCompanions,
-  useChannelPosts,
+  useChannelFeedPage,
   useDestinationFollowerCount,
   useDestinationGuide,
   usePinnedPost,
   useUrgentCompanions,
 } from './hooks/useDestinationChannel';
 import { useDestination } from './hooks/useDestinations';
-import { mergeAllFeed } from './hooks/useAllFeedItems';
+import { NumberedPager } from './NumberedPager';
+import { CHANNEL_PAGE_SIZE } from './communityService';
 import type { PostSort } from './communityService';
 import type { CompanionSort } from './companionService';
 import styles from './DestinationChannelScreen.module.css';
@@ -97,21 +97,29 @@ function DestinationChannel({ slug }: { slug: string | undefined }) {
     trackScreenView('community_destination');
   }, []);
 
-  const posts = useChannelPosts({
-    destinationId: destination?.id,
-    viewerId,
-    search,
-    sort: postSort,
-    category: tab === 'all' || tab === 'companion' ? undefined : tab,
-  });
-  const companions = useChannelCompanions({
-    destinationId: destination?.id,
-    viewerId,
-    search,
-    sort: companionSort,
-  });
   const isCompanionTab = tab === 'companion';
-  const feed = isCompanionTab ? companions : posts;
+  // 보는 조건(탭·검색·정렬)이 바뀌면 1쪽부터 — 쪽 번호를 effect로 되돌리지 않고 조건 키가 달라지면 1쪽으로 본다
+  const viewKey = `${tab}|${search}|${postSort}|${companionSort}`;
+  const [pageState, setPageState] = useState({ key: viewKey, page: 1 });
+  const page = pageState.key === viewKey ? pageState.page : 1;
+  // '전체'(최신순)에는 모집 중인 모집글도 시간순으로 섞는다
+  const feed = useChannelFeedPage({
+    destinationId: destination?.id,
+    viewerId,
+    search,
+    postSort,
+    companionSort,
+    category: tab === 'all' || tab === 'companion' ? undefined : tab,
+    companionTab: isCompanionTab,
+    mixCompanions: tab === 'all' && postSort === 'latest',
+    page,
+  });
+  const entries = feed.data?.entries ?? [];
+  const pageCount = Math.max(1, Math.ceil((feed.data?.total ?? 0) / CHANNEL_PAGE_SIZE));
+  function goToPage(next: number) {
+    setPageState({ key: viewKey, page: Math.min(Math.max(1, next), pageCount) });
+    feedTop.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
   const isFollowing = !!destination && (followedIds ?? []).includes(destination.id);
 
   if (isLoading) {
@@ -160,11 +168,6 @@ function DestinationChannel({ slug }: { slug: string | undefined }) {
     ? (['latest', 'deadline'] as const)
     : (['latest', 'popular', 'comments'] as const);
   const filterText = search;
-  const postItems = posts.data?.pages.flatMap((p) => p.posts) ?? [];
-  const companionItems = companions.data?.pages.flatMap((p) => p.posts) ?? [];
-  // '전체'(최신순·태그 없음)에는 모집 중인 모집글도 시간순으로 섞는다
-  const mergeCompanions = tab === 'all' && postSort === 'latest' && companionSort === 'latest';
-  const allItems = mergeAllFeed(postItems, mergeCompanions ? companionItems : [], !!posts.hasNextPage);
 
   return (
     <div className={styles.page}>
@@ -246,7 +249,7 @@ function DestinationChannel({ slug }: { slug: string | undefined }) {
               </>
             ) : feed.isError ? (
               <ErrorState summary={t('feed.loadError')} onRetry={() => feed.refetch()} />
-            ) : (isCompanionTab ? companionItems : allItems).length === 0 ? (
+            ) : entries.length === 0 ? (
               <div className={styles.empty}>
                 <h3>
                   {filterText && !isCompanionTab
@@ -276,31 +279,14 @@ function DestinationChannel({ slug }: { slug: string | undefined }) {
               </div>
             ) : (
               <>
-                {isCompanionTab
-                  ? companionItems.map((post) => <ChannelCompanionCard key={post.id} post={post} />)
-                  : allItems.map((item) =>
-                      item.kind === 'post' ? (
-                        <ChannelPostCard key={item.id} post={item.post} />
-                      ) : (
-                        <ChannelCompanionCard key={item.id} post={item.post} />
-                      ),
-                    )}
-                {feed.hasNextPage ? (
-                  <div className={styles.loadMoreWrap}>
-                    <button
-                      type="button"
-                      className={styles.loadMore}
-                      onClick={() => feed.fetchNextPage()}
-                      disabled={feed.isFetchingNextPage}
-                    >
-                      {feed.isFetchingNextPage
-                        ? t('state.loading', { ns: 'common' })
-                        : t(isCompanionTab ? 'channel.loadMoreCompanion' : 'channel.loadMore', {
-                            city,
-                          })}
-                    </button>
-                  </div>
-                ) : null}
+                {entries.map((item) =>
+                  item.kind === 'post' ? (
+                    <ChannelPostCard key={item.id} post={item.post} />
+                  ) : (
+                    <ChannelCompanionCard key={item.id} post={item.post} />
+                  ),
+                )}
+                <NumberedPager page={page} pageCount={pageCount} onChange={goToPage} />
               </>
             )}
           </main>
