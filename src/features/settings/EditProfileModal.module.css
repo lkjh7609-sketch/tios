@@ -46,13 +46,32 @@
 
 .avatarBtns {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
+  min-width: 0;
   gap: var(--space-2);
+}
+
+.avatarBtnRow {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.avatarBtnRow button {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0 var(--space-2);
 }
 
 .avatarBtns button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+}
+
+/* 사진 올리기는 아랫줄에 길게 */
+.avatarWide {
+  width: 100%;
 }

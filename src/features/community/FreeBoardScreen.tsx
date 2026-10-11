@@ -83,6 +83,7 @@ export function FreeBoardScreen() {
               select={{
                 value: sort,
                 ariaLabel: t('channel.sortAria'),
+                subtle: true,
                 options: (['latest', 'popular', 'comments'] as const).map((key) => ({ value: key, label: t(`channel.sort.${key}`) })),
                 onChange: (v) => setSort(v as PostSort),
               }}

@@ -89,7 +89,7 @@
   },
   "profile": {
     "title": "編輯個人資料",
-    "nameLabel": "顯示名稱",
+    "nameLabel": "暱稱",
     "namePlaceholder": "其他旅人會看到的名稱（韓文 4-8・英日文 4-12・中文 2-6 字）",
     "nameHint": "會顯示在社群貼文與同行者清單中。",
     "nameRequired": "請輸入名稱。",

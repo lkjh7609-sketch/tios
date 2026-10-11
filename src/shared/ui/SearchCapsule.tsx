@@ -6,6 +6,8 @@ export interface SearchCapsuleSelect {
   onChange: (value: string) => void;
   options: { value: string; label: string }[];
   ariaLabel: string;
+  /** 정렬처럼 보조 선택일 때 — 글씨를 작고 연하게 */
+  subtle?: boolean;
 }
 
 /**
@@ -49,7 +51,7 @@ export function SearchCapsule({
       {select ? (
         <>
           <span className={styles.divider} aria-hidden="true" />
-          <select className={styles.select} value={select.value} aria-label={select.ariaLabel} onChange={(e) => select.onChange(e.target.value)}>
+          <select className={select.subtle ? `${styles.select} ${styles.selectSubtle}` : styles.select} value={select.value} aria-label={select.ariaLabel} onChange={(e) => select.onChange(e.target.value)}>
             {select.options.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}

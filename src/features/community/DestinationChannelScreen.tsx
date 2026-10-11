@@ -228,6 +228,7 @@ function DestinationChannel({ slug }: { slug: string | undefined }) {
               select={{
                 value: sortValue,
                 ariaLabel: t('channel.sortAria'),
+                subtle: true,
                 options: sortOptions.map((key) => ({ value: key, label: t(`channel.sort.${key}`) })),
                 onChange: (v) => (isCompanionTab ? setCompanionSort(v as CompanionSort) : setPostSort(v as PostSort)),
               }}

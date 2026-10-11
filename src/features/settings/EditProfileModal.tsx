@@ -219,19 +219,22 @@ export function EditProfileModal({ onClose, profile, updateProfile }: EditProfil
                 className={styles.avatarPreview}
               />
               <div className={styles.avatarBtns}>
-                <button type="button" className={styles.checkBtn} onClick={() => setPixelSeed(randomAvatarSeed())}>
-                  <Shuffle size={14} aria-hidden="true" /> {t('profile.pixelAvatarRandom')}
-                </button>
-                {pixelSeed ? (
-                  <button type="button" className={styles.checkBtn} onClick={() => setPixelSeed(null)}>
-                    <RotateCcw size={14} aria-hidden="true" /> {t('profile.pixelAvatarReset')}
+                {/* 윗줄: 랜덤으로 바꾸기 · 처음 모습으로 / 아랫줄: 사진 올리기(길게) */}
+                <div className={styles.avatarBtnRow}>
+                  <button type="button" className={styles.checkBtn} onClick={() => setPixelSeed(randomAvatarSeed())}>
+                    <Shuffle size={14} aria-hidden="true" /> {t('profile.pixelAvatarRandom')}
                   </button>
-                ) : null}
-                <button type="button" className={styles.checkBtn} disabled={photoBusy || !profile} onClick={() => photoInputRef.current?.click()}>
+                  {pixelSeed ? (
+                    <button type="button" className={styles.checkBtn} onClick={() => setPixelSeed(null)}>
+                      <RotateCcw size={14} aria-hidden="true" /> {t('profile.pixelAvatarReset')}
+                    </button>
+                  ) : null}
+                </div>
+                <button type="button" className={`${styles.checkBtn} ${styles.avatarWide}`} disabled={photoBusy || !profile} onClick={() => photoInputRef.current?.click()}>
                   <ImagePlus size={14} aria-hidden="true" /> {t('profile.photoUpload')}
                 </button>
                 {hasPhoto ? (
-                  <button type="button" className={styles.checkBtn} disabled={photoBusy} onClick={() => void removePhoto()}>
+                  <button type="button" className={`${styles.checkBtn} ${styles.avatarWide}`} disabled={photoBusy} onClick={() => void removePhoto()}>
                     <Trash2 size={14} aria-hidden="true" /> {t('profile.photoRemove')}
                   </button>
                 ) : null}
