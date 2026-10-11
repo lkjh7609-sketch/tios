@@ -1073,16 +1073,17 @@
   },
   "demographics": {
     "title": "請告訴我們你的年齡層與性別",
-    "reason": "因為「旅伴招募」功能會在貼文與申請畫面顯示發文者與申請者的年齡層與性別，所以需要這些資料。僅對參與旅伴活動的會員顯示，不填寫也可使用社群。可隨時在設定中修改或刪除。",
+    "reason": "同行招募貼文與申請畫面會顯示年齡層與性別。\n為了安全同行，使用社群前必須填寫，之後可在 設定 > 編輯個人資料 中更改。",
     "genderLabel": "性別",
     "ageLabel": "年齡層",
     "save": "儲存",
     "later": "稍後",
     "saveError": "無法儲存，請稍後再試。",
-    "settingsTitle": "我的資料（選填）",
+    "settingsTitle": "年齡層・性別",
     "settingsSaved": "已儲存。",
-    "settingsHint": "會在旅伴招募貼文與申請畫面以年齡層與性別顯示。留空則不顯示。",
-    "companionBadge": "{{age}} · {{gender}}"
+    "settingsHint": "會顯示在同行招募貼文與申請畫面。使用社群需要填寫，因此只能更改、不能清空。",
+    "companionBadge": "{{age}} · {{gender}}",
+    "close": "關閉"
   },
   "board": {
     "free": "自由討論版",

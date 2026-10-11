@@ -17,6 +17,23 @@ export interface NotificationPrefs {
   flightChanges: boolean;
   communityReplies: boolean;
   marketing: boolean;
+  /** 알림 전체 허용(설정 맨 위 토글). 없으면(예전 계정) 세부 항목 중 하나라도 켜져 있으면 켜진 것으로 본다. 끄면 세부 항목도 모두 꺼서 서버(이메일·푸시)가 그대로 따른다 */
+  enabled?: boolean;
+}
+
+/** 세부 알림 종류(전체 허용 `enabled`는 뺀 것) */
+export type NotificationKey = Exclude<keyof NotificationPrefs, 'enabled'>;
+
+/** 알림 전체 허용 여부 — 저장된 값이 없으면 세부 항목으로 판단 */
+export function notificationsEnabled(prefs: NotificationPrefs): boolean {
+  return prefs.enabled ?? (prefs.preDeparture || prefs.flightChanges || prefs.communityReplies || prefs.marketing);
+}
+
+/** 알림 전체 허용을 바꾼 값 — 켜면 세부 항목을 기본값(마케팅 빼고 켬)으로, 끄면 모두 끈다 */
+export function withNotificationsEnabled(prefs: NotificationPrefs, enabled: boolean): NotificationPrefs {
+  return enabled
+    ? { ...prefs, preDeparture: true, flightChanges: true, communityReplies: true, marketing: false, enabled: true }
+    : { ...prefs, preDeparture: false, flightChanges: false, communityReplies: false, marketing: false, enabled: false };
 }
 
 export interface ProfileRow {

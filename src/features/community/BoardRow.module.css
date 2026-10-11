@@ -328,4 +328,26 @@
     grid-row: 2;
     justify-self: end;
   }
+
+  /* 동행글 둘째 줄: 작성자는 [도시] 칸 아래, "5일 전"은 제목 바로 아래, "동행 모집 N명 남음"은 맨 오른쪽 */
+  .row.companionRow .meta {
+    display: contents;
+  }
+
+  .row.companionRow .cAuthor {
+    grid-column: 1;
+    grid-row: 2;
+    max-width: 100%;
+  }
+
+  .row.companionRow .cDate {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .row.companionRow .cSpots {
+    grid-column: 3;
+    grid-row: 2;
+    justify-self: end;
+  }
 }

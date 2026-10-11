@@ -27,11 +27,13 @@
     "unitSettings": "單位設定 (溫度/距離)"
   },
   "notifications": {
+    "master": "允許通知",
     "preDeparture": "出發前提醒",
     "flightChanges": "航班變更",
     "communityReplies": "社群回覆",
     "marketing": "營銷資訊",
-    "hint": "出發前提醒會在旅行開始前 3 天的上午 9 點（韓國時間）以電子郵件寄出，其他通知將在後續版本中支援。"
+    "hint": "出發前提醒會在旅行開始前 3 天的上午 9 點（韓國時間）以電子郵件寄出，其他通知將在後續版本中支援。",
+    "osDenied": "請在 iPhone 設定中允許 Triptic 通知。"
   },
   "data": {
     "offlineCache": "離線快取",
@@ -102,7 +104,9 @@
     "pixelAvatarLabel": "像素角色",
     "pixelAvatarRandom": "隨機更換",
     "pixelAvatarReset": "恢復原本樣子",
-    "pixelAvatarHint": "會在統計分頁的「一起旅行的朋友」代表你。儲存後朋友也會看到這個樣子。"
+    "pixelAvatarHint": "這是你個人檔案照片的預設樣子。也會在統計分頁的「一起旅行的朋友」代表你，儲存後朋友也會看到。你也可以上傳照片來更換。",
+    "photoUpload": "上傳照片",
+    "photoRemove": "刪除照片(改用角色)"
   },
   "units": {
     "title": "單位設定",

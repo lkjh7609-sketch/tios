@@ -1,4 +1,4 @@
-import { PenLine, Search, Users, X } from 'lucide-react';
+import { ChevronDown, PenLine, Search, Users, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -253,22 +253,26 @@ function DestinationChannel({ slug }: { slug: string | undefined }) {
                 </button>
               ) : null}
             </label>
-            <select
-              className={styles.sort}
-              value={sortValue}
-              aria-label={t('channel.sortAria')}
-              onChange={(e) =>
-                isCompanionTab
-                  ? setCompanionSort(e.target.value as CompanionSort)
-                  : setPostSort(e.target.value as PostSort)
-              }
-            >
-              {sortOptions.map((key) => (
-                <option key={key} value={key}>
-                  {t(`channel.sort.${key}`)}
-                </option>
-              ))}
-            </select>
+            {/* 검색창과 같은 모양의 정렬 선택 — 기본 화살표 대신 우리 화살표 */}
+            <span className={styles.sortWrap}>
+              <select
+                className={styles.sort}
+                value={sortValue}
+                aria-label={t('channel.sortAria')}
+                onChange={(e) =>
+                  isCompanionTab
+                    ? setCompanionSort(e.target.value as CompanionSort)
+                    : setPostSort(e.target.value as PostSort)
+                }
+              >
+                {sortOptions.map((key) => (
+                  <option key={key} value={key}>
+                    {t(`channel.sort.${key}`)}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={16} aria-hidden="true" className={styles.sortCaret} />
+            </span>
           </div>
         </div>
 

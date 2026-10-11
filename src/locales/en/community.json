@@ -1102,16 +1102,17 @@
   },
   "demographics": {
     "title": "Tell us your age range and gender",
-    "reason": "We ask for this so companion posts and applications can show the author's and applicant's age range and gender. It is only visible to members active in Companions, and you can use the community without it. You can change or remove it anytime in Settings.",
+    "reason": "Age range and gender are shown on companion posts and applications.\nThey're required to use the community, and you can change them in Settings > Edit profile.",
     "genderLabel": "Gender",
     "ageLabel": "Age range",
     "save": "Save",
     "later": "Later",
     "saveError": "Couldn't save. Please try again in a moment.",
-    "settingsTitle": "About me (optional)",
+    "settingsTitle": "Age range & gender",
     "settingsSaved": "Saved.",
-    "settingsHint": "Shown as age range and gender on companion posts and applications. Leave blank to show nothing.",
-    "companionBadge": "{{age}} · {{gender}}"
+    "settingsHint": "Shown on companion posts and applications. Required to use the community — you can change them but not clear them.",
+    "companionBadge": "{{age}} · {{gender}}",
+    "close": "Close"
   },
   "board": {
     "free": "Free board",

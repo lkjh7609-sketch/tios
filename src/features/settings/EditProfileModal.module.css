@@ -39,12 +39,9 @@
 }
 
 .avatarPreview {
-  display: block;
   flex-shrink: 0;
-  padding: 4px 8px 0;
-  border-radius: var(--radius-lg);
-  background: var(--brand-tint);
-  image-rendering: pixelated;
+  width: 84px;
+  height: 84px;
 }
 
 .avatarBtns {

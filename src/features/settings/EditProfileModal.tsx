@@ -1,7 +1,10 @@
 import { useRef, useState, type FormEvent } from 'react';
-import { Shuffle, RotateCcw } from 'lucide-react';
-import { PixelSprite } from '@/features/stats/PixelSprite';
-import { avatarGrid, avatarSeedOf, randomAvatarSeed } from '@/features/stats/pixelArt';
+import { Shuffle, RotateCcw, ImagePlus, Trash2 } from 'lucide-react';
+import { randomAvatarSeed } from '@/features/stats/pixelArt';
+import { captureError } from '@/shared/monitoring';
+import { showToast } from '@/shared/ui/toast';
+import { AvatarError, isUploadedAvatar, removeAvatarFiles, uploadAvatar } from './avatar';
+import { ProfileAvatar } from './ProfileAvatar';
 import { flagInvalid } from '@/shared/ui/invalidField';
 import { useTranslation } from 'react-i18next';
 import type { UseMutationResult } from '@tanstack/react-query';
@@ -45,7 +48,43 @@ export function EditProfileModal({ onClose, profile, updateProfile }: EditProfil
   const [ageBand, setAgeBand] = useState<MemberAgeBand | null>(profile?.age_band ?? null);
   const [pixelSeed, setPixelSeed] = useState<string | null>(profile?.pixel_avatar_seed ?? null);
   const avatarChanged = pixelSeed !== (profile?.pixel_avatar_seed ?? null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const hasPhoto = isUploadedAvatar(profile?.avatar_url);
   const demographicsChanged = gender !== (profile?.gender ?? null) || ageBand !== (profile?.age_band ?? null);
+
+  /** 사진을 올리면 바로 적용한다(저장 버튼을 기다리지 않는다) — 데스크톱 설정과 같은 방식 */
+  async function changePhoto(file: File | undefined) {
+    if (!file || !profile) return;
+    setPhotoBusy(true);
+    try {
+      const url = await uploadAvatar(profile.id, file);
+      await updateProfile.mutateAsync({ avatar_url: url });
+      showToast(t('desktop.account.photoDone'), { tone: 'success' });
+    } catch (err) {
+      const code = err instanceof AvatarError ? err.code : 'upload_failed';
+      if (code === 'upload_failed') captureError(err, { context: 'uploadAvatar' });
+      showToast(t(`desktop.account.photoError.${code}`), { tone: 'error' });
+    } finally {
+      setPhotoBusy(false);
+      if (photoInputRef.current) photoInputRef.current.value = '';
+    }
+  }
+
+  async function removePhoto() {
+    if (!profile) return;
+    setPhotoBusy(true);
+    try {
+      await removeAvatarFiles(profile.id);
+      await updateProfile.mutateAsync({ avatar_url: null });
+      showToast(t('desktop.account.photoRemoved'), { tone: 'success' });
+    } catch (err) {
+      captureError(err, { context: 'removeAvatar' });
+      showToast(t('desktop.account.photoError.upload_failed'), { tone: 'error' });
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
 
   function handleNameChange(value: string) {
     setName(value);
@@ -172,7 +211,13 @@ export function EditProfileModal({ onClose, profile, updateProfile }: EditProfil
           <div className={modalStyles.field}>
             <span className={modalStyles.label}>{t('profile.pixelAvatarLabel')}</span>
             <div className={styles.avatarRow}>
-              <PixelSprite grid={avatarGrid(avatarSeedOf(profile?.id ?? '', pixelSeed))} pixel={2} className={styles.avatarPreview} label={t('profile.pixelAvatarLabel')} />
+              {/* 지금 프로필 사진으로 보이는 모습 — 올린 사진이 있으면 사진, 없으면 도트 캐릭터 상반신 */}
+              <ProfileAvatar
+                userId={profile?.id ?? ''}
+                pixelSeed={pixelSeed}
+                photoUrl={hasPhoto ? profile?.avatar_url : null}
+                className={styles.avatarPreview}
+              />
               <div className={styles.avatarBtns}>
                 <button type="button" className={styles.checkBtn} onClick={() => setPixelSeed(randomAvatarSeed())}>
                   <Shuffle size={14} aria-hidden="true" /> {t('profile.pixelAvatarRandom')}
@@ -182,13 +227,29 @@ export function EditProfileModal({ onClose, profile, updateProfile }: EditProfil
                     <RotateCcw size={14} aria-hidden="true" /> {t('profile.pixelAvatarReset')}
                   </button>
                 ) : null}
+                <button type="button" className={styles.checkBtn} disabled={photoBusy || !profile} onClick={() => photoInputRef.current?.click()}>
+                  <ImagePlus size={14} aria-hidden="true" /> {t('profile.photoUpload')}
+                </button>
+                {hasPhoto ? (
+                  <button type="button" className={styles.checkBtn} disabled={photoBusy} onClick={() => void removePhoto()}>
+                    <Trash2 size={14} aria-hidden="true" /> {t('profile.photoRemove')}
+                  </button>
+                ) : null}
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  aria-label={t('profile.photoUpload')}
+                  onChange={(e) => void changePhoto(e.target.files?.[0])}
+                />
               </div>
             </div>
             <p className={modalStyles.hint}>{t('profile.pixelAvatarHint')}</p>
           </div>
           <div className={modalStyles.field}>
             <span className={modalStyles.label}>{t('demographics.settingsTitle', { ns: 'community' })}</span>
-            <DemographicsFields gender={gender} ageBand={ageBand} onChange={(next) => { setGender(next.gender); setAgeBand(next.ageBand); }} />
+            <DemographicsFields required gender={gender} ageBand={ageBand} onChange={(next) => { setGender(next.gender); setAgeBand(next.ageBand); }} />
             <p className={modalStyles.hint}>{t('demographics.settingsHint', { ns: 'community' })}</p>
           </div>
           <div className={modalStyles.actions}>

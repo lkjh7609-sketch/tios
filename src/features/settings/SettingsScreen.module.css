@@ -222,6 +222,32 @@
   border-bottom: none;
 }
 
+/* 로그아웃·계정 삭제 줄 — 메뉴 줄과 같은 모양의 버튼 */
+.menuRowButton {
+  width: 100%;
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menuRowDanger,
+.menuRowDanger .menuIcon {
+  color: var(--danger-text);
+}
+
+/* 알림 전체 허용 줄 — 세부 항목과 구분되게 굵게 */
+.masterRow {
+  font-weight: 700;
+}
+
+.rowDisabled {
+  opacity: 0.45;
+}
+
 .menuIcon {
   display: inline-flex;
   color: var(--brand-text);

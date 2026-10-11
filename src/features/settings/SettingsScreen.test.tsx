@@ -6,11 +6,12 @@ import '@/shared/i18n';
 
 const state = vi.hoisted(() => ({
   signOut: vi.fn().mockResolvedValue(undefined),
+  mutate: vi.fn(),
   profile: { id: 'u1', display_name: '관리자', handle: 'dfxrj', plan: 'pro', locale: 'ko', temp_unit: 'c', distance_unit: 'km', base_currency: 'KRW', notification_prefs: { preDeparture: true, flightChanges: false, communityReplies: true, marketing: false }, avatar_url: null } as Record<string, unknown>,
 }));
 
 vi.mock('@/shared/hooks/useSession', () => ({ useSession: () => ({ user: { id: 'u1', email: 'a@b.c', user_metadata: {} }, loading: false }) }));
-vi.mock('@/shared/hooks/useProfile', () => ({ useProfile: () => ({ data: state.profile }), useUpdateProfile: () => ({ mutate: vi.fn(), mutateAsync: vi.fn(), isPending: false }) }));
+vi.mock('@/shared/hooks/useProfile', () => ({ useProfile: () => ({ data: state.profile }), useUpdateProfile: () => ({ mutate: state.mutate, mutateAsync: vi.fn(), isPending: false }) }));
 vi.mock('@/shared/hooks/useMediaQuery', () => ({ useMediaQuery: () => false }));
 vi.mock('@/features/plan/hooks/useTrips', () => ({ useTrips: () => ({ data: [], refetch: vi.fn() }) }));
 vi.mock('@/features/plan/BackupModal', () => ({ BackupModal: () => null }));
@@ -36,6 +37,7 @@ function renderAt(path: string) {
 
 beforeEach(() => {
   state.signOut.mockClear();
+  state.mutate.mockClear();
 });
 
 describe('SettingsScreen (모바일)', () => {
@@ -68,7 +70,28 @@ describe('SettingsScreen (모바일)', () => {
     expect(screen.getByText('내 정보 변경 창')).toBeInTheDocument();
   });
 
-  it('로그아웃과 계정 삭제는 맨 아래에 있다', () => {
+  it('알림 설정 맨 위에 "알림 허용" 토글이 있고, 끄면 세부 알림이 모두 꺼진다', () => {
+    renderAt('/settings/notifications');
+    const master = screen.getByRole('checkbox', { name: '알림 허용' });
+    expect(master).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: '출발 전 리마인더' })).toBeEnabled();
+    fireEvent.click(master);
+    expect(state.mutate).toHaveBeenCalledWith({
+      notification_prefs: expect.objectContaining({ enabled: false, preDeparture: false, flightChanges: false, communityReplies: false, marketing: false }),
+    });
+  });
+
+  it('알림 허용이 꺼져 있으면 세부 알림은 눌러지지 않는다', () => {
+    const original = state.profile;
+    state.profile = { ...state.profile, notification_prefs: { preDeparture: false, flightChanges: false, communityReplies: false, marketing: false, enabled: false } };
+    renderAt('/settings/notifications');
+    state.profile = original;
+    expect(screen.getByRole('checkbox', { name: '알림 허용' })).not.toBeChecked();
+    expect(screen.getByRole('checkbox', { name: '출발 전 리마인더' })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: '커뮤니티 답글' })).toBeDisabled();
+  });
+
+  it('로그아웃과 계정 삭제는 앱 정보 아래에 메뉴와 같은 줄로 있다', () => {
     renderAt('/settings');
     fireEvent.click(screen.getByRole('button', { name: '로그아웃' }));
     expect(state.signOut).toHaveBeenCalledTimes(1);

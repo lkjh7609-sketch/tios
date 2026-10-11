@@ -14,12 +14,15 @@ import { BackupModal } from '@/features/plan/BackupModal';
 import { getStoredTheme, setTheme, type ThemePreference } from '@/shared/theme';
 import { registerPushNotifications } from '@/shared/push/registerPush';
 import { clearOfflineCache } from '@/shared/offline/persister';
-import type { NotificationPrefs } from '@/shared/api/profileService';
+import { notificationsEnabled, withNotificationsEnabled, type NotificationKey, type NotificationPrefs } from '@/shared/api/profileService';
+import { isNativeApp } from '@/shared/platform';
+import { ProfileAvatar } from './ProfileAvatar';
+import { showToast } from '@/shared/ui/toast';
 import { useMediaQuery } from '@/shared/hooks/useMediaQuery';
 import { SettingsDesktop } from './SettingsDesktop';
 import { DeleteAccountFlow } from './DeleteAccountFlow';
 import { BlockedUsersList } from './BlockedUsersList';
-import { Palette, Bell, HardDrive, Globe, Info, Sun, Moon, Monitor, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Palette, Bell, HardDrive, Globe, Info, Sun, Moon, Monitor, ChevronRight, ArrowLeft, LogOut, UserX } from 'lucide-react';
 
 import { EditProfileModal } from './EditProfileModal';
 import { UnitSettingsModal } from './UnitSettingsModal';
@@ -30,7 +33,7 @@ import { FeedbackModal } from './FeedbackModal';
 import { useAppVersion } from '@/features/notices/useAppVersion';
 import styles from './SettingsScreen.module.css';
 
-const NOTIFICATION_LABEL_KEYS: Record<keyof NotificationPrefs, string> = {
+const NOTIFICATION_LABEL_KEYS: Record<NotificationKey, string> = {
   preDeparture: 'notifications.preDeparture',
   flightChanges: 'notifications.flightChanges',
   communityReplies: 'notifications.communityReplies',
@@ -117,7 +120,7 @@ export function SettingsScreen() {
     }
   }
 
-  function updateNotificationPref(key: keyof NotificationPrefs, value: boolean) {
+  function updateNotificationPref(key: NotificationKey, value: boolean) {
     const base: NotificationPrefs = profile?.notification_prefs ?? {
       preDeparture: true,
       flightChanges: true,
@@ -128,6 +131,21 @@ export function SettingsScreen() {
     // 알림을 켜는 순간 기기 등록도 확인한다(네이티브 앱에서만 동작 — src/shared/push/registerPush.ts. 보통은 로그인할 때 이미 등록돼 있다).
     if (value && user) {
       registerPushNotifications(user.id).catch((err) => captureError(err, { context: 'registerPushNotifications' }));
+    }
+  }
+
+  const currentPrefs: NotificationPrefs = profile?.notification_prefs ?? { preDeparture: true, flightChanges: true, communityReplies: true, marketing: false };
+  const masterOn = notificationsEnabled(currentPrefs);
+
+  /** 알림 전체 허용 — 켜면 세부 항목을 기본값으로, 끄면 모두 끈다. 켤 때 앱에서는 이 기기도 등록한다(iOS에서 막혀 있으면 설정 안내) */
+  function setNotificationsMaster(value: boolean) {
+    updateProfile.mutate({ notification_prefs: withNotificationsEnabled(currentPrefs, value) });
+    if (value && user) {
+      registerPushNotifications(user.id)
+        .then((ok) => {
+          if (!ok && isNativeApp()) showToast(t('notifications.osDenied'));
+        })
+        .catch((err) => captureError(err, { context: 'registerPushNotifications' }));
     }
   }
 
@@ -174,12 +192,18 @@ export function SettingsScreen() {
 
   const notificationsContent = (
     <div className={styles.card}>
-      {(Object.keys(NOTIFICATION_LABEL_KEYS) as (keyof NotificationPrefs)[]).map((key) => (
-        <label className={styles.row} key={key}>
+      {/* 맨 위 "알림 허용" — 꺼 두면 아래 세부 알림은 눌러지지 않는다 */}
+      <label className={`${styles.row} ${styles.masterRow}`}>
+        <span>{t('notifications.master')}</span>
+        <input type="checkbox" checked={masterOn} onChange={(e) => setNotificationsMaster(e.target.checked)} />
+      </label>
+      {(Object.keys(NOTIFICATION_LABEL_KEYS) as NotificationKey[]).map((key) => (
+        <label className={`${styles.row} ${masterOn ? '' : styles.rowDisabled}`} key={key}>
           <span>{t(NOTIFICATION_LABEL_KEYS[key])}</span>
           <input
             type="checkbox"
-            checked={profile?.notification_prefs?.[key] ?? key !== 'marketing'}
+            disabled={!masterOn}
+            checked={masterOn && ((profile?.notification_prefs?.[key] as boolean | undefined) ?? key !== 'marketing')}
             onChange={(e) => updateNotificationPref(key, e.target.checked)}
           />
         </label>
@@ -286,7 +310,7 @@ export function SettingsScreen() {
         <>
           {loading ? null : user ? (
             <button type="button" className={styles.profileCard} onClick={() => setShowEditProfile(true)} aria-label={t('account.editProfile')}>
-              <img src={user.user_metadata?.avatar_url || 'https://api.dicebear.com/7.x/notionists/svg?seed=' + user.email} alt="" className={styles.avatar} />
+              <ProfileAvatar userId={user.id} pixelSeed={profile?.pixel_avatar_seed} photoUrl={profile?.avatar_url} className={styles.avatar} />
               <span className={styles.profileInfo}>
                 <span className={styles.profileNameRow}>
                   <span className={styles.profileName}>{profile?.display_name || user.user_metadata?.name || t('account.fallbackName')}</span>
@@ -311,22 +335,28 @@ export function SettingsScreen() {
                 <ChevronRight size={18} className={styles.chevron} aria-hidden="true" />
               </Link>
             ))}
+            {/* 로그아웃·계정 삭제는 메뉴와 같은 모양의 줄로 — 앱 정보 바로 아래 */}
+            {user ? (
+              <>
+                <button
+                  type="button"
+                  className={`${styles.menuRow} ${styles.menuRowButton}`}
+                  onClick={() => signOut().catch((err) => captureError(err, { context: 'signOut' }))}
+                >
+                  <span className={styles.menuIcon}>
+                    <LogOut size={20} />
+                  </span>
+                  <span className={styles.menuLabel}>{t('account.signOut')}</span>
+                </button>
+                <button type="button" className={`${styles.menuRow} ${styles.menuRowButton} ${styles.menuRowDanger}`} onClick={() => setShowDeleteFlow(true)}>
+                  <span className={styles.menuIcon}>
+                    <UserX size={20} />
+                  </span>
+                  <span className={styles.menuLabel}>{t('account.deleteAction')}</span>
+                </button>
+              </>
+            ) : null}
           </nav>
-
-          {user ? (
-            <div className={styles.footerActions}>
-              <button
-                type="button"
-                className={styles.linkButton}
-                onClick={() => signOut().catch((err) => captureError(err, { context: 'signOut' }))}
-              >
-                {t('account.signOut')}
-              </button>
-              <button type="button" className={styles.dangerLink} onClick={() => setShowDeleteFlow(true)}>
-                {t('account.deleteAction')}
-              </button>
-            </div>
-          ) : null}
         </>
       )}
 

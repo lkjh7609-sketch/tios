@@ -41,7 +41,7 @@ export function BoardRow({ item }: { item: AllFeedItem }) {
     // 나잇대·성별 칩: PC는 작성자 이름 옆, 모바일은 제목과 같은 줄의 맨 오른쪽(제목 아래 줄에는 작성자·몇 일 전)
     const demographics = demographicsText(post.author, t);
     return (
-      <Link to={`/community/companion/${post.id}`} className={styles.row}>
+      <Link to={`/community/companion/${post.id}`} className={`${styles.row} ${styles.companionRow}`}>
         <span className={styles.place}>{post.destination?.name ?? t('companion.detail.anyDestination')}</span>
         <span className={`${styles.title} ${styles.titleWide} ${demographics ? styles.titleWithDemo : ''}`}>{post.title}</span>
         {demographics ? <span className={styles.demoTop}>{demographics}</span> : null}

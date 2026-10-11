@@ -1,15 +1,106 @@
+/* 나잇대·성별 입력 팝업 — 작고 단정하게(너비 340px, 칩·여백 축소) */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: var(--surface-overlay);
+  animation: fade 0.2s ease-out;
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 340px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 20px 16px 16px;
+  border-radius: var(--radius-xl);
+  background: var(--surface-card);
+  animation: rise 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
 .reason {
-  margin: 0 0 var(--space-4);
-  padding: var(--space-3) var(--space-4);
+  margin: 0;
+  padding: 10px 12px;
   border-radius: var(--radius-md);
   background: var(--brand-tint);
   color: var(--brand-text);
-  font-size: var(--font-caption-size);
-  line-height: 1.6;
+  font-size: 0.75rem;
+  line-height: 1.5;
 }
 
 .error {
-  margin: var(--space-3) 0 0;
+  margin: 0;
   color: var(--danger-text);
   font-size: var(--font-caption-size);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.close,
+.save {
+  flex: 1;
+  min-height: 40px;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.close {
+  border: 1px solid var(--border);
+  background: var(--surface-card);
+  color: var(--text-body);
+}
+
+.save {
+  flex: 1.4;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--brand-solid);
+  color: var(--text-on-brand);
+  font-weight: 700;
+}
+
+.save:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .sheet {
+    animation: none;
+  }
 }

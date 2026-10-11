@@ -1,0 +1,78 @@
+/* 나잇대·성별 선택 — 작고 촘촘한 칩. 앱 토큰만 써서 라이트/다크가 같이 따라간다 */
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* 나잇대: 모바일 3열, 칸을 꽉 채운다 */
+.ages {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.chip {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--border-control);
+  border-radius: 9999px;
+  background: var(--surface-card);
+  color: var(--text-body);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.genderChip {
+  min-width: 72px;
+}
+
+.chipOn {
+  border-color: var(--brand-solid);
+  background: var(--brand-tint);
+  color: var(--brand-text);
+  font-weight: 600;
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+@media (hover: hover) {
+  .chip:not(.chipOn):hover {
+    border-color: var(--border-strong);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip {
+    transition: none;
+  }
+}

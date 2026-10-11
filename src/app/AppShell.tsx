@@ -165,12 +165,18 @@ export function AppShell() {
     );
   }
 
-  /** 로그인 필요 화면에서 창을 닫으면 온 곳으로(바로 들어온 주소면 홈으로) */
-  const leaveGatedRoute = () => {
-    closeLoginPrompt();
+  /** 온 곳으로 돌아간다(바로 들어온 주소면 홈으로) */
+  const goBackOrHome = () => {
     if (((window.history.state as { idx?: number } | null)?.idx ?? 0) > 0) navigate(-1);
     else navigate('/', { replace: true });
   };
+  /** 로그인 필요 화면에서 창을 닫으면 온 곳으로 */
+  const leaveGatedRoute = () => {
+    closeLoginPrompt();
+    goBackOrHome();
+  };
+  /** 나잇대·성별 입력 팝업에서 닫기 — 입력 없이 커뮤니티를 떠나 이전 화면으로 */
+  const leaveCommunity = goBackOrHome;
 
   return (
     <div className={`app-shell ${styles.shell}`}>
@@ -180,7 +186,7 @@ export function AppShell() {
       </main>
       {!isGuestSample && !isDesktop && <TabBar guest={!user} />}
       {/* 커뮤니티에 처음 들어온 회원에게 성별·나잇대(선택)를 한 번 묻는다 */}
-      {user && pathname.startsWith('/community') ? <DemographicsPrompt /> : null}
+      {user && pathname.startsWith('/community') ? <DemographicsPrompt onLeave={leaveCommunity} /> : null}
       {!user && (routeNeedsLogin || loginPromptOpen) ? (
         <GlobalAuthModal onClose={routeNeedsLogin ? leaveGatedRoute : closeLoginPrompt} />
       ) : null}

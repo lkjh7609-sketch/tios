@@ -9,6 +9,7 @@ import { useTempUnit } from '@/shared/hooks/useTempUnit';
 import { getRate } from '@/features/plan/fxRates';
 import type { Destination, LocalizedText } from '../types';
 import { continentOf, pickText, weatherKey } from './channelHelpers';
+import { shortLandmarkName } from './landmarkName';
 import styles from './ChannelHeader.module.css';
 
 interface ChannelHeaderProps {
@@ -82,10 +83,6 @@ export function ChannelHeader({
 
       <div className={styles.top}>
         <div className={styles.titleBlock}>
-          <span className={styles.eyebrow}>
-            <span className={styles.eyebrowDot} aria-hidden="true" />
-            {destination.country_code} · {destination.timezone.toUpperCase()}
-          </span>
           <div className={styles.titleRow}>
             <h1 className={styles.title}>{englishName}</h1>
             {showLocalName ? <span className={styles.localName}>{destination.name}</span> : null}
@@ -155,7 +152,7 @@ export function ChannelHeader({
                 aria-label={t('channel.landmarkSearch', { name })}
                 onClick={() => onLandmarkClick(name)}
               >
-                # {name}
+                {shortLandmarkName(name, destination.name)}
               </button>
             );
           })}
