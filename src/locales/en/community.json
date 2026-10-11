@@ -13,8 +13,7 @@
       "archive": "Archive",
       "notices": "Notices",
       "dashboard": "Dashboard",
-      "suspensions": "Suspensions",
-      "redeem": "Redeem codes"
+      "suspensions": "Suspensions"
     },
     "reportDetail": "Report detail: {{detail}}",
     "dismiss": "Dismiss",
@@ -335,37 +334,6 @@
       "recentSuspensions": "Recent suspensions",
       "viewAll": "View all",
       "none": "Nothing yet."
-    },
-    "redeem": {
-      "intro": "One-time codes you send to specific members. Redeeming adds the amount to how many trips they can create. Members on Pro can't redeem, and codes are not for sale.",
-      "create": "Create codes",
-      "amount": "Trips to add",
-      "count": "How many",
-      "expires": "Expires (optional)",
-      "note": "Note (who it is for, etc.)",
-      "submit": "Create",
-      "creating": "Creating…",
-      "created": "Codes created. Copy and send them.",
-      "copy": "Copy",
-      "copied": "Copied.",
-      "copyAll": "Copy all",
-      "createFailed": "Couldn't create codes.",
-      "list": "Issued codes",
-      "empty": "No codes yet.",
-      "loadFailed": "Couldn't load the list.",
-      "status": {
-        "unused": "Unused",
-        "used": "Used",
-        "expired": "Expired",
-        "disabled": "Cancelled"
-      },
-      "usedBy": "Used by {{name}}",
-      "plus": "+{{n}}",
-      "disable": "Cancel",
-      "disableConfirm": "Cancel this code? It can no longer be used.",
-      "disableFailed": "Couldn't cancel it.",
-      "expiresOn": "until {{date}}",
-      "keep": "Keep"
     }
   },
   "report": {

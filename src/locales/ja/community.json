@@ -13,8 +13,7 @@
       "archive": "保管庫",
       "notices": "お知らせ",
       "dashboard": "ダッシュボード",
-      "suspensions": "停止履歴",
-      "redeem": "リディームコード"
+      "suspensions": "停止履歴"
     },
     "reportDetail": "通報の詳細: {{detail}}",
     "dismiss": "却下",
@@ -330,37 +329,6 @@
       "recentSuspensions": "最近の停止履歴",
       "viewAll": "すべて見る",
       "none": "まだありません。"
-    },
-    "redeem": {
-      "intro": "特定の会員に直接送る1回限りのコードです。使うとその会員が作成できる旅行の回数がコードの数量だけ増えます。プロ利用中の会員は使えず、販売用ではありません。",
-      "create": "コードを作成",
-      "amount": "追加回数",
-      "count": "個数",
-      "expires": "有効期限（任意）",
-      "note": "メモ（送り先など）",
-      "submit": "作成",
-      "creating": "作成中…",
-      "created": "コードを作成しました。コピーして渡してください。",
-      "copy": "コピー",
-      "copied": "コピーしました。",
-      "copyAll": "すべてコピー",
-      "createFailed": "コードを作成できませんでした。",
-      "list": "発行したコード",
-      "empty": "まだコードがありません。",
-      "loadFailed": "一覧を読み込めませんでした。",
-      "status": {
-        "unused": "未使用",
-        "used": "使用済み",
-        "expired": "期限切れ",
-        "disabled": "取消"
-      },
-      "usedBy": "{{name}}さんが使用",
-      "plus": "+{{n}}回",
-      "disable": "取消",
-      "disableConfirm": "このコードを取り消しますか？取り消すと使えなくなります。",
-      "disableFailed": "取り消せませんでした。",
-      "expiresOn": "〜{{date}}",
-      "keep": "そのまま"
     }
   },
   "report": {

@@ -91,15 +91,6 @@ describe('SettingsScreen (모바일)', () => {
     expect(screen.getByRole('checkbox', { name: '커뮤니티 답글' })).toBeDisabled();
   });
 
-  it('리딤 코드 줄이 로그아웃 위에 있고, 누르면 코드 입력 창이 뜬다', () => {
-    renderAt('/settings');
-    const names = screen.getAllByRole('button').map((b) => b.textContent);
-    expect(names.indexOf('리딤 코드')).toBeGreaterThan(-1);
-    expect(names.indexOf('리딤 코드')).toBeLessThan(names.indexOf('로그아웃'));
-    fireEvent.click(screen.getByRole('button', { name: '리딤 코드' }));
-    expect(screen.getByRole('dialog', { name: '리딤 코드' })).toBeInTheDocument();
-  });
-
   it('로그아웃과 계정 삭제는 앱 정보 아래에 메뉴와 같은 줄로 있다', () => {
     renderAt('/settings');
     fireEvent.click(screen.getByRole('button', { name: '로그아웃' }));

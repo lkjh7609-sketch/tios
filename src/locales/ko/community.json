@@ -13,8 +13,7 @@
       "archive": "보관함",
       "notices": "공지",
       "dashboard": "대시보드",
-      "suspensions": "정지 기록",
-      "redeem": "리딤 코드"
+      "suspensions": "정지 기록"
     },
     "reportDetail": "신고 상세: {{detail}}",
     "dismiss": "기각",
@@ -330,37 +329,6 @@
       "recentSuspensions": "최근 정지 기록",
       "viewAll": "전체 보기",
       "none": "아직 없어요."
-    },
-    "redeem": {
-      "intro": "특정 회원에게 직접 보내는 1회용 코드예요. 쓰면 그 회원이 만들 수 있는 여행 횟수가 코드의 수량만큼 늘어요. 프로 이용 중인 회원은 쓸 수 없고, 판매용이 아니에요.",
-      "create": "코드 만들기",
-      "amount": "추가 횟수",
-      "count": "개수",
-      "expires": "만료일(선택)",
-      "note": "메모(누구에게 보내는지 등)",
-      "submit": "만들기",
-      "creating": "만드는 중…",
-      "created": "코드를 만들었어요. 복사해서 전달해 주세요.",
-      "copy": "복사",
-      "copied": "복사했어요.",
-      "copyAll": "모두 복사",
-      "createFailed": "코드를 만들지 못했어요.",
-      "list": "발급한 코드",
-      "empty": "아직 만든 코드가 없어요.",
-      "loadFailed": "목록을 불러오지 못했어요.",
-      "status": {
-        "unused": "미사용",
-        "used": "사용됨",
-        "expired": "만료",
-        "disabled": "취소됨"
-      },
-      "usedBy": "{{name}}님이 사용",
-      "plus": "+{{n}}회",
-      "disable": "취소",
-      "disableConfirm": "이 코드를 취소할까요? 취소하면 쓸 수 없어요.",
-      "disableFailed": "취소하지 못했어요.",
-      "expiresOn": "~{{date}}",
-      "keep": "유지"
     }
   },
   "report": {

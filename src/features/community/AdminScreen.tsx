@@ -39,7 +39,6 @@ import { AdminDashboard } from './AdminDashboard';
 import { AdminSuspensionHistory } from './AdminSuspensionHistory';
 import { AdminPillRow } from './AdminFilters';
 import { parseSection, type AdminSection } from './adminSections';
-import { AdminRedeemTab } from './AdminRedeemTab';
 import { useSectionLabel } from './useSectionLabel';
 import styles from './AdminScreen.module.css';
 
@@ -363,8 +362,6 @@ export function AdminScreen() {
           <AdminMembersTab onOpenHistory={() => select('suspensions')} />
         ) : section === 'suspensions' ? (
           <AdminSuspensionHistory />
-        ) : section === 'redeem' ? (
-          <AdminRedeemTab />
         ) : section === 'feedback' ? (
           <FeedbackTab />
         ) : section === 'reports' ? (

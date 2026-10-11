@@ -254,24 +254,5 @@
     "data": "Data & storage",
     "community": "Community",
     "about": "About the app"
-  },
-  "redeem": {
-    "menu": "Redeem code",
-    "title": "Redeem code",
-    "desc": "Enter a code we sent you directly\nto add more trips you can create.",
-    "inputLabel": "Enter redeem code",
-    "apply": "Apply",
-    "applying": "Checking…",
-    "close": "Close",
-    "success": "{{n}} more trips added.",
-    "error": {
-      "invalid": "That code isn't valid. Please check it.",
-      "used": "This code has already been used.",
-      "expired": "This code has expired.",
-      "pro_active": "You can't redeem while on Pro. Enter it after Pro ends.",
-      "too_many_attempts": "Too many attempts. Please try again later.",
-      "not_signed_in": "Please sign in first.",
-      "generic": "Couldn't apply the code. Please try again later."
-    }
   }
 }

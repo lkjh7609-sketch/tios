@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Archive, Ban, BarChart3, CircleDollarSign, Flag, Gift, LayoutDashboard, Megaphone, Menu, MessageSquare, ShieldAlert, Users, X, type LucideIcon } from 'lucide-react';
+import { Archive, Ban, BarChart3, CircleDollarSign, Flag, LayoutDashboard, Megaphone, Menu, MessageSquare, ShieldAlert, Users, X, type LucideIcon } from 'lucide-react';
 import { ADMIN_GROUPS, type AdminSection } from './adminSections';
 import { useSectionLabel } from './useSectionLabel';
 import styles from './AdminShell.module.css';
@@ -12,7 +12,6 @@ const ICONS: Record<AdminSection, LucideIcon> = {
   feedback: MessageSquare,
   members: Users,
   suspensions: Ban,
-  redeem: Gift,
   notices: Megaphone,
   archive: Archive,
   sales: CircleDollarSign,

@@ -17,13 +17,12 @@ import { clearOfflineCache } from '@/shared/offline/persister';
 import { notificationsEnabled, withNotificationsEnabled, type NotificationKey, type NotificationPrefs } from '@/shared/api/profileService';
 import { isNativeApp } from '@/shared/platform';
 import { ProfileAvatar } from './ProfileAvatar';
-import { RedeemCodeDialog } from './RedeemCodeDialog';
 import { showToast } from '@/shared/ui/toast';
 import { useMediaQuery } from '@/shared/hooks/useMediaQuery';
 import { SettingsDesktop } from './SettingsDesktop';
 import { DeleteAccountFlow } from './DeleteAccountFlow';
 import { BlockedUsersList } from './BlockedUsersList';
-import { Palette, Bell, HardDrive, Globe, Info, Sun, Moon, Monitor, ChevronRight, ArrowLeft, LogOut, UserX, Gift } from 'lucide-react';
+import { Palette, Bell, HardDrive, Globe, Info, Sun, Moon, Monitor, ChevronRight, ArrowLeft, LogOut, UserX } from 'lucide-react';
 
 import { EditProfileModal } from './EditProfileModal';
 import { UnitSettingsModal } from './UnitSettingsModal';
@@ -73,7 +72,6 @@ export function SettingsScreen() {
   // PC(1024px~)는 Stitch/setting 시안의 별도 화면(SettingsDesktop), 모바일은 아래 화면 그대로
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const [showDeleteFlow, setShowDeleteFlow] = useState(false);
-  const [showRedeem, setShowRedeem] = useState(false);
   const [showBackup, setShowBackup] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showUnitSettings, setShowUnitSettings] = useState(false);
@@ -337,16 +335,9 @@ export function SettingsScreen() {
                 <ChevronRight size={18} className={styles.chevron} aria-hidden="true" />
               </Link>
             ))}
-            {/* 리딤 코드·로그아웃·계정 삭제는 메뉴와 같은 모양의 줄로 — 앱 정보 바로 아래 */}
+            {/* 로그아웃·계정 삭제는 메뉴와 같은 모양의 줄로 — 앱 정보 바로 아래 */}
             {user ? (
               <>
-                <button type="button" className={`${styles.menuRow} ${styles.menuRowButton}`} onClick={() => setShowRedeem(true)}>
-                  <span className={styles.menuIcon}>
-                    <Gift size={20} />
-                  </span>
-                  <span className={styles.menuLabel}>{t('redeem.menu')}</span>
-                  <ChevronRight size={18} className={styles.chevron} aria-hidden="true" />
-                </button>
                 <button
                   type="button"
                   className={`${styles.menuRow} ${styles.menuRowButton}`}
@@ -368,8 +359,6 @@ export function SettingsScreen() {
           </nav>
         </>
       )}
-
-      {showRedeem ? <RedeemCodeDialog onClose={() => setShowRedeem(false)} /> : null}
 
       {showBackup ? (
         <BackupModal trips={trips.data ?? []} onClose={() => setShowBackup(false)} onImported={() => trips.refetch()} />

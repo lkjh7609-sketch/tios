@@ -13,8 +13,7 @@
       "archive": "封存區",
       "notices": "公告",
       "dashboard": "儀表板",
-      "suspensions": "停權紀錄",
-      "redeem": "兌換碼"
+      "suspensions": "停權紀錄"
     },
     "reportDetail": "舉報詳情：{{detail}}",
     "dismiss": "駁回",
@@ -330,37 +329,6 @@
       "recentSuspensions": "最近停權紀錄",
       "viewAll": "查看全部",
       "none": "目前沒有。"
-    },
-    "redeem": {
-      "intro": "直接寄給特定會員的一次性代碼。使用後，該會員可建立的旅行次數會增加代碼的數量。使用 Pro 的會員無法兌換，且代碼不對外販售。",
-      "create": "建立代碼",
-      "amount": "增加次數",
-      "count": "數量",
-      "expires": "到期日（選填）",
-      "note": "備註（寄給誰等）",
-      "submit": "建立",
-      "creating": "建立中…",
-      "created": "已建立代碼，請複製後傳送。",
-      "copy": "複製",
-      "copied": "已複製。",
-      "copyAll": "全部複製",
-      "createFailed": "無法建立代碼。",
-      "list": "已發出的代碼",
-      "empty": "尚無代碼。",
-      "loadFailed": "無法載入清單。",
-      "status": {
-        "unused": "未使用",
-        "used": "已使用",
-        "expired": "已過期",
-        "disabled": "已取消"
-      },
-      "usedBy": "{{name}} 已使用",
-      "plus": "+{{n}} 次",
-      "disable": "取消",
-      "disableConfirm": "要取消這個代碼嗎？取消後就不能使用。",
-      "disableFailed": "無法取消。",
-      "expiresOn": "至 {{date}}",
-      "keep": "保留"
     }
   },
   "report": {
