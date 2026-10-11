@@ -238,5 +238,14 @@
       "kakao": "你是以 Kakao 註冊的。密碼由 Kakao 管理，無法在此變更。",
       "apple": "你是以 Apple 註冊的。密碼由 Apple 管理，無法在此變更。"
     }
+  },
+  "menu": {
+    "title": "設定選單",
+    "back": "返回",
+    "preferences": "偏好設定",
+    "notifications": "通知設定",
+    "data": "資料與儲存空間",
+    "community": "社群",
+    "about": "應用程式資訊"
   }
 }

@@ -238,5 +238,14 @@
       "kakao": "Kakaoで登録しました。パスワードはKakaoで管理されるため、ここでは変更できません。",
       "apple": "Appleで登録しました。パスワードはAppleで管理されるため、ここでは変更できません。"
     }
+  },
+  "menu": {
+    "title": "設定メニュー",
+    "back": "戻る",
+    "preferences": "環境設定",
+    "notifications": "通知設定",
+    "data": "データとストレージ",
+    "community": "コミュニティ",
+    "about": "アプリ情報"
   }
 }

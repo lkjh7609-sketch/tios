@@ -180,3 +180,91 @@
   text-align: left;
   cursor: pointer;
 }
+
+/* ===== 모바일: 상위 메뉴 → 세부 설정 ===== */
+.profileCard {
+  appearance: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.menuList {
+  padding: 0;
+  overflow: hidden;
+  margin-bottom: var(--space-5);
+}
+
+.menuRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 56px;
+  padding: 0 var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-body);
+  text-decoration: none;
+  font-size: var(--font-body-size);
+}
+
+.menuRow:last-child {
+  border-bottom: none;
+}
+
+.menuIcon {
+  display: inline-flex;
+  color: var(--brand-text);
+}
+
+.menuLabel {
+  flex: 1;
+}
+
+.chevron {
+  flex: none;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.subHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-left: -8px;
+  border-radius: 50%;
+  color: var(--text-primary);
+}
+
+.subTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.footerActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-1) var(--space-6);
+}

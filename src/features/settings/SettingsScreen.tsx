@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router';
+import { useEffect, useState, type ReactNode } from 'react';
+import { Link, useParams } from 'react-router';
 import { normalizeLocale } from '@/shared/i18n';
 import { LANGUAGE_AUTONYMS } from '@/shared/i18n/languageNames';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +19,7 @@ import { useMediaQuery } from '@/shared/hooks/useMediaQuery';
 import { SettingsDesktop } from './SettingsDesktop';
 import { DeleteAccountFlow } from './DeleteAccountFlow';
 import { BlockedUsersList } from './BlockedUsersList';
-import { User, Palette, Bell, HardDrive, Globe, Info, Sun, Moon, Monitor } from 'lucide-react';
+import { Palette, Bell, HardDrive, Globe, Info, Sun, Moon, Monitor, ChevronRight, ArrowLeft } from 'lucide-react';
 
 import { EditProfileModal } from './EditProfileModal';
 import { UnitSettingsModal } from './UnitSettingsModal';
@@ -56,8 +56,11 @@ async function readCacheUsageMB(): Promise<number | null> {
  * 소비), 데이터(백업 JSON 내보내기/가져오기 연동 + 오프라인 캐시 삭제),
  * 정보(약관/개인정보처리방침/오픈소스 라이선스/문의하기) 섹션을 채운다.
  */
+type SettingsSection = 'preferences' | 'notifications' | 'data' | 'community' | 'about';
+
 export function SettingsScreen() {
   const appVersion = useAppVersion();
+  const { section: sectionParam } = useParams();
   const { t, i18n } = useTranslation(['settings', 'common']);
   const { user, loading } = useSession();
   const { data: profile } = useProfile();
@@ -128,30 +131,190 @@ export function SettingsScreen() {
     }
   }
 
+  const menu: { key: SettingsSection; icon: ReactNode; label: string; needsLogin: boolean }[] = [
+    { key: 'preferences', icon: <Palette size={20} />, label: t('menu.preferences'), needsLogin: false },
+    { key: 'notifications', icon: <Bell size={20} />, label: t('menu.notifications'), needsLogin: true },
+    { key: 'data', icon: <HardDrive size={20} />, label: t('menu.data'), needsLogin: false },
+    { key: 'community', icon: <Globe size={20} />, label: t('menu.community'), needsLogin: true },
+    { key: 'about', icon: <Info size={20} />, label: t('menu.about'), needsLogin: false },
+  ];
+  const visibleMenu = menu.filter((item) => !item.needsLogin || user);
+  const section = visibleMenu.find((item) => item.key === sectionParam);
+
+  const preferencesContent = (
+    <div className={styles.card}>
+      <div className={styles.row}>
+        <span>{t('preferences.theme')}</span>
+        <div className={styles.themeToggleGroup}>
+          <button type="button" className={theme === 'light' ? styles.themeToggleActive : styles.themeToggleBtn} onClick={() => handleThemeChange('light')} aria-label={t('preferences.themeLight')} aria-pressed={theme === 'light'}><Sun size={18}/></button>
+          <button type="button" className={theme === 'dark' ? styles.themeToggleActive : styles.themeToggleBtn} onClick={() => handleThemeChange('dark')} aria-label={t('preferences.themeDark')} aria-pressed={theme === 'dark'}><Moon size={18}/></button>
+          <button type="button" className={theme === 'system' ? styles.themeToggleActive : styles.themeToggleBtn} onClick={() => handleThemeChange('system')} aria-label={t('preferences.themeSystem')} aria-pressed={theme === 'system'}><Monitor size={18}/></button>
+        </div>
+      </div>
+      {user ? (
+        <>
+          <button type="button" className={`${styles.row} ${styles.rowButton}`} onClick={() => setShowUnitSettings(true)}>
+            <span>{t('preferences.unitSettings')}</span>
+            <span style={{color: 'var(--text-muted)'}}>{profile?.temp_unit === 'f' ? '°F' : '°C'}, {profile?.distance_unit === 'mi' ? 'mi' : 'km'} &gt;</span>
+          </button>
+          <button type="button" className={`${styles.row} ${styles.rowButton}`} onClick={() => setShowCurrencyModal(true)}>
+            <span>{t('preferences.baseCurrency')}</span>
+            <span style={{color: 'var(--text-muted)'}}>{profile?.base_currency ?? 'KRW'} &gt;</span>
+          </button>
+          <button type="button" className={`${styles.row} ${styles.rowButton}`} onClick={() => setShowLanguageModal(true)}>
+            <span>{t('preferences.language')}</span>
+            <span style={{color: 'var(--text-muted)'}}>{LANGUAGE_AUTONYMS[normalizeLocale(i18n.language)]} &gt;</span>
+          </button>
+        </>
+      ) : (
+        <p className={styles.hint}>{t('preferences.loginHint')}</p>
+      )}
+    </div>
+  );
+
+  const notificationsContent = (
+    <div className={styles.card}>
+      {(Object.keys(NOTIFICATION_LABEL_KEYS) as (keyof NotificationPrefs)[]).map((key) => (
+        <label className={styles.row} key={key}>
+          <span>{t(NOTIFICATION_LABEL_KEYS[key])}</span>
+          <input
+            type="checkbox"
+            checked={profile?.notification_prefs?.[key] ?? key !== 'marketing'}
+            onChange={(e) => updateNotificationPref(key, e.target.checked)}
+          />
+        </label>
+      ))}
+      <p className={styles.hint}>{t('notifications.hint')}</p>
+    </div>
+  );
+
+  const dataContent = (
+    <div className={styles.card}>
+      <div className={styles.row}>
+        <span>{t('data.offlineCache')}</span>
+        <span>{cacheUsageMB == null ? t('data.calculating') : `${cacheUsageMB.toFixed(1)}MB`}</span>
+      </div>
+      <div className={styles.row}>
+        <button type="button" className={styles.linkButton} onClick={handleClearCache} disabled={clearingCache}>
+          {clearingCache ? t('data.clearingCache') : t('data.clearCache')}
+        </button>
+      </div>
+      <div className={styles.row}>
+        <button type="button" className={styles.linkButton} onClick={() => setShowBackup(true)}>
+          {t('data.backup')}
+        </button>
+      </div>
+      <p className={styles.hint}>{t('data.pdfHint')}</p>
+    </div>
+  );
+
+  const communityContent = user ? (
+    <div className={styles.card}>
+      <BlockedUsersList userId={user.id} />
+    </div>
+  ) : null;
+
+  const aboutContent = (
+    <div className={styles.card}>
+      <div className={styles.row}>
+        <Link to="/guide" className={styles.linkButton}>
+          {t('about.guide')}
+        </Link>
+      </div>
+      <div className={styles.row}>
+        <Link to="/notices" className={styles.linkButton}>
+          {t('about.notices')}
+        </Link>
+      </div>
+      <div className={styles.row}>
+        <a href="/terms.html" target="_blank" rel="noopener" className={styles.linkButton}>
+          {t('legal.terms', { ns: 'common' })}
+        </a>
+      </div>
+      <div className={styles.row}>
+        <a href="/privacy.html" target="_blank" rel="noopener" className={styles.linkButton}>
+          {t('legal.privacy', { ns: 'common' })}
+        </a>
+      </div>
+      <div className={styles.row}>
+        <button type="button" className={styles.linkButton} onClick={() => setFeedbackKind('general')}>
+          {t('feedback.menuLabel')}
+        </button>
+      </div>
+      <div className={styles.row}>
+        <button type="button" className={styles.linkButton} onClick={() => setFeedbackKind('partnership')}>
+          {t('about.partnership')}
+        </button>
+      </div>
+      <p className={styles.row}>{t('about.version', { version: appVersion })}</p>
+      {/* 항목 중간에서 줄이 끊기지 않게 "운영자 · 메일" / "호스팅" / "저작권" 세 줄로 나눈다 */}
+      <p className={`${styles.hint} ${styles.operator}`}>
+        <span>
+          {t('about.operatorItem')}
+          <span className={styles.dot} aria-hidden="true">
+            ·
+          </span>
+          admin@triptic.my
+        </span>
+        <span>{t('about.hostingItem')}</span>
+        <span>&copy; {new Date().getFullYear()} Triptic</span>
+      </p>
+    </div>
+  );
+
+  const sectionContent: Record<SettingsSection, ReactNode> = {
+    preferences: preferencesContent,
+    notifications: notificationsContent,
+    data: dataContent,
+    community: communityContent,
+    about: aboutContent,
+  };
+
   return (
     <div className={styles.container}>
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><User size={18}/> {t('section.account')}</h2>
-        <div className={styles.card}>
-        {loading ? null : user ? (
-          <>
-            <div className={styles.profileHeader}>
-              <img src={user.user_metadata?.avatar_url || 'https://api.dicebear.com/7.x/notionists/svg?seed=' + user.email} alt="Profile" className={styles.avatar} />
-              <div className={styles.profileInfo}>
+      {section ? (
+        <>
+          <div className={styles.subHeader}>
+            <Link to="/settings" className={styles.backButton} aria-label={t('menu.back')}>
+              <ArrowLeft size={22} />
+            </Link>
+            <h1 className={styles.subTitle}>{section.label}</h1>
+          </div>
+          {sectionContent[section.key]}
+        </>
+      ) : (
+        <>
+          {loading ? null : user ? (
+            <button type="button" className={styles.profileCard} onClick={() => setShowEditProfile(true)} aria-label={t('account.editProfile')}>
+              <img src={user.user_metadata?.avatar_url || 'https://api.dicebear.com/7.x/notionists/svg?seed=' + user.email} alt="" className={styles.avatar} />
+              <span className={styles.profileInfo}>
                 <span className={styles.profileNameRow}>
                   <span className={styles.profileName}>{profile?.display_name || user.user_metadata?.name || t('account.fallbackName')}</span>
                   {profile?.plan === 'pro' ? <ProBadge /> : null}
                 </span>
                 {profile?.handle ? <span className={styles.profileHandle}>@{profile.handle}</span> : null}
                 <span className={styles.profileEmail}>{user.email}</span>
-              </div>
+              </span>
+              <ChevronRight size={20} className={styles.chevron} aria-hidden="true" />
+            </button>
+          ) : loading ? null : (
+            <div className={styles.card}>
+              <LoginButtons redirectPath="/" />
             </div>
-            <div className={styles.row}>
-              <button type="button" className={styles.linkButton} onClick={() => setShowEditProfile(true)}>
-                {t('account.editProfile')}
-              </button>
-            </div>
-            <div className={styles.row}>
+          )}
+
+          <nav className={`${styles.card} ${styles.menuList}`} aria-label={t('menu.title')}>
+            {visibleMenu.map((item) => (
+              <Link key={item.key} to={`/settings/${item.key}`} className={styles.menuRow}>
+                <span className={styles.menuIcon}>{item.icon}</span>
+                <span className={styles.menuLabel}>{item.label}</span>
+                <ChevronRight size={18} className={styles.chevron} aria-hidden="true" />
+              </Link>
+            ))}
+          </nav>
+
+          {user ? (
+            <div className={styles.footerActions}>
               <button
                 type="button"
                 className={styles.linkButton}
@@ -159,152 +322,13 @@ export function SettingsScreen() {
               >
                 {t('account.signOut')}
               </button>
-            </div>
-            <div className={styles.row}>
-              <button
-                type="button"
-                className={styles.dangerLink}
-                onClick={() => setShowDeleteFlow(true)}
-              >
+              <button type="button" className={styles.dangerLink} onClick={() => setShowDeleteFlow(true)}>
                 {t('account.deleteAction')}
               </button>
             </div>
-          </>
-        ) : (
-          <LoginButtons redirectPath="/" />
-        )}
-        </div>
-      </section>
-
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><Palette size={18}/> {t('section.preferences')}</h2>
-        <div className={styles.card}>
-        <div className={styles.row}>
-          <span>{t('preferences.theme')}</span>
-          <div className={styles.themeToggleGroup}>
-            <button type="button" className={theme === 'light' ? styles.themeToggleActive : styles.themeToggleBtn} onClick={() => handleThemeChange('light')} aria-label={t('preferences.themeLight')} aria-pressed={theme === 'light'}><Sun size={18}/></button>
-            <button type="button" className={theme === 'dark' ? styles.themeToggleActive : styles.themeToggleBtn} onClick={() => handleThemeChange('dark')} aria-label={t('preferences.themeDark')} aria-pressed={theme === 'dark'}><Moon size={18}/></button>
-            <button type="button" className={theme === 'system' ? styles.themeToggleActive : styles.themeToggleBtn} onClick={() => handleThemeChange('system')} aria-label={t('preferences.themeSystem')} aria-pressed={theme === 'system'}><Monitor size={18}/></button>
-          </div>
-        </div>
-        {user ? (
-          <>
-            <button type="button" className={`${styles.row} ${styles.rowButton}`} onClick={() => setShowUnitSettings(true)}>
-              <span>{t('preferences.unitSettings')}</span>
-              <span style={{color: 'var(--text-muted)'}}>{profile?.temp_unit === 'f' ? '°F' : '°C'}, {profile?.distance_unit === 'mi' ? 'mi' : 'km'} &gt;</span>
-            </button>
-            <button type="button" className={`${styles.row} ${styles.rowButton}`} onClick={() => setShowCurrencyModal(true)}>
-              <span>{t('preferences.baseCurrency')}</span>
-              <span style={{color: 'var(--text-muted)'}}>{profile?.base_currency ?? 'KRW'} &gt;</span>
-            </button>
-            <button type="button" className={`${styles.row} ${styles.rowButton}`} onClick={() => setShowLanguageModal(true)}>
-              <span>{t('preferences.language')}</span>
-              <span style={{color: 'var(--text-muted)'}}>{LANGUAGE_AUTONYMS[normalizeLocale(i18n.language)]} &gt;</span>
-            </button>
-          </>
-        ) : (
-          <p className={styles.hint}>{t('preferences.loginHint')}</p>
-        )}
-        </div>
-      </section>
-
-      {user ? (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}><Bell size={18}/> {t('section.notifications')}</h2>
-        <div className={styles.card}>
-          {(Object.keys(NOTIFICATION_LABEL_KEYS) as (keyof NotificationPrefs)[]).map((key) => (
-            <label className={styles.row} key={key}>
-              <span>{t(NOTIFICATION_LABEL_KEYS[key])}</span>
-              <input
-                type="checkbox"
-                checked={profile?.notification_prefs?.[key] ?? key !== 'marketing'}
-                onChange={(e) => updateNotificationPref(key, e.target.checked)}
-              />
-            </label>
-          ))}
-          <p className={styles.hint}>{t('notifications.hint')}</p>
-        </div>
-        </section>
-      ) : null}
-
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><HardDrive size={18}/> {t('section.data')}</h2>
-        <div className={styles.card}>
-        <div className={styles.row}>
-          <span>{t('data.offlineCache')}</span>
-          <span>{cacheUsageMB == null ? t('data.calculating') : `${cacheUsageMB.toFixed(1)}MB`}</span>
-        </div>
-        <div className={styles.row}>
-          <button type="button" className={styles.linkButton} onClick={handleClearCache} disabled={clearingCache}>
-            {clearingCache ? t('data.clearingCache') : t('data.clearCache')}
-          </button>
-        </div>
-        <div className={styles.row}>
-          <button type="button" className={styles.linkButton} onClick={() => setShowBackup(true)}>
-            {t('data.backup')}
-          </button>
-        </div>
-        <p className={styles.hint}>{t('data.pdfHint')}</p>
-        </div>
-      </section>
-
-      {user ? (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}><Globe size={18}/> {t('section.community')}</h2>
-        <div className={styles.card}>
-          <BlockedUsersList userId={user.id} />
-        </div>
-        </section>
-      ) : null}
-
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><Info size={18}/> {t('section.about')}</h2>
-        <div className={styles.card}>
-        <div className={styles.row}>
-          <Link to="/guide" className={styles.linkButton}>
-            {t('about.guide')}
-          </Link>
-        </div>
-        <div className={styles.row}>
-          <Link to="/notices" className={styles.linkButton}>
-            {t('about.notices')}
-          </Link>
-        </div>
-        <div className={styles.row}>
-          <a href="/terms.html" target="_blank" rel="noopener" className={styles.linkButton}>
-            {t('legal.terms', { ns: 'common' })}
-          </a>
-        </div>
-        <div className={styles.row}>
-          <a href="/privacy.html" target="_blank" rel="noopener" className={styles.linkButton}>
-            {t('legal.privacy', { ns: 'common' })}
-          </a>
-        </div>
-        <div className={styles.row}>
-          <button type="button" className={styles.linkButton} onClick={() => setFeedbackKind('general')}>
-            {t('feedback.menuLabel')}
-          </button>
-        </div>
-        <div className={styles.row}>
-          <button type="button" className={styles.linkButton} onClick={() => setFeedbackKind('partnership')}>
-            {t('about.partnership')}
-          </button>
-        </div>
-        <p className={styles.row}>{t('about.version', { version: appVersion })}</p>
-        {/* 항목 중간에서 줄이 끊기지 않게 "운영자 · 메일" / "호스팅" / "저작권" 세 줄로 나눈다 */}
-        <p className={`${styles.hint} ${styles.operator}`}>
-          <span>
-            {t('about.operatorItem')}
-            <span className={styles.dot} aria-hidden="true">
-              ·
-            </span>
-            admin@triptic.my
-          </span>
-          <span>{t('about.hostingItem')}</span>
-          <span>&copy; {new Date().getFullYear()} Triptic</span>
-        </p>
-        </div>
-      </section>
+          ) : null}
+        </>
+      )}
 
       {showBackup ? (
         <BackupModal trips={trips.data ?? []} onClose={() => setShowBackup(false)} onImported={() => trips.refetch()} />

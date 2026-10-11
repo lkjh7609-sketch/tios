@@ -197,7 +197,7 @@ export const router = createBrowserRouter(
           },
         },
         {
-          path: 'settings',
+          path: 'settings/:section?',
           lazy: async () => {
             const { SettingsScreen } = await retryChunkLoad(() => import('@/features/settings/SettingsScreen'));
             return { Component: SettingsScreen };
