@@ -55,18 +55,21 @@ export function FreeBoardScreen() {
   return (
     <div className={styles.page}>
       <div className={`${styles.container} ${boardStyles.head}`}>
-        <span className={boardStyles.icon} aria-hidden="true">
-          <MessagesSquare size={26} />
-        </span>
-        <div>
-          <p className={boardStyles.crumb}>
-            <Link to="/community">
-              <ArrowLeft size={16} aria-hidden="true" />
-              {t('detail.breadcrumbCommunity')}
-            </Link>
-          </p>
-          <h1 className={boardStyles.title}>{t('board.free')}</h1>
-          <p className={boardStyles.sub}>{t('board.subtitle')}</p>
+        {/* 뒤로가기는 다른 게시판(도시별)과 같이 맨 위 왼쪽 */}
+        <p className={boardStyles.crumb}>
+          <Link to="/community">
+            <ArrowLeft size={16} aria-hidden="true" />
+            {t('detail.breadcrumbCommunity')}
+          </Link>
+        </p>
+        <div className={boardStyles.headMain}>
+          <span className={boardStyles.icon} aria-hidden="true">
+            <MessagesSquare size={26} />
+          </span>
+          <div>
+            <h1 className={boardStyles.title}>{t('board.free')}</h1>
+            <p className={boardStyles.sub}>{t('board.subtitle')}</p>
+          </div>
         </div>
       </div>
 

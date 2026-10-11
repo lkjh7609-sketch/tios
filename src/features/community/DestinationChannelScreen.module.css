@@ -11,6 +11,9 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  /* 사진을 상태 표시줄(다이나믹 아일랜드) 자리까지 채운다 — 위로 그만큼 올리고 안쪽 여백으로 내용 위치는 그대로(PC·웹은 0) */
+  margin-top: calc(-1 * env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
   background: var(--surface-card);
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -398,8 +401,16 @@
     height: 14px;
   }
 
+  /* 검색창은 조금 줄이고 정렬(최신순)을 같은 줄 오른쪽에 둔다 */
   .tools {
-    gap: 10px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .search {
+    flex: 1 1 0;
+    min-width: 0;
   }
 
   .searchInput {
@@ -416,8 +427,9 @@
   }
 
   .sort {
-    align-self: flex-end;
-    min-height: 32px;
+    flex: 0 0 auto;
+    align-self: center;
+    min-height: 40px; /* 옆 검색창과 높이를 맞춘다 */
     padding: 0 10px;
     border-radius: 8px;
     font-size: 12px;

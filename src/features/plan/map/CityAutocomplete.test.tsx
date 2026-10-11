@@ -6,17 +6,47 @@ import i18n from '@/shared/i18n';
 import { CityAutocomplete, type ExtraOption } from './CityAutocomplete';
 import type { SelectedPlace } from './usePlaceAutocomplete';
 
-vi.mock('@/shared/api/googleMapsLoader', () => ({
-  loadGoogleMapsPlaces: () => Promise.resolve({}),
+const g = vi.hoisted(() => ({ predictions: vi.fn(), getDetails: vi.fn(), newApiFails: false, dbCities: [] as unknown[] }));
+
+// 우리 여행지 표 검색 — 테스트에서는 g.dbCities로 결과를 정한다
+vi.mock('./destinationCities', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./destinationCities')>()),
+  searchDbCities: () => Promise.resolve(g.dbCities),
 }));
 
-const g = vi.hoisted(() => ({ predictions: vi.fn(), getDetails: vi.fn() }));
+// 새 Places API(AutocompleteSuggestion) — 테스트는 g.predictions(요청, 콜백)로 결과를 정하고 여기서 새 응답 모양으로 바꿔 준다
+vi.mock('@/shared/api/googleMapsLoader', () => ({
+  loadGoogleMapsPlaces: () =>
+    Promise.resolve({
+      AutocompleteSuggestion: {
+        fetchAutocompleteSuggestions: (req: unknown) => {
+          if (g.newApiFails) return Promise.reject(new Error('Places API (New) not enabled'));
+          return new Promise((resolve) =>
+            g.predictions(req, (results: Array<{ place_id: string; description: string; structured_formatting?: { main_text: string; secondary_text: string } }>) =>
+              resolve({
+                suggestions: results.map((r) => ({
+                  placePrediction: {
+                    placeId: r.place_id,
+                    text: { text: r.description },
+                    mainText: { text: r.structured_formatting?.main_text ?? '' },
+                    secondaryText: { text: r.structured_formatting?.secondary_text ?? '' },
+                  },
+                })),
+              }),
+            ),
+          );
+        },
+      },
+    }),
+}));
 
 beforeEach(async () => {
   await i18n.changeLanguage('en');
   vi.useFakeTimers();
   g.predictions.mockReset();
   g.getDetails.mockReset();
+  g.newApiFails = false;
+  g.dbCities = [];
   class AutocompleteService {
     getPlacePredictions = g.predictions;
   }
@@ -62,7 +92,7 @@ async function type(text: string) {
 }
 
 describe('CityAutocomplete', () => {
-  it('도시 자동완성(types: (cities))만 요청하고, 목록에는 한 줄에 "도시(나라)"만 보인다', async () => {
+  it('도시 자동완성((cities))만, 화면 언어를 요청에 지정해 부르고, 목록에는 한 줄에 "도시(나라)"만 보인다', async () => {
     g.predictions.mockImplementation((_req, cb) =>
       cb([
         {
@@ -80,7 +110,7 @@ describe('CityAutocomplete', () => {
     render(<Harness onSelect={() => {}} />);
     await type('tokyo');
     expect(g.predictions).toHaveBeenCalledWith(
-      expect.objectContaining({ input: 'tokyo', types: ['(cities)'] }),
+      expect.objectContaining({ input: 'tokyo', language: 'en', includedPrimaryTypes: ['(cities)'] }),
       expect.any(Function),
     );
     const options = screen.getAllByRole('option');
@@ -161,6 +191,70 @@ describe('CityAutocomplete', () => {
       countryCode: 'JP',
     });
     expect(screen.getByRole('combobox')).toHaveValue('Kyoto'); // 도시 이름만(주소 전체는 저장값에만)
+  });
+
+  it('한국어 화면에서 "뉴욕"을 치면 한국어 언어로 요청해 뉴욕이 나온다', async () => {
+    await i18n.changeLanguage('ko');
+    g.predictions.mockImplementation((_req, cb) =>
+      cb([{ place_id: 'ny', description: '미국 뉴욕주 뉴욕', structured_formatting: { main_text: '뉴욕', secondary_text: '미국 뉴욕주' } }]),
+    );
+    render(<Harness onSelect={() => {}} />);
+    await type('뉴욕');
+    expect(g.predictions).toHaveBeenCalledWith(expect.objectContaining({ input: '뉴욕', language: 'ko' }), expect.any(Function));
+    expect(screen.getAllByRole('option')[0]).toHaveTextContent('뉴욕(미국)');
+  });
+
+  it('새 Places API가 막혀 있으면 예전 자동완성으로 한 번 더 찾는다', async () => {
+    g.newApiFails = true;
+    g.predictions.mockImplementation((_req, cb) =>
+      cb([{ place_id: 'a', description: 'Rome, Italy', structured_formatting: { main_text: 'Rome', secondary_text: 'Italy' } }]),
+    );
+    render(<Harness onSelect={() => {}} />);
+    await type('rome');
+    expect(g.predictions).toHaveBeenCalledWith(expect.objectContaining({ input: 'rome', types: ['(cities)'] }), expect.any(Function));
+    expect(screen.getAllByRole('option')[0]).toHaveTextContent('Rome(Italy)');
+  });
+
+  describe('우리 여행지 표(DB) 우선', () => {
+    const newYork = { id: 'd1', name: '뉴욕', countryCode: 'US', lat: 40.71, lng: -74, googlePlaceId: 'ChIJny' };
+
+    it('DB 도시가 구글보다 먼저, 같은 "도시(나라)" 모양으로 나오고 같은 도시는 한 번만 나온다', async () => {
+      await i18n.changeLanguage('ko');
+      g.dbCities = [newYork];
+      g.predictions.mockImplementation((_req, cb) =>
+        cb([
+          { place_id: 'ChIJny', description: '미국 뉴욕주 뉴욕', structured_formatting: { main_text: '뉴욕', secondary_text: '미국 뉴욕주' } },
+          { place_id: 'ChIJno', description: '미국 뉴욕주 노스빌', structured_formatting: { main_text: '노스빌', secondary_text: '미국 뉴욕주' } },
+        ]),
+      );
+      render(<Harness onSelect={() => {}} />);
+      await type('뉴욕');
+      expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['뉴욕(미국)', '노스빌(미국)']);
+    });
+
+    it('구글 결과가 없어도 DB 도시는 나온다(구글을 못 불러오는 경우)', async () => {
+      g.newApiFails = true;
+      g.dbCities = [{ ...newYork, name: 'New York' }];
+      g.predictions.mockImplementation((_req, cb) => cb([]));
+      render(<Harness onSelect={() => {}} />);
+      await type('new york');
+      expect(screen.getAllByRole('option')[0]).toHaveTextContent('New York(United States)');
+    });
+
+    it('DB 도시를 고르면 구글 상세를 부르지 않고 좌표·나라를 그대로 알린다', async () => {
+      g.dbCities = [{ id: 'd2', name: 'Paris', countryCode: 'FR', lat: 48.85, lng: 2.35, googlePlaceId: null }];
+      g.predictions.mockImplementation((_req, cb) => cb([]));
+      const onSelect = vi.fn();
+      render(<Harness onSelect={onSelect} />);
+      await type('par');
+      fireEvent.mouseDown(screen.getAllByRole('option')[0]);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(10);
+      });
+      expect(g.getDetails).not.toHaveBeenCalled();
+      expect(onSelect).toHaveBeenCalledWith({ name: 'Paris', address: 'Paris, France', lat: 48.85, lng: 2.35, placeId: null, types: ['locality'], countryCode: 'FR' });
+      expect(screen.getByRole('combobox')).toHaveValue('Paris');
+    });
   });
 
   it('고른 뒤 글자를 고치면 선택이 풀린다', async () => {

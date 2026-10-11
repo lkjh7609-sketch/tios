@@ -4,6 +4,7 @@ import { loadGoogleMapsPlaces } from '@/shared/api/googleMapsLoader';
 import { cityDisplayName } from '../cityName';
 import { buildCityOptions } from './cityPredictions';
 import { countryCodeOf, type SelectedPlace } from './usePlaceAutocomplete';
+import { dbCityPrediction, searchDbCities, selectedFromDbCity, type CityPrediction } from './destinationCities';
 import listStyles from '../airports/AirportPicker.module.css';
 
 interface CityAutocompleteProps {
@@ -34,6 +35,42 @@ export interface ExtraOption {
 
 const DEBOUNCE_MS = 200;
 
+/**
+ * 도시 자동완성 요청 — 새 Places API(AutocompleteSuggestion)는 요청마다 화면 언어를 지정해, 한국어 화면에서 "뉴욕"·"ニューヨーク"·"紐約"·"new york"
+ * 어느 쪽으로 쳐도 같은 도시가 나온다. 예전 AutocompleteService는 지도 스크립트를 처음 불러올 때 정한 언어 하나로만 찾아, 앱(TestFlight)에서
+ * "뉴욕"이 안 나오고 "new york"만 나왔다(2026-10-11). 새 API를 못 쓰는 상태(키 설정 등)면 예전 방식으로 한 번 더 시도한다.
+ */
+async function fetchCityPredictions(
+  places: google.maps.PlacesLibrary,
+  input: string,
+  language: string,
+  sessionToken: google.maps.places.AutocompleteSessionToken,
+): Promise<CityPrediction[]> {
+  try {
+    const { suggestions } = await places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+      input,
+      language,
+      includedPrimaryTypes: ['(cities)'],
+      sessionToken,
+    });
+    return suggestions
+      .map((s) => s.placePrediction)
+      .filter((p): p is google.maps.places.PlacePrediction => !!p)
+      .map((p) => ({
+        place_id: p.placeId,
+        description: p.text.text,
+        structured_formatting: { main_text: p.mainText?.text ?? '', secondary_text: p.secondaryText?.text ?? '' },
+      }));
+  } catch {
+    return new Promise((resolve) => {
+      new google.maps.places.AutocompleteService().getPlacePredictions(
+        { input, types: ['(cities)'], sessionToken },
+        (results) => resolve((results ?? []) as CityPrediction[]),
+      );
+    });
+  }
+}
+
 /** 입력칸에 보일 글자 — 도시는 행정구역 접미사를 뗀 이름, 추가 항목(호텔 등)으로 고른 장소는 이름 그대로 */
 function shownText(place: SelectedPlace): string {
   return place.placeId?.startsWith('agoda:') ? place.name : cityDisplayName(place.address || place.name);
@@ -59,12 +96,21 @@ export function CityAutocomplete({
   const [text, setText] = useState(
     value ? shownText(value) : initialText,
   );
-  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [googlePreds, setGooglePreds] = useState<CityPrediction[]>([]);
+  const [dbPreds, setDbPreds] = useState<CityPrediction[]>([]);
   const [extras, setExtras] = useState<ExtraOption[]>([]);
   const extraAbort = useRef<AbortController | null>(null);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
   const lastValue = useRef(value);
+  // 우리 여행지 표의 도시가 먼저, 그 뒤에 구글 결과 — 같은 도시(같은 장소 ID 또는 같은 "도시(나라)")는 한 번만
+  const predictions = useMemo(() => {
+    if (dbPreds.length === 0) return googlePreds;
+    const dbLabels = new Set(buildCityOptions(dbPreds, i18n.language).map((o) => o.label));
+    const dbIds = new Set(dbPreds.map((p) => p.place_id));
+    const googleLabels = buildCityOptions(googlePreds, i18n.language).map((o) => o.label);
+    return [...dbPreds, ...googlePreds.filter((p, i) => !dbIds.has(p.place_id) && !dbLabels.has(googleLabels[i]))];
+  }, [dbPreds, googlePreds, i18n.language]);
   const options = useMemo(
     () => buildCityOptions(predictions, i18n.language),
     [predictions, i18n.language],
@@ -93,7 +139,8 @@ export function CityAutocomplete({
     const id = ++requestId.current;
     extraAbort.current?.abort();
     if (!next.trim()) {
-      setPredictions([]);
+      setGooglePreds([]);
+      setDbPreds([]);
       setExtras([]);
       return;
     }
@@ -110,18 +157,16 @@ export function CityAutocomplete({
             if (id === requestId.current) setExtras([]);
           });
       }
+      void searchDbCities(next, i18n.language).then((list) => {
+        if (id === requestId.current) setDbPreds(list.map((c) => dbCityPrediction(c, i18n.language)));
+      });
       try {
-        await loadGoogleMapsPlaces();
+        const places = await loadGoogleMapsPlaces();
         token.current ??= new google.maps.places.AutocompleteSessionToken();
-        const service = new google.maps.places.AutocompleteService();
-        service.getPlacePredictions(
-          { input: next, types: ['(cities)'], sessionToken: token.current },
-          (results) => {
-            if (id === requestId.current) setPredictions(results ?? []);
-          },
-        );
+        const found = await fetchCityPredictions(places, next, i18n.language, token.current);
+        if (id === requestId.current) setGooglePreds(found);
       } catch {
-        if (id === requestId.current) setPredictions([]);
+        if (id === requestId.current) setGooglePreds([]);
       }
     }, DEBOUNCE_MS);
   }
@@ -134,8 +179,18 @@ export function CityAutocomplete({
     onSelectExtra?.(option);
   }
 
-  async function choose(prediction: google.maps.places.AutocompletePrediction) {
+  async function choose(prediction: CityPrediction) {
     onSelectExtra?.(null);
+    if (prediction.db) {
+      // 우리 여행지 표의 도시 — 좌표·나라가 이미 있어 구글 상세 조회가 필요 없다
+      const selected: SelectedPlace = selectedFromDbCity(prediction.db);
+      setText(options.find((o) => o.placeId === prediction.place_id)?.name ?? selected.name);
+      setOpen(false);
+      token.current = null;
+      lastValue.current = selected;
+      onSelect(selected);
+      return;
+    }
     setText(options.find((o) => o.placeId === prediction.place_id)?.name ?? prediction.description);
     setOpen(false);
     try {

@@ -274,3 +274,43 @@
     animation: none;
   }
 }
+
+/* 항목 한 줄(체크박스·글·괄호 설명 토글)과 펼친 설명 */
+.item {
+  list-style: none;
+}
+.itemMain {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+.noteToggle,
+.noteToggleOpen {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-tertiary); /* 눈에 잘 안 띄는 회색 */
+  opacity: 0.7;
+  cursor: pointer;
+}
+.noteToggle svg,
+.noteToggleOpen svg {
+  transition: transform 0.2s ease;
+}
+.noteToggleOpen svg {
+  transform: rotate(90deg);
+}
+.itemNote {
+  margin: 0 0 var(--space-1) 26px; /* 체크박스 폭(18px)+간격만큼 들여 글 아래에 맞춘다 */
+  font-size: var(--font-caption-size);
+  line-height: 1.45;
+  color: var(--text-tertiary);
+}

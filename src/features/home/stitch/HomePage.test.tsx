@@ -117,13 +117,14 @@ describe('HomePage — 시안(Stitch) 구성', () => {
   it('모바일: 오늘 날씨(최저/최고)는 사진 위가 아니라 도시 이름·배지 아래 글자 줄로(날씨 아이콘과 함께)', () => {
     isDesktop.value = false;
     renderHome();
-    const temp = screen.getByText('16°/24°');
+    // 끝없이 흐르게 같은 목록을 한 번 더 붙여 둬서 같은 글이 두 번 나온다 — 앞쪽 것을 본다
+    const temp = screen.getAllByText('16°/24°')[0];
     expect(temp.className).toMatch(/circleWeather/);
     expect(temp.querySelector('svg')).not.toBeNull();
     // 사진(동그라미) 안에는 기온 글자가 없다
     expect(temp.closest('[class*="circleMedia"]')).toBeNull();
     // 배지는 그 달 기후로 고른다 — 평균 최고 24°는 '쾌적한 날씨'
-    expect(screen.getByText('쾌적한 날씨')).toBeInTheDocument();
+    expect(screen.getAllByText('쾌적한 날씨')[0]).toBeInTheDocument();
   });
 
   it('모바일: 캡슐 탭은 처음엔 아무것도 채워지지 않는다', () => {

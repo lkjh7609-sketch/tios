@@ -206,5 +206,13 @@
       "kakao": "Kakao",
       "email": "Email"
     }
+  },
+  "push": {
+    "consent": {
+      "title": "Turn on notifications?",
+      "message": "We'll send departure reminders and replies to your posts. You can turn them off anytime in Settings.",
+      "later": "Not now",
+      "allow": "Turn on"
+    }
   }
 }

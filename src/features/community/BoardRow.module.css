@@ -157,6 +157,30 @@
   font-weight: 700;
 }
 
+/* 동행글 나잇대·성별 칩 — PC는 작성자 옆(demoInline), 모바일은 제목 줄 맨 오른쪽(demoTop) */
+.demoInline,
+.demoTop {
+  display: inline-flex;
+  align-items: center;
+  min-height: 18px;
+  padding: 0 7px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-subtle);
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.demoInline {
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.demoTop {
+  display: none;
+}
+
 .pill {
   flex-shrink: 0;
   display: inline-flex;
@@ -263,6 +287,23 @@
   .row .titleWide {
     grid-column: 2 / span 2;
     grid-row: 1;
+  }
+
+  /* 동행글: 나잇대·성별 칩이 제목과 같은 줄의 맨 오른쪽 */
+  .row .titleWide.titleWithDemo {
+    grid-column: 2;
+  }
+
+  .row .demoTop {
+    display: inline-flex;
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+    align-self: center;
+  }
+
+  .row .demoInline {
+    display: none;
   }
 
   .row .thumb {

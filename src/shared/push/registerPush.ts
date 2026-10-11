@@ -36,8 +36,22 @@ export function safeAppPath(path: unknown): string | null {
   return typeof path === 'string' && path.startsWith('/') && !path.startsWith('//') && path.length <= 200 ? path : null;
 }
 
-export async function registerPushNotifications(userId: string): Promise<boolean> {
+/** 이 기기의 알림 권한 — 앱이 아니거나 확인 못 하면 null. 'prompt'는 아직 한 번도 안 물어본 상태 */
+export async function readPushPermission(): Promise<'prompt' | 'granted' | 'denied' | null> {
+  if (!isNativeApp()) return null;
+  try {
+    const { receive } = await PushNotifications.checkPermissions();
+    return receive === 'granted' ? 'granted' : receive === 'denied' ? 'denied' : 'prompt';
+  } catch (err) {
+    captureError(err, { context: 'readPushPermission' });
+    return null;
+  }
+}
+
+/** options.prompt=false면 아직 안 물어본 상태에서 iOS 권한 창을 띄우지 않는다(앱 안 동의 창을 먼저 보여 줄 때) */
+export async function registerPushNotifications(userId: string, options: { prompt?: boolean } = {}): Promise<boolean> {
   if (!isNativeApp()) return false;
+  const prompt = options.prompt ?? true;
 
   const platform = Capacitor.getPlatform();
   if (platform !== 'ios' && platform !== 'android') return false;
@@ -45,7 +59,9 @@ export async function registerPushNotifications(userId: string): Promise<boolean
 
   try {
     const current = await PushNotifications.checkPermissions();
-    const permission = current.receive === 'prompt' || current.receive === 'prompt-with-rationale' ? await PushNotifications.requestPermissions() : current;
+    const needsAsk = current.receive === 'prompt' || current.receive === 'prompt-with-rationale';
+    if (needsAsk && !prompt) return false;
+    const permission = needsAsk ? await PushNotifications.requestPermissions() : current;
     if (permission.receive !== 'granted') return false;
 
     if (!listenersReady) {
