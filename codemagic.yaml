@@ -4,7 +4,8 @@
 #  2) Environment variables 그룹 'triptic_app'(앱 번들 안에 들어가는 값): VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_GOOGLE_MAPS_API_KEY,
 #     VITE_POSTHOG_KEY, VITE_POSTHOG_HOST, VITE_SENTRY_DSN (.env.local의 같은 이름)
 #  3) 아래 APP_STORE_APPLE_ID — App Store Connect에서 앱을 만들면 나오는 숫자 Apple ID(앱 정보 → 일반 정보)
-# 서명(인증서·프로비저닝 프로파일)은 코드매직이 App Store Connect API로 자동 만든다(ios_signing).
+#  4) 환경변수 CERTIFICATE_PRIVATE_KEY(Secure) — 배포 인증서를 새로 만들 때 쓰는 RSA 개인키(PEM 전체). 그룹 triptic_app에 넣는다.
+# 서명(인증서·프로비저닝 프로파일)은 아래 스크립트가 App Store Connect API로 받아 오거나(없으면) 만든다.
 workflows:
   ios-testflight:
     name: Triptic iOS (TestFlight)
@@ -22,9 +23,6 @@ workflows:
         APP_STORE_APPLE_ID: "6820429874"   # 빌드 번호를 TestFlight 마지막 번호 + 1로 올리는 데 쓴다
       node: 22
       xcode: latest
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.triptic.travel
     scripts:
       - name: 패키지 설치
         script: npm ci
@@ -32,6 +30,15 @@ workflows:
         script: |
           npm run build
           npx cap sync ios
+      - name: 서명 준비(키체인 초기화)
+        script: keychain initialize
+      - name: 서명 파일 받기(없으면 App Store Connect API로 만든다)
+        script: |
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+      - name: 인증서 키체인에 넣기
+        script: keychain add-certificates
       - name: 서명 설정 적용
         script: xcode-project use-profiles
       - name: 빌드 번호 올리기(TestFlight 마지막 번호 + 1)
