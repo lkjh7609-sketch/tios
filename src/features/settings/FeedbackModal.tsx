@@ -77,8 +77,8 @@ export function FeedbackModal({ onClose, kind = 'general', initialBody = '' }: F
 
   if (done) {
     return (
-      <div className={modalStyles.overlay}>
-        <div ref={trapRef} className={modalStyles.sheet} role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
+      <div className={`${modalStyles.overlay} ${modalStyles.center}`}>
+        <div ref={trapRef} className={`${modalStyles.sheet} ${modalStyles.center}`} role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
           <h2>{title}</h2>
           <p className={modalStyles.hint}>{partnership ? t('feedback.partnershipSuccess') : t('feedback.submitSuccess')}</p>
           <div className={modalStyles.actions}>
@@ -92,10 +92,10 @@ export function FeedbackModal({ onClose, kind = 'general', initialBody = '' }: F
   }
 
   return (
-    <div className={modalStyles.overlay}>
+    <div className={`${modalStyles.overlay} ${modalStyles.center}`}>
       <div
         ref={trapRef}
-        className={modalStyles.sheet}
+        className={`${modalStyles.sheet} ${modalStyles.center}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="feedback-title"

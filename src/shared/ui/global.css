@@ -290,3 +290,20 @@ input[type='checkbox'],
 input[type='radio'] {
   accent-color: var(--brand-solid);
 }
+
+/* 모바일(앱): 시트·팝업 안의 스크롤 막대는 숨긴다(스크롤은 그대로 된다) */
+@media (max-width: 1023px) {
+  [role='dialog'],
+  [role='dialog'] *,
+  [role='menu'],
+  [role='listbox'] {
+    scrollbar-width: none;
+  }
+
+  [role='dialog']::-webkit-scrollbar,
+  [role='dialog'] *::-webkit-scrollbar,
+  [role='menu']::-webkit-scrollbar,
+  [role='listbox']::-webkit-scrollbar {
+    display: none;
+  }
+}

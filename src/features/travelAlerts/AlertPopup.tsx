@@ -16,10 +16,10 @@ export function AlertPopup({ title, children, onClose }: AlertPopupProps) {
   const { t } = useAlertLabels();
   const trapRef = useFocusTrap<HTMLDivElement>(onClose);
   return (
-    <div className={modalStyles.overlay}>
+    <div className={`${modalStyles.overlay} ${modalStyles.center}`}>
       <div
         ref={trapRef}
-        className={`${modalStyles.sheet} ${styles.sheet}`}
+        className={`${modalStyles.sheet} ${modalStyles.center} ${styles.sheet}`}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"

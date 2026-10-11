@@ -19,10 +19,10 @@ export function TravelAlertDialog({ alert, onContinue, onClose }: TravelAlertDia
   const country = countryName(alert);
 
   return (
-    <div className={modalStyles.overlay}>
+    <div className={`${modalStyles.overlay} ${modalStyles.center}`}>
       <div
         ref={trapRef}
-        className={`${modalStyles.sheet} ${styles[`tone${level}`]}`}
+        className={`${modalStyles.sheet} ${modalStyles.center} ${styles[`tone${level}`]}`}
         onClick={(e) => e.stopPropagation()}
         role="alertdialog"
         aria-modal="true"
