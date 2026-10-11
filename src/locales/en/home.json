@@ -364,6 +364,23 @@
     "klookCard": {
       "title": "Find tours & activities in {{city}} on Klook",
       "cta": "View on Klook"
+    },
+    "klookBanners": {
+      "tour": {
+        "title": "City tours & sightseeing",
+        "desc": "Popular guided tours",
+        "query": "tour"
+      },
+      "ticket": {
+        "title": "Tickets & theme parks",
+        "desc": "Skip-the-line tickets and passes",
+        "query": "tickets"
+      },
+      "experience": {
+        "title": "Activities & experiences",
+        "desc": "Local experiences and classes",
+        "query": "activities"
+      }
     }
   },
   "page": {

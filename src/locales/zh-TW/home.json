@@ -354,6 +354,23 @@
     "klookCard": {
       "title": "在 Klook 找{{city}}的行程與體驗",
       "cta": "前往 Klook"
+    },
+    "klookBanners": {
+      "tour": {
+        "title": "市區旅遊・觀光",
+        "desc": "有導覽的人氣行程",
+        "query": "行程"
+      },
+      "ticket": {
+        "title": "門票・主題樂園",
+        "desc": "免排隊的票券與通行證",
+        "query": "門票"
+      },
+      "experience": {
+        "title": "活動・體驗",
+        "desc": "在當地享受的體驗與課程",
+        "query": "體驗"
+      }
     }
   },
   "page": {

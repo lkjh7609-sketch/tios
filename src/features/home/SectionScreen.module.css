@@ -82,6 +82,64 @@
   }
 }
 
+/* Klook 추천 배너 3개 — 모바일은 세로로, PC는 3칸 */
+.klookBanners {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+@media (min-width: 900px) {
+  .klookBanners {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.klookBanner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 72px;
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .klookBanner:hover {
+    background: var(--surface-subtle);
+  }
+}
+
+.klookBannerBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.klookBannerTitle {
+  font-size: var(--font-body-size);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.klookBannerDesc {
+  font-size: var(--font-caption-size);
+  color: var(--text-muted);
+}
+
+.klookBannerArrow {
+  flex: 0 0 auto;
+  color: var(--text-tertiary);
+}
+
 /* 마이리얼트립 상품 카드 */
 .productGrid {
   display: grid;

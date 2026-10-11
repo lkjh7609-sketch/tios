@@ -354,6 +354,23 @@
     "klookCard": {
       "title": "{{city}}のツアー・アクティビティをKlookで探す",
       "cta": "Klookで見る"
+    },
+    "klookBanners": {
+      "tour": {
+        "title": "市内ツアー・観光",
+        "desc": "ガイド付きの人気ツアー",
+        "query": "ツアー"
+      },
+      "ticket": {
+        "title": "入場券・テーマパーク",
+        "desc": "並ばず入れるチケット・パス",
+        "query": "チケット"
+      },
+      "experience": {
+        "title": "アクティビティ・体験",
+        "desc": "現地で楽しむ体験とクラス",
+        "query": "体験"
+      }
     }
   },
   "page": {
