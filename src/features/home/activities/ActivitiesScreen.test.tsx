@@ -154,18 +154,23 @@ describe('ActivitiesScreen — 마이리얼트립', () => {
     expect(chips()).toEqual(['상품 1', '상품 2', '상품 3', '상품 4']);
   });
 
-  it('마이링크는 카드를 누를 때만 만든다(화면에 나올 때는 만들지 않는다)', async () => {
+  it('화면에 나온 카드의 마이링크는 차례로 미리 받아 두고, 누르면 새로 받지 않고 바로 연다', async () => {
     stubFetch(() => ({ items: [product(1), product(2)], hasNextPage: false, totalCount: 2 }));
-    const open = vi.spyOn(window, 'open').mockReturnValue(null);
+    const opened: string[] = [];
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      opened.push(this.href);
+    });
     renderScreen();
     await findCard('상품 1');
     const fetchMock = vi.mocked(fetch);
     const linkCalls = () => fetchMock.mock.calls.filter(([url]) => String(url).includes('/api/partnerLink'));
-    expect(linkCalls()).toHaveLength(0);
+    expect(linkCalls()).toHaveLength(0); // 한꺼번에 부르지 않는다
+    await waitFor(() => expect(linkCalls()).toHaveLength(2), { timeout: 3000 });
+    expect(String(linkCalls()[1][0])).toContain('products%2F2');
     await userEvent.click(screen.getAllByRole('button').find((b) => b.querySelector('span[class*="title"]')?.textContent === '상품 2')!);
-    await waitFor(() => expect(linkCalls()).toHaveLength(1));
-    expect(String(linkCalls()[0][0])).toContain('products%2F2');
-    open.mockRestore();
+    expect(opened).toEqual(['https://myrealt.rip/x']);
+    expect(linkCalls()).toHaveLength(2); // 누른 뒤에 새로 받지 않았다
+    click.mockRestore();
   });
 
   it('필터 없는 기본 목록은 받지 못해도 마지막으로 잘 받은 상품을 보여 주고, 필터를 건 결과는 빈 채로 둔다', async () => {

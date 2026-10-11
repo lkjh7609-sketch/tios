@@ -44,6 +44,37 @@
   }
 }
 
+.card[data-opening] {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.card[data-opening] .media::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border: 3px solid rgb(255 255 255 / 0.5);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: cardOpeningSpin 0.8s linear infinite;
+}
+
+@keyframes cardOpeningSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card[data-opening] .media::after {
+    animation: none;
+  }
+}
+
 .card:focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: 2px;
