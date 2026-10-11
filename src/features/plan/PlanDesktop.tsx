@@ -1,4 +1,4 @@
-import { useMemo, useState, type MouseEvent } from 'react';
+import { useMemo, useRef, useState, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { flightAirlineLabel } from './flights';
 import { Link, useNavigate, useSearchParams } from 'react-router';
@@ -127,6 +127,7 @@ export function PlanDesktop({ trips, ongoing, upcoming, past, onRename, onDuplic
   const [filter, setFilter] = useState<StatusFilter>('all');
   const [query, setQuery] = useState('');
   const [pastView, setPastView] = useState<PastView>('grid');
+  const pastAnchorRef = useRef<HTMLDivElement>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [showLoginRequired, setShowLoginRequired] = useState(false);
   // 가입하고 처음 새 여행을 만들려 할 때 가이드를 볼지 한 번 묻는다(firstTripGuide.ts)
@@ -247,13 +248,22 @@ export function PlanDesktop({ trips, ongoing, upcoming, past, onRename, onDuplic
                 <span className={styles.metricLabel}>{t('desktop.metricDays')}</span>
               </div>
             </div>
-            <div className={styles.metricBadge}>
+            {/* 누르면 이미 지난(다녀온) 여행만 모아 보이고, 한 번 더 누르면 전체로 돌아간다 */}
+            <button
+              type="button"
+              className={`${styles.metricBadge} ${styles.metricButton} ${filter === 'past' ? styles.metricButtonOn : ''}`}
+              aria-pressed={filter === 'past'}
+              onClick={() => {
+                setFilter((current) => (current === 'past' ? 'all' : 'past'));
+                window.requestAnimationFrame(() => pastAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+              }}
+            >
               <MapIcon size={16} color="var(--pd-subtle)" aria-hidden="true" />
               <div>
                 <span className={styles.metricValue}>{past.length}</span>
                 <span className={styles.metricLabel}>{t('desktop.metricPast')}</span>
               </div>
-            </div>
+            </button>
           </div>
           <div className={styles.searchCapsule}>
             <Search size={20} color="var(--pd-subtle)" aria-hidden="true" />
@@ -288,7 +298,7 @@ export function PlanDesktop({ trips, ongoing, upcoming, past, onRename, onDuplic
         </section>
       ) : null}
 
-      <div className={styles.pageLayout}>
+      <div className={styles.pageLayout} ref={pastAnchorRef}>
         <div className={styles.mainColumn}>
           {shownActive.length > 0 && (
             <section className={styles.sectionStack}>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -15,6 +15,7 @@ import { DestinationPreviewModal, type PreviewDestination } from './DestinationP
 import { monthRange } from './homeUtils';
 import { designPhotoFor } from './seasonPhotos';
 import { useSeasonPicks, type SeasonPick } from './seasonService';
+import { useAutoLoopScroll } from './useAutoLoopScroll';
 import shared from './shared.module.css';
 import styles from './SeasonSection.module.css';
 
@@ -85,10 +86,11 @@ function SquareCard({ pick, weather, onOpen }: { pick: SeasonPick; weather: Card
   );
 }
 
-function CircleCard({ pick, weather, tone, onOpen }: { pick: SeasonPick; weather: CardWeather | null; tone: number; onOpen: () => void }) {
+function CircleCard({ pick, weather, tone, onOpen, copy = false }: { pick: SeasonPick; weather: CardWeather | null; tone: number; onOpen: () => void; copy?: boolean }) {
   const { t } = useTranslation('home');
   return (
-    <button type="button" className={styles.circle} onClick={onOpen}>
+    // copy: 끝없이 이어 흐르게 뒤에 한 번 더 붙인 복사본 — 화면 읽기·키보드에서는 빼 둔다
+    <button type="button" className={styles.circle} onClick={onOpen} aria-hidden={copy || undefined} tabIndex={copy ? -1 : undefined}>
       <span className={styles.circleMedia}>
         <CityPhoto pick={pick} desktop={false} className={styles.circlePhoto} />
       </span>
@@ -114,6 +116,9 @@ export function SeasonSection({ desktop }: { desktop: boolean }) {
   const { data: weathers } = useDestinationWeathers(useMemo(() => picks.map((p) => p.id), [picks]));
   const [preview, setPreview] = useState<{ dest: PreviewDestination; city: string } | null>(null);
   const locale = i18n.language;
+  const circlesRef = useRef<HTMLDivElement>(null);
+  // 모바일: 가로 목록이 왼쪽으로 저절로 흐르고 끝에서 처음으로 이어진다
+  useAutoLoopScroll(circlesRef, !desktop && picks.length > 0);
 
   // 이미 DB에 저장된 도시 소개는 한 번에 받아 채워 둔다 — 카드를 눌렀을 때 기다림 없이
   useEffect(() => {
@@ -186,9 +191,12 @@ export function SeasonSection({ desktop }: { desktop: boolean }) {
           ))}
         </div>
       ) : (
-        <div className={styles.circles}>
+        <div className={styles.circles} ref={circlesRef}>
           {picks.map((pick, i) => (
             <CircleCard key={pick.id} pick={pick} tone={i} weather={weatherOf(pick)} onOpen={() => open(pick)} />
+          ))}
+          {picks.map((pick, i) => (
+            <CircleCard key={`${pick.id}-copy`} copy pick={pick} tone={i} weather={weatherOf(pick)} onOpen={() => open(pick)} />
           ))}
         </div>
       )}

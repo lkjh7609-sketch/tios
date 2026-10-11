@@ -511,6 +511,7 @@
         "confirmed": "All packed",
         "undo": "Check again"
       },
+      "noteToggle": "Show details",
       "find": "Find",
       "view": "View"
     }

@@ -88,6 +88,19 @@ describe('DepartureChecklist', () => {
     expect(JSON.parse(localStorage.getItem('triptic.checklist.trip-1')!)).toContain('passport');
   });
 
+  it('괄호 안 설명은 숨겨 두고 옆의 ">"(자세히 보기)를 누르면 펼쳐진다', () => {
+    renderChecklist();
+    expect(screen.getByRole('checkbox', { name: /^여권$/ })).toBeInTheDocument();
+    expect(screen.queryByText('만료일이 출국일 기준 6개월 이상 남았는지 확인')).not.toBeInTheDocument();
+    const toggle = screen.getAllByRole('button', { name: '자세히 보기' })[0];
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText('만료일이 출국일 기준 6개월 이상 남았는지 확인')).toBeInTheDocument();
+    fireEvent.click(toggle);
+    expect(screen.queryByText('만료일이 출국일 기준 6개월 이상 남았는지 확인')).not.toBeInTheDocument();
+  });
+
   it('전자기기 페이지: 기내/위탁 표시가 붙는다', () => {
     renderChecklist();
     fireEvent.click(screen.getByRole('button', { name: /다음/ }));

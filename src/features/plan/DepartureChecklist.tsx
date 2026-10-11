@@ -5,6 +5,7 @@ import { Check, ChevronLeft, ChevronRight, ExternalLink, ListChecks, Luggage, Pl
 import { tripService, type TripRow } from '@/shared/api/tripService';
 import { AFFILIATE_LINKS } from '@/shared/config';
 import { openFlightsSearchForTrip } from './flightsSearchLink';
+import { splitParenNote } from './checklistText';
 import {
   CHECKLIST_PAGES,
   FINAL_CABIN,
@@ -131,6 +132,16 @@ export function DepartureChecklist({ trip }: { trip: TripRow }) {
     writeAck(trip.id, value);
   }
 
+  /** 괄호 설명을 펼쳐 둔 항목 */
+  const [openNotes, setOpenNotes] = useState<Set<ItemKey>>(new Set());
+  function toggleNote(key: ItemKey) {
+    setOpenNotes((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(key)) next.add(key);
+      return next;
+    });
+  }
+
   function actionFor(item: ChecklistItem): ReactNode {
     switch (item.link) {
       case 'flights':
@@ -206,17 +217,36 @@ export function DepartureChecklist({ trip }: { trip: TripRow }) {
               const isAuto = auto[item.key] === true;
               const done = isDone(item.key);
               const action = !done ? actionFor(item) : null;
+              // 괄호 안 설명은 숨겨 두고 옆의 ">"를 누르면 펼친다(내용은 그대로)
+              const { main, note } = splitParenNote(t(`desktop.checklist.items.${item.key}`));
+              const noteOpen = note !== '' && openNotes.has(item.key);
               return (
-                <li key={item.key} className={styles.checklistRow}>
-                  <label className={styles.checklistLabel}>
-                    <input type="checkbox" className={styles.checklistInput} checked={done} disabled={isAuto} onChange={() => toggle(item.key)} />
-                    <span className={done ? styles.checklistBoxDone : styles.checklistBox} aria-hidden="true">
-                      {done ? <Check size={12} /> : null}
-                    </span>
-                    <span className={done ? styles.checklistTextDone : own.itemText}>{t(`desktop.checklist.items.${item.key}`)}</span>
-                    {item.carry ? <CarryTag carry={item.carry} /> : null}
-                  </label>
-                  {action}
+                <li key={item.key} className={own.item}>
+                  <div className={styles.checklistRow}>
+                    <div className={own.itemMain}>
+                      <label className={styles.checklistLabel}>
+                        <input type="checkbox" className={styles.checklistInput} checked={done} disabled={isAuto} onChange={() => toggle(item.key)} />
+                        <span className={done ? styles.checklistBoxDone : styles.checklistBox} aria-hidden="true">
+                          {done ? <Check size={12} /> : null}
+                        </span>
+                        <span className={done ? styles.checklistTextDone : own.itemText}>{main}</span>
+                        {item.carry ? <CarryTag carry={item.carry} /> : null}
+                      </label>
+                      {note ? (
+                        <button
+                          type="button"
+                          className={noteOpen ? own.noteToggleOpen : own.noteToggle}
+                          aria-expanded={noteOpen}
+                          aria-label={t('desktop.checklist.noteToggle')}
+                          onClick={() => toggleNote(item.key)}
+                        >
+                          <ChevronRight size={14} aria-hidden="true" />
+                        </button>
+                      ) : null}
+                    </div>
+                    {action}
+                  </div>
+                  {noteOpen ? <p className={own.itemNote}>{note}</p> : null}
                 </li>
               );
             })}
