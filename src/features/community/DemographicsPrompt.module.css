@@ -49,17 +49,35 @@
   font-size: var(--font-caption-size);
 }
 
-.save {
-  min-height: 40px;
+.actions {
+  display: flex;
+  gap: 8px;
   margin-top: 4px;
+}
+
+.close,
+.save {
+  flex: 1;
+  min-height: 40px;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.close {
+  border: 1px solid var(--border);
+  background: var(--surface-card);
+  color: var(--text-body);
+}
+
+.save {
+  flex: 1.4;
   border: 0;
   border-radius: var(--radius-md);
   background: var(--brand-solid);
   color: var(--text-on-brand);
-  font: inherit;
-  font-size: 0.875rem;
   font-weight: 700;
-  cursor: pointer;
 }
 
 .save:disabled {

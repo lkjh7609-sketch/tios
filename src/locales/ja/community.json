@@ -1082,7 +1082,8 @@
     "settingsTitle": "年代・性別",
     "settingsSaved": "保存しました。",
     "settingsHint": "同行募集の投稿と応募画面に表示されます。コミュニティの利用に必須のため、変更はできますが空にはできません。",
-    "companionBadge": "{{age}} · {{gender}}"
+    "companionBadge": "{{age}} · {{gender}}",
+    "close": "閉じる"
   },
   "board": {
     "free": "自由掲示板",

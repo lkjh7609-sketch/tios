@@ -1111,7 +1111,8 @@
     "settingsTitle": "Age range & gender",
     "settingsSaved": "Saved.",
     "settingsHint": "Shown on companion posts and applications. Required to use the community — you can change them but not clear them.",
-    "companionBadge": "{{age}} · {{gender}}"
+    "companionBadge": "{{age}} · {{gender}}",
+    "close": "Close"
   },
   "board": {
     "free": "Free board",

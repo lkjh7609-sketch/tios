@@ -1082,7 +1082,8 @@
     "settingsTitle": "年齡層・性別",
     "settingsSaved": "已儲存。",
     "settingsHint": "會顯示在同行招募貼文與申請畫面。使用社群需要填寫，因此只能更改、不能清空。",
-    "companionBadge": "{{age}} · {{gender}}"
+    "companionBadge": "{{age}} · {{gender}}",
+    "close": "關閉"
   },
   "board": {
     "free": "自由討論版",

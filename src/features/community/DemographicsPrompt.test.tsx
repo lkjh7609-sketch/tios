@@ -7,6 +7,7 @@ const state = vi.hoisted(() => ({
   user: { id: 'u1' } as { id: string } | null,
   profile: { gender: null, age_band: null } as unknown,
   mutateAsync: vi.fn(),
+  leave: vi.fn(),
 }));
 
 vi.mock('@/shared/hooks/useSession', () => ({ useSession: () => ({ user: state.user }) }));
@@ -22,7 +23,7 @@ import { DemographicsPrompt, shouldAskDemographics } from './DemographicsPrompt'
 function renderPrompt() {
   return render(
     <QueryClientProvider client={new QueryClient()}>
-      <DemographicsPrompt />
+      <DemographicsPrompt onLeave={state.leave} />
     </QueryClientProvider>,
   );
 }
@@ -31,6 +32,7 @@ beforeEach(() => {
   state.user = { id: 'u1' };
   state.profile = { gender: null, age_band: null };
   state.mutateAsync.mockReset().mockResolvedValue(undefined);
+  state.leave.mockReset();
 });
 
 describe('shouldAskDemographics', () => {
@@ -55,9 +57,16 @@ describe('DemographicsPrompt', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
-  it('필수라 "나중에"도 닫기 버튼도 없고, 둘 중 하나만 골라서는 저장할 수 없다', () => {
+  it('"닫기"를 누르면 저장하지 않고 이전 화면으로 돌려보낸다("나중에"는 없다)', () => {
     renderPrompt();
     expect(screen.queryByRole('button', { name: '나중에' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '닫기' }));
+    expect(state.leave).toHaveBeenCalledTimes(1);
+    expect(state.mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it('둘 중 하나만 골라서는 저장할 수 없다', () => {
+    renderPrompt();
     fireEvent.click(screen.getByRole('radio', { name: '여성' }));
     expect(screen.getByRole('button', { name: '저장' })).toBeDisabled();
     fireEvent.click(screen.getByRole('radio', { name: '30대 초반' }));

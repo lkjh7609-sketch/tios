@@ -1082,7 +1082,8 @@
     "settingsTitle": "나잇대·성별",
     "settingsSaved": "저장했어요.",
     "settingsHint": "동행 모집글·지원 화면에 표기돼요. 커뮤니티 이용에 필요해서 비울 수 없고, 바꾸는 것만 가능해요.",
-    "companionBadge": "{{age}} · {{gender}}"
+    "companionBadge": "{{age}} · {{gender}}",
+    "close": "닫기"
   },
   "board": {
     "free": "자유게시판",

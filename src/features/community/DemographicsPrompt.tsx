@@ -15,11 +15,11 @@ export function shouldAskDemographics(profile: { gender: unknown; age_band: unkn
 }
 
 /**
- * 커뮤니티에 들어올 때 나잇대·성별이 비어 있으면 뜨는 팝업 — 필수라 "나중에"도 닫기도 없고, 둘 다 골라 저장해야 커뮤니티를 쓸 수 있다
- * (2026-10-11 사용자 결정). 동행 모집글·지원 화면에 표기하려고 받는다고 밝힌다. 서버(profiles.gender/age_band)를 기준으로 해서
+ * 커뮤니티에 들어올 때 나잇대·성별이 비어 있으면 뜨는 팝업 — 필수라 둘 다 골라 저장해야 커뮤니티를 쓸 수 있다. "닫기"(와 Esc)를 누르면
+ * 입력 없이 이전 화면으로 돌려보낸다(2026-10-11 사용자 결정). 동행 모집글·지원 화면에 표기하려고 받는다고 밝힌다. 서버(profiles.gender/age_band)를 기준으로 해서
  * 다른 기기·기존 회원에게도 뜬다. 이전의 "나중에"(demographics_skips)는 더 이상 쓰지 않는다.
  */
-export function DemographicsPrompt() {
+export function DemographicsPrompt({ onLeave }: { onLeave: () => void }) {
   const { t } = useTranslation(['community', 'common']);
   const { user } = useSession();
   const { data: profile } = useProfile();
@@ -28,8 +28,8 @@ export function DemographicsPrompt() {
   const [ageBand, setAgeBand] = useState<MemberAgeBand | null>(null);
   const [error, setError] = useState(false);
   const [closed, setClosed] = useState(false);
-  // 필수라 Esc·바깥 누르기로 닫히지 않는다
-  const trapRef = useFocusTrap<HTMLDivElement>(() => {});
+  // 닫기·Esc는 입력 없이 커뮤니티를 떠난다(onLeave — 이전 화면으로)
+  const trapRef = useFocusTrap<HTMLDivElement>(onLeave);
 
   if (!user || closed || !shouldAskDemographics(profile)) return null;
 
@@ -57,9 +57,14 @@ export function DemographicsPrompt() {
             {t('demographics.saveError')}
           </p>
         ) : null}
-        <button type="button" className={styles.save} disabled={incomplete || update.isPending} onClick={() => void save()}>
-          {t('demographics.save')}
-        </button>
+        <div className={styles.actions}>
+          <button type="button" className={styles.close} onClick={onLeave}>
+            {t('demographics.close')}
+          </button>
+          <button type="button" className={styles.save} disabled={incomplete || update.isPending} onClick={() => void save()}>
+            {t('demographics.save')}
+          </button>
+        </div>
       </div>
     </div>
   );
