@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { isNativeApp } from '@/shared/platform';
 
 /**
  * 테마 전환 (02-screens.md §5 환경설정 "테마(시스템/라이트/다크)")
@@ -64,4 +65,19 @@ function subscribeTheme(onChange: () => void) {
 /** 테마가 바뀌면 다시 그려야 하는 외부 위젯(색을 주소로 받는 제휴 위젯 등)용 */
 export function useResolvedTheme(): 'light' | 'dark' {
   return useSyncExternalStore(subscribeTheme, resolvedTheme, () => 'light');
+}
+
+/**
+ * 앱(iOS)에서 상태 표시줄 글자색을 지금 테마에 맞춘다 — 라이트 배경엔 어두운 글자(Style.Light), 다크 배경엔 밝은 글자(Style.Dark).
+ * (Capacitor 이름이 반대로 읽힌다: Light = '밝은 배경용'.) 웹 번들에 앱 전용 코드가 섞이지 않게 앱일 때만 동적으로 불러온다.
+ */
+export function watchNativeStatusBar(): void {
+  if (!isNativeApp()) return;
+  const sync = () => {
+    import('@capacitor/status-bar')
+      .then(({ StatusBar, Style }) => StatusBar.setStyle({ style: resolvedTheme() === 'dark' ? Style.Dark : Style.Light }))
+      .catch(() => {});
+  };
+  sync();
+  subscribeTheme(sync);
 }

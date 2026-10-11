@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { tripService } from '@/shared/api/tripService';
 import { captureError, track } from '@/shared/monitoring';
+import { publicOrigin } from '@/shared/api/apiUrl';
 import { useSession } from '@/shared/hooks/useSession';
 import type { PdfExportInput } from './pdfExport';
 import { useTripMembers, initialsOf } from './hooks/useTripMembers';
@@ -86,7 +87,7 @@ export function ShareSheet({ tripId, onClose, itineraryText, pdfInput, isSample,
   }, [isSample]);
 
 
-  const shareUrl = shareCode ? `${window.location.origin}/shared/${shareCode}` : '';
+  const shareUrl = shareCode ? `${publicOrigin()}/shared/${shareCode}` : '';
 
   async function handleCopy() {
     try {

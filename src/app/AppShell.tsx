@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { Outlet, ScrollRestoration, useLocation, useNavigate, useNavigation, useNavigationType } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { TabBar } from './TabBar';
@@ -48,16 +48,32 @@ function useDelayedFlag(flag: boolean, delayMs: number) {
   return flag && elapsed;
 }
 
+/** View Transitions를 못 쓰는 환경(iOS 17 이하 WKWebView 등)에서 쓰는 대체 전환 — 새 화면 본문을 방향에 맞게 밀어 넣는다 */
+function animateRouteFallback(main: HTMLElement, direction: ReturnType<typeof navDirection>) {
+  if (typeof main.animate !== 'function') return;
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+  const shown = { transform: 'none', opacity: 1 };
+  const from =
+    direction === 'forward'
+      ? { transform: 'translateX(36px)', opacity: 0 }
+      : direction === 'back'
+        ? { transform: 'translateX(-36px)', opacity: 0 }
+        : { transform: 'translateY(14px)', opacity: 0 };
+  main.animate([from, shown], { duration: direction === 'fade' ? 280 : 340, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' });
+}
+
 /** 새 화면이 그려지는 순간(View Transition 스냅샷 직전) 방향을 html[data-nav]에 적는다 */
-function useNavDirectionAttr() {
+function useNavDirectionAttr(mainRef: RefObject<HTMLElement | null>) {
   const { pathname } = useLocation();
   const navType = useNavigationType();
   const prevPathname = useRef(pathname);
   useLayoutEffect(() => {
     if (prevPathname.current === pathname) return;
-    document.documentElement.dataset.nav = navDirection(prevPathname.current, pathname, navType);
+    const direction = navDirection(prevPathname.current, pathname, navType);
+    document.documentElement.dataset.nav = direction;
     prevPathname.current = pathname;
-  }, [pathname, navType]);
+    if (typeof document.startViewTransition !== 'function' && mainRef.current) animateRouteFallback(mainRef.current, direction);
+  }, [pathname, navType, mainRef]);
 }
 
 /**
@@ -91,7 +107,8 @@ export function AppShell() {
   useLayoutEffect(() => {
     setSignedIn(!!user);
   }, [user]);
-  useNavDirectionAttr();
+  const mainRef = useRef<HTMLElement>(null);
+  useNavDirectionAttr(mainRef);
   // 함께 편집하는 여행·동행 인원을 실시간으로 맞춘다
   useTripRealtimeSync(user?.id ?? null);
   // 최근 접속·접속 국가를 서버에 남긴다(운영자 회원 관리용, 30분에 한 번)
@@ -158,7 +175,7 @@ export function AppShell() {
   return (
     <div className={`app-shell ${styles.shell}`}>
       {isGuestSample ? <GuestBanner onLogin={openLoginPrompt} draft={isGuestDraft} /> : isDesktop && <HeaderDesktop />}
-      <main className={styles.content}>
+      <main ref={mainRef} className={styles.content}>
         {routeNeedsLogin ? null : showRouteSkeleton ? <RouteSkeleton /> : <Outlet />}
       </main>
       {!isGuestSample && !isDesktop && <TabBar guest={!user} />}

@@ -4,12 +4,14 @@
   "webDir": "dist",
   "bundledWebRuntime": false,
   "ios": {
-    "contentInset": "automatic",
-    "preferredContentMode": "mobile"
+    "contentInset": "never",
+    "preferredContentMode": "mobile",
+    "webContentsDebuggingEnabled": true,
+    "backgroundColor": "#FDFBF7"
   },
   "plugins": {
     "StatusBar": {
-      "style": "DARK"
+      "style": "DEFAULT"
     }
   }
 }

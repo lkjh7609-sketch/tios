@@ -13,8 +13,10 @@ export interface LicenseEntry {
 
 export const OSS_LICENSES: LicenseEntry[] = [
   { name: '@capacitor/core', version: '8.5.2', license: 'MIT' },
+  { name: '@capacitor/filesystem', version: '8.1.4', license: 'MIT' },
   { name: '@capacitor/haptics', version: '8.0.2', license: 'MIT' },
   { name: '@capacitor/ios', version: '8.5.2', license: 'MIT' },
+  { name: '@capacitor/share', version: '8.0.3', license: 'MIT' },
   { name: '@capacitor/status-bar', version: '8.0.3', license: 'MIT' },
   { name: '@dnd-kit/core', version: '6.3.1', license: 'MIT' },
   { name: '@dnd-kit/sortable', version: '10.0.0', license: 'MIT' },

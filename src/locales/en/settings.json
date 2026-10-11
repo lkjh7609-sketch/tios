@@ -241,5 +241,14 @@
       "kakao": "You signed up with Kakao. Your password is managed by Kakao, so it can't be changed here.",
       "apple": "You signed up with Apple. Your password is managed by Apple, so it can't be changed here."
     }
+  },
+  "menu": {
+    "title": "Settings menu",
+    "back": "Back",
+    "preferences": "Preferences",
+    "notifications": "Notification settings",
+    "data": "Data & storage",
+    "community": "Community",
+    "about": "About the app"
   }
 }

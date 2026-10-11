@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import '@/shared/ui/global.css';
 import '@/shared/i18n';
 import { scheduleMonitoring } from '@/shared/monitoring';
-import { applyStoredTheme } from '@/shared/theme';
+import { applyStoredTheme, watchNativeStatusBar } from '@/shared/theme';
 import { isNativeApp } from '@/shared/platform';
 import { App } from './App';
 import { installStaleChunkReload } from './chunkRetry';
@@ -19,6 +19,7 @@ installStaleChunkReload();
 reportBootFailure();
 scheduleMonitoring();
 applyStoredTheme();
+watchNativeStatusBar();
 installContentGuards();
 
 /** PWA 설치·오프라인 열람 (DEVELOPMENT_PLAN.md §10.3). */

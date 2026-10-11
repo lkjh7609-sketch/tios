@@ -15,3 +15,11 @@ export function apiUrl(path: string): string {
   if (override) return `${override.replace(/\/$/, '')}${path}`;
   return isNativeApp() ? `${PRODUCTION_ORIGIN}${path}` : path;
 }
+
+/**
+ * 사람에게 보여 주거나 남에게 보내는 링크(공유 링크 등)의 기준 주소.
+ * 네이티브 앱의 window.location.origin은 capacitor://localhost라 받는 사람이 열 수 없으므로 운영 도메인을 쓴다.
+ */
+export function publicOrigin(): string {
+  return isNativeApp() ? PRODUCTION_ORIGIN : window.location.origin;
+}
