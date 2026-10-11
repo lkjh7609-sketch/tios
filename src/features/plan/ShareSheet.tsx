@@ -8,6 +8,8 @@ import { useSession } from '@/shared/hooks/useSession';
 import type { PdfExportInput } from './pdfExport';
 import { useTripMembers, initialsOf } from './hooks/useTripMembers';
 import { useLeaveTrip, useRemoveTripMember } from './hooks/useTrips';
+import { confirmDialog } from '@/shared/ui/dialogHost';
+import { useFocusTrap } from '@/shared/a11y/useFocusTrap';
 import styles from './ShareSheet.module.css';
 import { Link, Clipboard, BookOpen, FileText, Users } from 'lucide-react';
 
@@ -35,6 +37,7 @@ interface ShareSheetProps {
  * 전체 일정 텍스트 복사·PDF도 같은 시트에 얹었다 — 헤더가 이미 버튼으로 빽빽해서.
  */
 export function ShareSheet({ tripId, onClose, itineraryText, pdfInput, isSample, isDraft, ownerId }: ShareSheetProps) {
+  const trapRef = useFocusTrap<HTMLDivElement>(onClose);
   const { t } = useTranslation(['plan', 'common']);
   const [shareCode, setShareCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -66,15 +69,18 @@ export function ShareSheet({ tripId, onClose, itineraryText, pdfInput, isSample,
   }
 
   function handleRemoveMember(userId: string, name: string | null) {
-    if (!window.confirm(t('collab.removeConfirm', { name: name ?? t('desktop.memberUnknown') }))) return;
-    removeMember.mutate(userId, { onError: (err) => captureError(err, { context: 'removeTripMember' }) });
+    void confirmDialog({ title: t('collab.remove'), message: t('collab.removeConfirm', { name: name ?? t('desktop.memberUnknown') }), confirmLabel: t('collab.remove'), danger: true }).then((ok) => {
+      if (ok) removeMember.mutate(userId, { onError: (err) => captureError(err, { context: 'removeTripMember' }) });
+    });
   }
 
   function handleLeave() {
-    if (!window.confirm(t('collab.leaveConfirmShort'))) return;
-    leaveTrip.mutate(tripId, {
-      onSuccess: () => navigate('/plan', { replace: true }),
-      onError: (err) => captureError(err, { context: 'leaveTrip' }),
+    void confirmDialog({ title: t('collab.leave'), message: t('collab.leaveConfirmShort'), confirmLabel: t('collab.leave'), danger: true }).then((ok) => {
+      if (!ok) return;
+      leaveTrip.mutate(tripId, {
+        onSuccess: () => navigate('/plan', { replace: true }),
+        onError: (err) => captureError(err, { context: 'leaveTrip' }),
+      });
     });
   }
 
@@ -129,7 +135,7 @@ export function ShareSheet({ tripId, onClose, itineraryText, pdfInput, isSample,
   }
 
   async function handleRevoke() {
-    if (!window.confirm(t('share.revokeConfirm'))) return;
+    if (!(await confirmDialog({ title: t('share.revoke'), message: t('share.revokeConfirm'), confirmLabel: t('share.revoke'), danger: true }))) return;
     setLoading(true);
     try {
       await tripService.revokeShareLinks(tripId);
@@ -144,7 +150,7 @@ export function ShareSheet({ tripId, onClose, itineraryText, pdfInput, isSample,
 
   return (
     <div className={styles.overlay}>
-      <div className={styles.sheet} onClick={(e) => e.stopPropagation()}>
+      <div ref={trapRef} className={styles.sheet} role="dialog" aria-modal="true" aria-label={t('share.title')} onClick={(e) => e.stopPropagation()}>
         <h2 className={styles.title}><span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}><Link size={18} /> {t('share.title')}</span></h2>
 
         {isSample ? (

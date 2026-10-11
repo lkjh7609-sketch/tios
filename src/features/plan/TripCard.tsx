@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import type { TripRow } from '@/shared/api/tripService';
 import { useCityImage } from '@/shared/hooks/useCityImage';
 import { getDDay } from './tripStatus';
+import { confirmDialog, promptDialog } from '@/shared/ui/dialogHost';
 import styles from './TripCard.module.css';
 import { cityDisplayName } from './cityName';
 import { TripWeatherChip } from '@/features/weather/TripWeatherChip';
@@ -32,8 +33,9 @@ export function TripCard({ trip, onRename, onDuplicate, onDelete, showMenu = tru
     e.preventDefault();
     e.stopPropagation();
     setMenuOpen(false);
-    const next = window.prompt(t('tripCard.renamePrompt'), trip.title);
-    if (next && next.trim()) onRename(trip.id, next.trim());
+    void promptDialog({ title: t('tripCard.renamePrompt'), defaultValue: trip.title }).then((next) => {
+      if (next) onRename(trip.id, next);
+    });
   }
 
   function handleDuplicate(e: React.MouseEvent) {
@@ -47,9 +49,9 @@ export function TripCard({ trip, onRename, onDuplicate, onDelete, showMenu = tru
     e.preventDefault();
     e.stopPropagation();
     setMenuOpen(false);
-    if (window.confirm(t('tripCard.deleteConfirm', { title: trip.title }))) {
-      onDelete(trip.id);
-    }
+    void confirmDialog({ title: t('common:action.delete'), message: t('tripCard.deleteConfirm', { title: trip.title }), confirmLabel: t('common:action.delete'), danger: true }).then((ok) => {
+      if (ok) onDelete(trip.id);
+    });
   }
 
   return (

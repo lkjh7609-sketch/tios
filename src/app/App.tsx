@@ -12,6 +12,8 @@ import { installNativeAuthListener } from '@/shared/api/nativeAuth';
 import { useSession } from '@/shared/hooks/useSession';
 import { installPushTapHandler } from '@/shared/push/registerPush';
 import { PushConsent } from '@/shared/push/PushConsent';
+import { installSheetGestures } from '@/shared/ui/sheetGestures';
+import { DialogHost } from '@/shared/ui/dialogHost';
 import { identifyUser, resetIdentity, track } from '@/shared/monitoring';
 import { SuspensionGate } from '@/features/auth/SuspensionGate';
 import { LoginConflictGate } from '@/features/auth/LoginConflictGate';
@@ -92,6 +94,8 @@ function PushBootstrap() {
 export function App() {
   // 앱에서는 호텔·항공·액티비티 등 바깥 사이트 링크를 인앱 브라우저로 연다(웹에서는 아무 일도 하지 않는다)
   useEffect(() => installExternalLinkHandler(), []);
+  // 화면 아래에 붙은 창은 iOS 시트처럼 — 열릴 때 쭉 올라오고, 위쪽을 잡아 내리면 닫힌다
+  useEffect(() => installSheetGestures(), []);
   // 앱에서 소셜 로그인이 끝나 앱 전용 주소로 돌아오면 그 코드로 로그인을 마친다(웹에서는 아무것도 하지 않는다)
   useEffect(() => installNativeAuthListener(), []);
   return (
@@ -115,6 +119,7 @@ export function App() {
           <SuspensionGate />
           <LoginConflictGate />
           <PushBootstrap />
+          <DialogHost />
         </Suspense>
       </PersistQueryClientProvider>
     </ErrorBoundary>

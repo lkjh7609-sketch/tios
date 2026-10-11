@@ -54,9 +54,18 @@ export function useFocusTrap<T extends HTMLElement>(onClose?: () => void) {
       }
     }
 
+    // 하단 시트를 끌어 내려 닫는 동작(sheetGestures)이 보내는 신호 — 닫는 쪽이 받았다고 preventDefault로 알린다
+    function handleSheetDismiss(e: Event) {
+      if (!onClose) return;
+      e.preventDefault();
+      onClose();
+    }
+
     document.addEventListener('keydown', handleKeyDown);
+    container.addEventListener('sheet-dismiss', handleSheetDismiss);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
+      container.removeEventListener('sheet-dismiss', handleSheetDismiss);
       previouslyFocused?.focus();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- onClose는 매 렌더 새 함수여도 트랩 재설정이 필요 없다

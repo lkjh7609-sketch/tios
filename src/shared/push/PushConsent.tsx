@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
-import { showToast } from '@/shared/ui/toast';
 import { isNativeApp } from '@/shared/platform';
 import { useProfile, useUpdateProfile } from '@/shared/hooks/useProfile';
 import { withNotificationsEnabled } from '@/shared/api/profileService';
-import { readPushPermission, registerPushNotifications } from './registerPush';
+import { openPushSettings, readPushPermission, registerPushNotifications } from './registerPush';
 
 function askedKey(userId: string) {
   return `triptic-push-asked-${userId}`;
@@ -39,6 +38,8 @@ export function PushConsent({ userId }: { userId: string | undefined }) {
   const { data: profile } = useProfile();
   const updateProfile = useUpdateProfile();
   const [open, setOpen] = useState(false);
+  // iOS에서 이미 알림을 거부한 기기 — 앱이 다시 묻지 못해서 iPhone 설정으로 안내하는 두 번째 창
+  const [needsSettings, setNeedsSettings] = useState(false);
 
   useEffect(() => {
     if (!userId || !isNativeApp()) return;
@@ -56,6 +57,18 @@ export function PushConsent({ userId }: { userId: string | undefined }) {
     };
   }, [userId]);
 
+  if (needsSettings) {
+    return (
+      <ConfirmDialog
+        title={t('push.consent.settingsTitle')}
+        message={t('push.consent.settingsMessage')}
+        cancelLabel={t('push.consent.settingsLater')}
+        confirmLabel={t('push.consent.settingsOpen')}
+        onClose={() => setNeedsSettings(false)}
+        onConfirm={openPushSettings}
+      />
+    );
+  }
   if (!open || !userId) return null;
   return (
     <ConfirmDialog
@@ -69,8 +82,10 @@ export function PushConsent({ userId }: { userId: string | undefined }) {
       }}
       onConfirm={() => {
         if (profile) updateProfile.mutate({ notification_prefs: withNotificationsEnabled(profile.notification_prefs, true) });
-        void registerPushNotifications(userId).then((ok) => {
-          if (!ok) showToast(t('push.consent.osDenied'));
+        void registerPushNotifications(userId).then(async (ok) => {
+          if (ok) return;
+          // 못 받은 이유가 iOS 권한 거부면 iPhone 설정으로 안내한다
+          if ((await readPushPermission()) === 'denied') setNeedsSettings(true);
         });
       }}
     />

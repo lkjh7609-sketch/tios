@@ -163,7 +163,7 @@
 .secondary,
 .primary {
   flex: 1;
-  height: 48px;
+  height: 44px;
   border-radius: var(--radius-md);
   font-size: var(--font-body-size);
   font-weight: 600;
@@ -173,9 +173,10 @@
 
 .secondary {
   appearance: none;
-  background: var(--surface-subtle);
-  border: none;
+  background: var(--surface-card);
+  border: 1px solid var(--border); /* 다른 시트의 취소 버튼과 같은 흰 바탕 윤곽선 */
   color: var(--text-body);
+  font-weight: 500;
 }
 
 
@@ -190,4 +191,37 @@
 .primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* 모바일(앱): 아래에서 올라오는 하단 시트 — 위쪽 손잡이를 잡고 내리면 닫힌다(shared/ui/sheetGestures.ts). PC(1024px~)는 가운데 창 그대로 */
+@media (max-width: 1023px) {
+  .overlay {
+    align-items: flex-end;
+  }
+
+  .sheet {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    max-height: 92dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-top: var(--space-8);
+    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+
+  .sheet::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    width: 36px;
+    height: 5px;
+    border-radius: 9999px;
+    background: var(--border-strong);
+    translate: -50% 0;
+    pointer-events: none;
+  }
 }

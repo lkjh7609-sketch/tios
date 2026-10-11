@@ -26,6 +26,7 @@ import { translateText } from './translateClient';
 import type { Comment, CommunityProfile, Locale, PostImage } from './types';
 import styles from './PostDetailPage.module.css';
 import { openLoginPrompt } from '@/features/auth/loginPrompt';
+import { confirmDialog } from '@/shared/ui/dialogHost';
 import { LightMarkdown } from './editor/LightMarkdown';
 import { imagePathsOf, withoutImages } from './editor/markdownParse';
 
@@ -177,7 +178,7 @@ export function PostDetailScreen() {
   }
 
   async function handleDeletePost() {
-    if (!window.confirm(t('detail.deleteConfirm'))) return;
+    if (!(await confirmDialog({ title: t('action.delete', { ns: 'common' }), message: t('detail.deleteConfirm'), confirmLabel: t('action.delete', { ns: 'common' }), danger: true }))) return;
     await deletePost.mutateAsync(post!.id);
     // 글이 있던 게시판(도시 채널·자유게시판)으로 — 기록을 바꿔치기해서 뒤로가기가 지운 글로 돌아가지 않게
     const slug = destinations?.find((d) => d.id === post!.destination_id)?.slug;

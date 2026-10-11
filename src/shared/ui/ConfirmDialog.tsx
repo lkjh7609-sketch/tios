@@ -1,5 +1,5 @@
 import { useFocusTrap } from '@/shared/a11y/useFocusTrap';
-import modalStyles from '@/features/plan/AddPlaceModal.module.css';
+import modalStyles from './SmallDialog.module.css';
 import styles from './ConfirmDialog.module.css';
 
 interface ConfirmDialogProps {

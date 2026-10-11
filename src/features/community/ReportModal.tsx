@@ -100,7 +100,7 @@ export function ReportModal({ targetType, targetId, onClose, onReported }: Repor
             />
             {errorMessage ? <p className={styles.error}>{errorMessage}</p> : null}
             <div className={modalStyles.actions}>
-              <button type="button" className={modalStyles.primary} onClick={onClose}>
+              <button type="button" className={modalStyles.secondary} onClick={onClose}>
                 {t('action.cancel', { ns: 'common' })}
               </button>
               <button

@@ -111,8 +111,8 @@ export function RemoveMemberDialog({ name, onConfirm, onClose }: RemoveMemberDia
   const useCode = pinEnabled !== false; // 꺼져 있다고 확인된 때만 건너뛴다(확인 전에는 코드를 묻는 쪽)
 
   return (
-    <div className={modalStyles.overlay}>
-      <div ref={focusTrapRef} className={modalStyles.sheet} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={title}>
+    <div className={`${modalStyles.overlay} ${modalStyles.center}`}>
+      <div ref={focusTrapRef} className={`${modalStyles.sheet} ${modalStyles.center}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={title}>
         <h2 className={modalStyles.title}>{title}</h2>
 
         {step === 'reason' ? (

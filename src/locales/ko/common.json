@@ -213,7 +213,11 @@
       "message": "여행 출발 전 알림을 받아볼 수 있어요.\n댓글·답글 소식도 놓치지 않게 알려 드려요.\n\n알림은 설정 > 알림 설정에서\n언제든 바꿀 수 있어요.",
       "later": "나중에",
       "allow": "받을게요",
-      "osDenied": "iPhone 설정에서 Triptic 알림을 허용해 주세요."
+      "osDenied": "iPhone 설정에서 Triptic 알림을 허용해 주세요.",
+      "settingsTitle": "iPhone 설정에서 켜 주세요",
+      "settingsMessage": "이 기기는 이전에 알림을 허용하지 않아 앱에서 다시 물을 수 없어요.\n\n설정 > Triptic > 알림에서\n\"알림 허용\"을 켜 주세요.",
+      "settingsLater": "나중에",
+      "settingsOpen": "설정 열기"
     }
   }
 }

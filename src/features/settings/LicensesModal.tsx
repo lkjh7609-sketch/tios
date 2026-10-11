@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useFocusTrap } from '@/shared/a11y/useFocusTrap';
 import { OSS_LICENSES } from './licenses.data';
 import modalStyles from '../plan/AddPlaceModal.module.css';
 import styles from './LicensesModal.module.css';
@@ -10,9 +11,10 @@ interface LicensesModalProps {
 /** 오픈소스 라이선스 목록 (02-screens.md §5 정보 섹션, App Store 심사 대비) */
 export function LicensesModal({ onClose }: LicensesModalProps) {
   const { t } = useTranslation(['settings', 'common']);
+  const trapRef = useFocusTrap<HTMLDivElement>(onClose);
   return (
     <div className={modalStyles.overlay}>
-      <div className={modalStyles.sheet} onClick={(e) => e.stopPropagation()}>
+      <div ref={trapRef} className={modalStyles.sheet} role="dialog" aria-modal="true" aria-label={t('licenses.title')} onClick={(e) => e.stopPropagation()}>
         <h2 className={modalStyles.title}>{t('licenses.title')}</h2>
         <ul className={styles.list}>
           {OSS_LICENSES.map((entry) => (

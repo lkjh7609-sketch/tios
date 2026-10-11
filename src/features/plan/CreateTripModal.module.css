@@ -42,6 +42,8 @@
   min-height: 44px;
   border: 1px solid var(--border-control);
   border-radius: var(--radius-md);
+  background: var(--surface-card); /* 다크 모드에서 입력칸만 흰색으로 남지 않게 */
+  color: var(--text-primary);
   padding: 0 var(--space-3);
   font-size: var(--font-body-size);
 }
@@ -85,4 +87,37 @@
 }
 .primary:disabled {
   opacity: 0.5;
+}
+
+/* 모바일(앱): 아래에서 올라오는 하단 시트 — 위쪽 손잡이를 잡고 내리면 닫힌다(shared/ui/sheetGestures.ts). PC(1024px~)는 가운데 창 그대로 */
+@media (max-width: 1023px) {
+  .overlay {
+    align-items: flex-end;
+  }
+
+  .sheet {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    max-height: 92dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-top: var(--space-8);
+    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+
+  .sheet::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    width: 36px;
+    height: 5px;
+    border-radius: 9999px;
+    background: var(--border-strong);
+    translate: -50% 0;
+    pointer-events: none;
+  }
 }

@@ -213,7 +213,11 @@
       "message": "旅行の出発前にお知らせを受け取れます。\nコメントや返信のお知らせもお届けします。\n\n通知は 設定 > 通知設定 から\nいつでも変更できます。",
       "later": "あとで",
       "allow": "受け取る",
-      "osDenied": "iPhoneの設定でTripticの通知を許可してください。"
+      "osDenied": "iPhoneの設定でTripticの通知を許可してください。",
+      "settingsTitle": "iPhoneの設定でオンにしてください",
+      "settingsMessage": "この端末では以前に通知が許可されなかったため、アプリから再度確認できません。\n\n設定 > Triptic > 通知 で\n「通知を許可」をオンにしてください。",
+      "settingsLater": "あとで",
+      "settingsOpen": "設定を開く"
     }
   }
 }

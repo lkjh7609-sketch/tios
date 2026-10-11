@@ -24,7 +24,7 @@ export function SetHotelModal({ currentDay, totalDays, hotelsData, biasForDay, o
   const [activeDay, setActiveDay] = useState(currentDay);
   const [draftHotels, setDraftHotels] = useState<HotelsData>(hotelsData);
   const [saving, setSaving] = useState(false);
-  const sheetRef = useFocusTrap<HTMLDivElement>();
+  const sheetRef = useFocusTrap<HTMLDivElement>(onClose);
   const paneRef = useRef<HTMLDivElement>(null);
   const dayTabsRef = useRef<HTMLDivElement>(null);
 
@@ -85,7 +85,7 @@ export function SetHotelModal({ currentDay, totalDays, hotelsData, biasForDay, o
 
   return (
     <div className={styles.overlay}>
-      <div ref={sheetRef} className={styles.sheet} onClick={(e) => e.stopPropagation()}>
+      <div ref={sheetRef} className={styles.sheet} role="dialog" aria-modal="true" aria-label={t('hotel.title')} onClick={(e) => e.stopPropagation()}>
         <h2 className={styles.title}><span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}><Hotel size={18} aria-hidden="true" /> {t('hotel.title')}</span></h2>
         
         {totalDays > 1 && (

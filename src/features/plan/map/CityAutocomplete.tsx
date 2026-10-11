@@ -267,6 +267,8 @@ export function CityAutocomplete({
         aria-autocomplete="list"
         aria-activedescendant={showList ? `${listId}-${active}` : undefined}
         autoComplete="off"
+        // 입력칸이 감싸는 div 안에 있어 flex로 늘어나지 않는다 — 폭을 직접 채운다(옆의 다른 입력칸과 같은 폭)
+        style={{ width: '100%', boxSizing: 'border-box' }}
         placeholder={placeholder}
         value={text}
         onChange={(e) => onType(e.target.value)}
