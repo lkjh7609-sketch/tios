@@ -251,5 +251,24 @@
     "data": "資料與儲存空間",
     "community": "社群",
     "about": "應用程式資訊"
+  },
+  "redeem": {
+    "menu": "兌換碼",
+    "title": "兌換碼",
+    "desc": "輸入我們直接寄給你的代碼，\n就能增加可建立的旅行次數。",
+    "inputLabel": "輸入兌換碼",
+    "apply": "套用",
+    "applying": "確認中…",
+    "close": "關閉",
+    "success": "已增加 {{n}} 次旅行建立次數。",
+    "error": {
+      "invalid": "代碼不正確，請再確認。",
+      "used": "此代碼已被使用。",
+      "expired": "此代碼已過期。",
+      "pro_active": "使用 Pro 期間無法兌換，請在 Pro 結束後輸入。",
+      "too_many_attempts": "嘗試次數過多，請稍後再試。",
+      "not_signed_in": "請先登入。",
+      "generic": "無法套用，請稍後再試。"
+    }
   }
 }

@@ -2,7 +2,7 @@
  * 운영 콘솔 메뉴 구성 — 하는 일별로 묶었다.
  *  · 개요      대시보드
  *  · 운영      신고 큐 · 자동 플래그 큐 · 건의함      (들어오는 일을 처리)
- *  · 회원      회원 · 정지 기록                        (사람 관리)
+ *  · 회원      회원 · 정지 기록 · 리딤 코드                        (사람 관리)
  *  · 콘텐츠    공지 · 보관함
  *  · 데이터    판매 · 분석
  */
@@ -13,6 +13,7 @@ export type AdminSection =
   | 'feedback'
   | 'members'
   | 'suspensions'
+  | 'redeem'
   | 'notices'
   | 'archive'
   | 'sales'
@@ -23,7 +24,7 @@ export type AdminGroupKey = 'overview' | 'moderation' | 'members' | 'content' | 
 export const ADMIN_GROUPS: { key: AdminGroupKey; sections: AdminSection[] }[] = [
   { key: 'overview', sections: ['dashboard'] },
   { key: 'moderation', sections: ['reports', 'pending', 'feedback'] },
-  { key: 'members', sections: ['members', 'suspensions'] },
+  { key: 'members', sections: ['members', 'suspensions', 'redeem'] },
   { key: 'content', sections: ['notices', 'archive'] },
   { key: 'insights', sections: ['sales', 'analytics'] },
 ];
