@@ -14,13 +14,7 @@ import type { Post } from '../types';
 import styles from './ChannelFeedCards.module.css';
 
 /** 도시 채널의 글 카드 — 본문 첫 줄이 제목, 나머지가 발췌, 첫 사진이 오른쪽 썸네일. 질문(qna) 글은 답변 수·채택 답변이 붙는다 */
-export function ChannelPostCard({
-  post,
-  onTagClick,
-}: {
-  post: Post;
-  onTagClick?: (tag: string) => void;
-}) {
+export function ChannelPostCard({ post }: { post: Post }) {
   const { t, i18n } = useTranslation('community');
   const { user } = useSession();
   const navigate = useNavigate();
@@ -34,11 +28,6 @@ export function ChannelPostCard({
     e.preventDefault();
     if (!user || toggleLike.isPending) return;
     toggleLike.mutate(!!post.likedByMe);
-  }
-
-  function handleTag(e: React.MouseEvent, tag: string) {
-    e.preventDefault();
-    onTagClick?.(tag);
   }
 
   const isQna = post.category === 'qna';
@@ -94,20 +83,6 @@ export function ChannelPostCard({
       <div className={cover ? styles.bodyWithCover : styles.body}>
         <div className={styles.text}>
           <h3 className={styles.title}>{title}</h3>
-          {post.tags.length > 0 ? (
-            <div className={styles.tags}>
-              {post.tags.map((tag) => (
-                <button
-                  key={tag}
-                  type="button"
-                  className={styles.tag}
-                  onClick={(e) => handleTag(e, tag)}
-                >
-                  #{tag}
-                </button>
-              ))}
-            </div>
-          ) : null}
         </div>
         {cover ? (
           <img

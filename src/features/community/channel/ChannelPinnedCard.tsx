@@ -6,13 +6,7 @@ import type { Post } from '../types';
 import styles from './ChannelPinnedCard.module.css';
 
 /** 도시의 '트립틱 공식 필독 가이드' — 관리자가 고정한 글, 모든 탭에서 목록 맨 위에 보인다 */
-export function ChannelPinnedCard({
-  post,
-  onTagClick,
-}: {
-  post: Post;
-  onTagClick?: (tag: string) => void;
-}) {
+export function ChannelPinnedCard({ post }: { post: Post }) {
   const { t, i18n } = useTranslation('community');
   const title = postTitleOf(post);
   const updated = new Date(post.updated_at || post.created_at).toLocaleDateString(i18n.language, {
@@ -32,21 +26,6 @@ export function ChannelPinnedCard({
       </div>
       <h2 className={styles.title}>{title}</h2>
       <div className={styles.foot}>
-        <div className={styles.tags}>
-          {post.tags.map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              className={styles.tag}
-              onClick={(e) => {
-                e.preventDefault();
-                onTagClick?.(tag);
-              }}
-            >
-              #{tag}
-            </button>
-          ))}
-        </div>
         <div className={styles.stats}>
           <span
             className={styles.stat}

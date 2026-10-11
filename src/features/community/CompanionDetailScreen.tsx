@@ -16,7 +16,7 @@ import { PostActionsMenu } from './PostActionsMenu';
 import { useIsAdminViewer } from './hooks/usePostMeta';
 import { setCompanionPostStatus } from './adminService';
 import { confirmDialog } from '@/shared/ui/dialogHost';
-import { prefsLabel, sanitizeTags, spotsLeft } from './companionPrefs';
+import { prefsLabel, spotsLeft } from './companionPrefs';
 import { CompanionApplyModal } from './CompanionApplyModal';
 import {
   useApplicationsForPost,
@@ -142,7 +142,6 @@ export function CompanionDetailScreen() {
     }
   }
 
-  const tags = sanitizeTags(post.tags);
   const prefs = prefsLabel(post, t);
   const destinationName = post.destination?.name ?? t('companion.detail.anyDestination');
   const created = new Date(post.created_at);
@@ -249,16 +248,6 @@ export function CompanionDetailScreen() {
         </dl>
 
         <p className={`${postStyles.bodyRich} ${styles.body}`}>{post.body}</p>
-
-        {tags.length > 0 ? (
-          <div className={postStyles.tagRow}>
-            {tags.map((tag) => (
-              <span key={tag} className={postStyles.tagChip}>
-                #{t(`companion.tags.${tag}`)}
-              </span>
-            ))}
-          </div>
-        ) : null}
 
         <hr className={postStyles.rule} />
 

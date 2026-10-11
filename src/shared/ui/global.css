@@ -38,9 +38,6 @@
   /* 버튼·배지·칩 같은 짧은 UI 글이 "trav-/eler"처럼 잘려 두 줄이 되던 것 — 자동 하이픈은 문단에만 */
   hyphens: manual;
 }
-:root:lang(en) :is(p, li, dd, blockquote) {
-  hyphens: auto;
-}
 :root:lang(zh) {
   word-break: normal;
   line-break: normal;

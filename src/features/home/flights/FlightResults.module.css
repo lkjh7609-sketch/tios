@@ -199,7 +199,8 @@
 .progress,
 .empty,
 .note {
-  margin: 0;
+  /* 아래 구역(특가 등)과 붙어 보이지 않게 아래에 여백 */
+  margin: 0 0 var(--space-6);
   font-size: var(--font-caption-size);
   color: var(--text-muted);
 }

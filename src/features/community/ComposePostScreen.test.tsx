@@ -101,9 +101,9 @@ describe('ComposePostScreen — 시안 구성', () => {
     expect(screen.getByRole('button', { name: '게시하기' })).toBeInTheDocument();
     // 시안에서 뺀 것
     expect(screen.queryByText(/키워드|장소 핀/)).not.toBeInTheDocument();
-    // 분류(필수)와 태그(선택) 칸
+    // 분류(필수) 칸 — 태그 입력은 없앴다
     expect(screen.getAllByRole('radio').map((r) => r.textContent)).toEqual(['여행기·후기', '질문·Q&A', '여행 꿀팁·환전', '로컬 맛집·숙소']);
-    expect(screen.getByPlaceholderText('태그를 입력하고 Enter')).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('태그를 입력하고 Enter')).not.toBeInTheDocument();
   });
 
   it('PC: 위쪽 줄에 임시저장·게시하기, 빠른 추천 칩', () => {
@@ -235,33 +235,9 @@ describe('ComposePostScreen — 분류·태그', () => {
     expect(mutateAsync).toHaveBeenCalled();
   });
 
-  it('태그는 Enter로 더하고(# 제거·중복 무시), 3개가 차면 입력칸이 사라지며, 게시할 때 함께 보낸다', async () => {
-    mutateAsync.mockResolvedValue({ id: 'p9', status: 'published' });
+  it('태그 입력칸은 없다(검색이 있어서 없앴다)', () => {
     renderScreen();
-    await fillRequired();
-    pickCategory('로컬 맛집·숙소');
-    fillTitle();
-    const input = () => screen.getByPlaceholderText('태그를 입력하고 Enter');
-    fireEvent.change(input(), { target: { value: '#바투 동굴' } });
-    fireEvent.keyDown(input(), { key: 'Enter' });
-    fireEvent.change(screen.getByLabelText('태그', { selector: 'input' }), { target: { value: '바투 동굴' } });
-    fireEvent.keyDown(screen.getByLabelText('태그', { selector: 'input' }), { key: 'Enter' }); // 중복은 안 더해진다
-    fireEvent.change(screen.getByLabelText('태그', { selector: 'input' }), { target: { value: 'Grab' } });
-    fireEvent.keyDown(screen.getByLabelText('태그', { selector: 'input' }), { key: 'Enter' });
-    fireEvent.change(screen.getByLabelText('태그', { selector: 'input' }), { target: { value: '마지막' } }); // 칸에 남은 글자는 게시할 때 태그가 된다
-    fireEvent.click(screen.getByRole('button', { name: '게시하기' }));
-    await advance(50);
-    expect(mutateAsync.mock.calls[0][0]).toMatchObject({ category: 'food', tags: ['바투 동굴', 'Grab', '마지막'] });
-  });
-
-  it('태그 x 버튼으로 지운다', async () => {
-    renderScreen();
-    const input = screen.getByLabelText('태그', { selector: 'input' });
-    fireEvent.change(input, { target: { value: '지울태그' } });
-    fireEvent.keyDown(input, { key: 'Enter' });
-    expect(screen.getByText('#지울태그')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: '지울태그 태그 지우기' }));
-    expect(screen.queryByText('#지울태그')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('태그', { selector: 'input' })).not.toBeInTheDocument();
   });
 });
 

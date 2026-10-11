@@ -54,9 +54,14 @@ export function formatShortDate(date: Date, locale: string): string {
   return `${date.getMonth() + 1}.${date.getDate()}(${weekdayShort(date, locale)})`;
 }
 
-/** "2026. 10. 12 (토)" */
+/** 한국어: "2026. 10. 12 (토)". 그 밖의 언어: "Mon, Oct 12" · "10月12日(月)" — 연도까지 쓰면 폰 폭에서 출발·복귀 칸이 서로 겹친다(연도는 달력 머리에 보인다) */
 export function formatLongDate(date: Date, locale: string): string {
-  return `${date.getFullYear()}. ${date.getMonth() + 1}. ${date.getDate()} (${weekdayShort(date, locale)})`;
+  if (locale.startsWith('ko')) return `${date.getFullYear()}. ${date.getMonth() + 1}. ${date.getDate()} (${weekdayShort(date, locale)})`;
+  try {
+    return new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric', weekday: 'short' }).format(date);
+  } catch {
+    return `${date.getMonth() + 1}/${date.getDate()}`;
+  }
 }
 
 function weekdayShort(date: Date, locale: string): string {

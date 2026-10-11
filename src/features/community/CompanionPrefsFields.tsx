@@ -2,10 +2,7 @@ import { useTranslation } from 'react-i18next';
 import {
   COMPANION_AGES,
   COMPANION_GENDERS,
-  COMPANION_TAGS,
-  MAX_COMPANION_TAGS,
   toggleAge,
-  toggleTag,
   type CompanionPrefs,
 } from './companionPrefs';
 import styles from './CompanionPrefsFields.module.css';
@@ -61,35 +58,6 @@ export function CompanionPrefsFields({ value, onChange }: { value: CompanionPref
               {t(`companion.ages.${age}`)}
             </button>
           ))}
-        </div>
-      </div>
-
-      <div className={styles.field}>
-        <div className={styles.labelRow}>
-          <span id="prefs-tag-label" className={styles.label}>
-            {t('companion.prefs.tagLabel', { max: MAX_COMPANION_TAGS })}
-          </span>
-          <span className={styles.counter} aria-live="polite">
-            {value.tags.length}/{MAX_COMPANION_TAGS}
-          </span>
-        </div>
-        <div className={styles.tags} role="group" aria-labelledby="prefs-tag-label">
-          {COMPANION_TAGS.map((tag) => {
-            const on = value.tags.includes(tag);
-            const full = !on && value.tags.length >= MAX_COMPANION_TAGS;
-            return (
-              <button
-                key={tag}
-                type="button"
-                className={`${styles.tag} ${on ? styles.tagOn : ''}`}
-                aria-pressed={on}
-                disabled={full}
-                onClick={() => onChange({ ...value, tags: toggleTag(value.tags, tag) })}
-              >
-                #{t(`companion.tags.${tag}`)}
-              </button>
-            );
-          })}
         </div>
       </div>
     </div>

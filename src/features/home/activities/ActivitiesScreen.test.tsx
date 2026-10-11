@@ -115,7 +115,8 @@ describe('ActivitiesScreen — 마이리얼트립', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(cardTitles()).toEqual(['상품 1', '상품 3']);
     expect(screen.getByRole('button', { name: /^필터\s*2$/ })).toBeInTheDocument();
-    const last = lists().at(-1)!;
+    // 다른 도시 기본 목록을 미리 받아 두는 요청이 섞일 수 있어, 카테고리를 건 요청 중 마지막을 본다
+    const last = lists().filter((p) => p.has('category')).at(-1)!;
     expect(last.get('category')).toBe('tour');
     expect(last.has('minRating')).toBe(false);
   });

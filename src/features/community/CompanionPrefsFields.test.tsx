@@ -18,19 +18,13 @@ function Harness({ onValue }: { onValue: (v: CompanionPrefs) => void }) {
 }
 
 describe('CompanionPrefsFields', () => {
-  it('나이대는 여러 개, 성별은 하나, 태그는 3개까지만 고른다', () => {
+  it('나이대는 여러 개, 성별은 하나만 고르고, 태그 고르기는 없다', () => {
     let last: CompanionPrefs = EMPTY_PREFS;
     render(<Harness onValue={(v) => (last = v)} />);
     fireEvent.click(screen.getByRole('button', { name: '20대 초반' }));
     fireEvent.click(screen.getByRole('button', { name: '30대 초반' }));
     fireEvent.click(screen.getByRole('radio', { name: '여성' }));
-    for (const name of ['#사진촬영', '#카페투어', '#야경투어']) fireEvent.click(screen.getByRole('button', { name }));
-    expect(last).toEqual({ ages: ['20s_early', '30s_early'], gender: 'female', tags: ['photo', 'cafe', 'night'] });
-    // 4번째 태그는 눌리지 않는다
-    expect(screen.getByRole('button', { name: '#맥주한잔' })).toBeDisabled();
-    // 켠 태그는 다시 눌러 끌 수 있다
-    fireEvent.click(screen.getByRole('button', { name: '#카페투어' }));
-    expect(last.tags).toEqual(['photo', 'night']);
-    expect(screen.getByRole('button', { name: '#맥주한잔' })).toBeEnabled();
+    expect(last).toEqual({ ages: ['20s_early', '30s_early'], gender: 'female', tags: [] });
+    expect(screen.queryByRole('button', { name: '#사진촬영' })).not.toBeInTheDocument();
   });
 });

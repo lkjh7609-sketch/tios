@@ -8,7 +8,7 @@ import { useRequireLogin } from '@/features/auth/loginPrompt';
 import { Skeleton } from '@/shared/ui/states/Skeleton';
 import { useCompanionPostsFeed } from '@/features/community/hooks/useCompanionPosts';
 import type { CompanionPost } from '@/features/community/types';
-import { prefsLabel, sanitizeTags, spotsLeft } from '@/features/community/companionPrefs';
+import { prefsLabel, spotsLeft } from '@/features/community/companionPrefs';
 import { demographicFit, matchScore, type DemographicFit, type MatchMe } from './matchScore';
 import { useUpcomingTrip } from './useUpcomingTrip';
 import shared from './shared.module.css';
@@ -28,7 +28,6 @@ function CompanionCard({ post, pct, demo, desktop }: { post: CompanionPost; pct:
   const matchText = pct !== null ? t('page.companions.match', { pct }) : demo ? t(`page.companions.demo.${demo}`) : null;
   // 원하는 동행 — "20대 여성"·"20대·30대 무관". 조건이 없으면 표시하지 않는다
   const prefText = prefsLabel(post, (key) => t(`community:${key}`));
-  const tags = sanitizeTags(post.tags);
   const author = post.author?.display_name ?? '';
   const destination = post.destination?.name ?? t('page.companions.anywhere');
   const dates =
@@ -83,15 +82,6 @@ function CompanionCard({ post, pct, demo, desktop }: { post: CompanionPost; pct:
           </Link>
         </h3>
         <p className={styles.body}>{post.body}</p>
-        {tags.length > 0 ? (
-          <div className={styles.tags}>
-            {tags.map((tag) => (
-              <span key={tag} className={styles.tag}>
-                #{t(`community:companion.tags.${tag}`)}
-              </span>
-            ))}
-          </div>
-        ) : null}
       </div>
       <div className={styles.foot}>
         <span className={styles.author}>
