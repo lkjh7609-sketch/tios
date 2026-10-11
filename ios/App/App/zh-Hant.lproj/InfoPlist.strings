@@ -1,0 +1,5 @@
+/* Triptic — 설치된 앱 이름(홈 화면)과 권한 요청 문구의 zh-Hant 판 */
+"CFBundleDisplayName" = "Triptic";
+"NSLocationWhenInUseUsageDescription" = "使用您的位置資訊在地圖上顯示目前位置並搜尋附近地點。";
+"NSPhotoLibraryUsageDescription" = "為了上傳旅行紀錄與訂位文件的照片，需要存取您的相簿。";
+"NSCameraUsageDescription" = "使用相機掃描旅伴的 QR Code，以確認對方是否為同一個旅伴群組。";

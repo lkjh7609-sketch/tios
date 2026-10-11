@@ -17,6 +17,7 @@
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
 		9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9582B6822FE993A50072D4E8 /* SceneDelegate.swift */; };
 		9A1C00022FE9A0A100AA0002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9A1C00012FE9A0A100AA0001 /* PrivacyInfo.xcprivacy */; };
+		9B5E00062FEB00A100B50006 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9B5E00052FEB00A100B50005 /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +34,10 @@
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		9A1C00012FE9A0A100AA0001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		9A1C00032FE9A0A100AA0003 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
+		9B5E00012FEB00A100B50001 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		9B5E00022FEB00A100B50002 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		9B5E00032FEB00A100B50003 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		9B5E00042FEB00A100B50004 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = zh-Hant; path = zh-Hant.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +83,7 @@
 				50B271D01FEDC1A000F3C39B /* public */,
 				9A1C00012FE9A0A100AA0001 /* PrivacyInfo.xcprivacy */,
 				9A1C00032FE9A0A100AA0003 /* App.entitlements */,
+				9B5E00052FEB00A100B50005 /* InfoPlist.strings */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -128,6 +134,9 @@
 			knownRegions = (
 				en,
 				Base,
+				ko,
+				ja,
+				"zh-Hant",
 			);
 			mainGroup = 504EC2FB1FED79650016851F;
 			packageReferences = (
@@ -154,6 +163,7 @@
 				504EC30D1FED79650016851F /* Main.storyboard in Resources */,
 				2FAD9763203C412B000D30F8 /* config.xml in Resources */,
 				9A1C00022FE9A0A100AA0002 /* PrivacyInfo.xcprivacy in Resources */,
+				9B5E00062FEB00A100B50006 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -186,6 +196,17 @@
 				504EC3111FED79650016851F /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		9B5E00052FEB00A100B50005 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9B5E00012FEB00A100B50001 /* en */,
+				9B5E00022FEB00A100B50002 /* ko */,
+				9B5E00032FEB00A100B50003 /* ja */,
+				9B5E00042FEB00A100B50004 /* zh-Hant */,
+			);
+			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
