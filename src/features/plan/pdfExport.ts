@@ -9,6 +9,7 @@
  */
 import { jsPDF } from 'jspdf';
 import i18next, { normalizeLocale } from '@/shared/i18n';
+import { isNativeApp } from '@/shared/platform';
 import { getDayHotels } from './map/hotels';
 import { getDayCity } from './dayCities';
 import { flightAirlineLabel, returnFlightDay } from './flights';
@@ -944,9 +945,35 @@ export async function exportToPdf(input: PdfExportInput, mode: 'all' | 'current'
     text(L('pageOf', { page: p, total: totalPages }), pageW - mR, pageH - 7, { size: 7, color: C_FAINT, align: 'right' });
   }
 
-  pdf.save(
+  await deliverPdf(
+    pdf,
     mode === 'all'
       ? L('fileAll', { city: cityOrTrip(input.city) })
       : L('fileDay', { city: cityOrTrip(input.city), day: input.currentDay }),
   );
+}
+
+/**
+ * 만든 PDF를 사용자에게 건넨다.
+ * - 웹: 브라우저 다운로드(jsPDF.save)
+ * - 앱(WKWebView): 링크 다운로드가 조용히 무시돼 아무 일도 안 일어난다 → 임시 폴더에 파일로 쓰고 iOS 공유 시트를 띄운다
+ *   ("파일에 저장"·AirDrop·메일 등). 웹 공유 API는 사용자 터치 직후에만 허용돼 오래 걸리는 PDF 생성 뒤엔 막히므로
+ *   그 제한이 없는 Capacitor 플러그인을 쓴다. 웹 번들에 섞이지 않게 앱에서만 동적으로 불러온다.
+ */
+async function deliverPdf(pdf: jsPDF, filename: string): Promise<void> {
+  if (!isNativeApp()) {
+    pdf.save(filename);
+    return;
+  }
+  const [{ Filesystem, Directory }, { Share }] = await Promise.all([import('@capacitor/filesystem'), import('@capacitor/share')]);
+  // 파일 이름에 쓸 수 없는 글자(/ : 등)를 바꾸고 확장자를 보장한다
+  const safeName = `${filename.replace(/\.pdf$/i, '').replace(/[\\/:*?"<>|]/g, '_')}.pdf`;
+  const base64 = pdf.output('datauristring').split(',')[1] ?? '';
+  const { uri } = await Filesystem.writeFile({ path: safeName, data: base64, directory: Directory.Cache });
+  try {
+    await Share.share({ title: safeName, url: uri });
+  } catch (err) {
+    // 공유 시트를 닫은 것(취소)은 오류가 아니다
+    if (!/cancel/i.test(err instanceof Error ? err.message : String(err))) throw err;
+  }
 }
