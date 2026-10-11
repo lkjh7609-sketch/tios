@@ -205,10 +205,10 @@ export function UploadModal({ tripId, onClose, onParsed }: UploadModalProps) {
 
   if (!consented) {
     return (
-      <div className={modalStyles.overlay}>
+      <div className={`${modalStyles.overlay} ${modalStyles.center}`}>
         <div
           ref={focusTrapRef}
-          className={modalStyles.sheet}
+          className={`${modalStyles.sheet} ${modalStyles.center}`}
           onClick={(e) => e.stopPropagation()}
           role="dialog"
           aria-modal="true"
