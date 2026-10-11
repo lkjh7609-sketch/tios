@@ -76,6 +76,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end; /* 동행 신청하기 등 행동 버튼은 오른쪽(2026-10-11) */
   gap: var(--space-3);
 }
 
@@ -83,6 +84,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--space-2);
   min-width: 0;
 }
@@ -132,7 +134,7 @@
   }
 
   .ctaGroup .primaryBtn {
-    flex: 1 1 auto;
+    flex: 0 0 auto; /* 줄을 채우지 않고 오른쪽에 둔다 */
   }
 }
 
