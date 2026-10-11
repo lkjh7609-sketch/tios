@@ -418,6 +418,72 @@ export async function listPosts(opts: {
   return { posts, nextCursor };
 }
 
+/** 도시·자유게시판 목록의 한 쪽 글 수 */
+export const CHANNEL_PAGE_SIZE = 10;
+
+interface ChannelPostFilters {
+  destinationId?: string;
+  /** 도시가 없는 글만(자유게시판) */
+  freeBoard?: boolean;
+  search?: string;
+  category?: PostCategory;
+}
+
+/** 목록 쿼리의 공통 조건(공개 글·도시/자유게시판·검색·분류·고정 글 제외) — 쪽 넘김용 */
+function channelPostsQuery(filters: ChannelPostFilters, columns: string, exactCount = false) {
+  let query = getSupabaseClient()
+    .from('posts')
+    .select(columns, exactCount ? { count: 'exact' } : undefined)
+    .eq('status', 'published')
+    .is('deleted_at', null)
+    .is('pinned_at', null);
+  if (filters.destinationId) query = query.eq('destination_id', filters.destinationId);
+  else if (filters.freeBoard) query = query.is('destination_id', null);
+  const search = filters.search?.trim();
+  if (search) {
+    const like = orQuoted(`%${escapeLike(search)}%`);
+    query = query.or(`title.ilike.${like},body.ilike.${like}`);
+  }
+  if (filters.category) query = query.eq('category', filters.category);
+  return query;
+}
+
+/** 숫자 쪽 넘김 — page(1부터)번째 쪽의 글과 전체 글 수. 고정 글은 따로 보여 주므로 뺀다 */
+export async function listPostsPage(
+  opts: ChannelPostFilters & { viewerId?: string | null; sort?: PostSort; page: number; pageSize?: number },
+): Promise<{ posts: Post[]; total: number }> {
+  const size = opts.pageSize ?? CHANNEL_PAGE_SIZE;
+  const from = (Math.max(1, opts.page) - 1) * size;
+  let query = channelPostsQuery(opts, '*', true);
+  if (opts.sort === 'popular') query = query.order('like_count', { ascending: false });
+  else if (opts.sort === 'comments') query = query.order('comment_count', { ascending: false });
+  query = query.order('created_at', { ascending: false }).order('id', { ascending: false }).range(from, from + size - 1);
+  const { data, error, count } = await query;
+  if (error) throw error;
+  const rows = (data as unknown as Post[]) ?? [];
+  return { posts: await enrichPosts(rows, opts.viewerId ?? null), total: count ?? rows.length };
+}
+
+/** 쪽을 만들 때 쓰는 가벼운 목록(id·시각만, 최신순) — '전체' 탭에서 일반 글과 동행 모집글을 시간순으로 섞어 쪽을 나눌 때 쓴다 */
+export async function listPostIndex(filters: ChannelPostFilters, cap = 1000): Promise<{ id: string; created_at: string }[]> {
+  const { data, error } = await channelPostsQuery(filters, 'id, created_at')
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
+    .limit(cap);
+  if (error) throw error;
+  return (data as unknown as { id: string; created_at: string }[]) ?? [];
+}
+
+/** id로 글을 읽어 받은 순서대로 돌려준다(없는 글은 건너뜀) */
+export async function getPostsByIds(ids: string[], viewerId: string | null): Promise<Post[]> {
+  if (ids.length === 0) return [];
+  const { data, error } = await getSupabaseClient().from('posts').select('*').in('id', ids);
+  if (error) throw error;
+  const byId = new Map(((data as Post[]) ?? []).map((p) => [p.id, p]));
+  const rows = ids.map((id) => byId.get(id)).filter((p): p is Post => !!p);
+  return enrichPosts(rows, viewerId);
+}
+
 /** 홈 "인기 여행기" — 최근 N일 안에 올라온 공개 글을 좋아요 많은 순(같으면 최신 순)으로 */
 export async function listPopularPosts(opts: { sinceDays?: number; limit?: number; viewerId?: string | null } = {}): Promise<Post[]> {
   const supabase = getSupabaseClient();

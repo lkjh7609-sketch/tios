@@ -39,6 +39,10 @@ export async function shrinkAvatar(file: File): Promise<{ blob: Blob; ext: 'webp
   return { blob: jpeg, ext: 'jpg' };
 }
 
+/**
+ * (2026-10-12) avatars 버킷에는 읽기(SELECT) 정책이 없어 `upsert: true` 올리기가 403(RLS)으로 막히고 지우기도 조용히 0건이었다 → 0113 정책으로 해결.
+ * 이 함수는 그 정책이 있어야 동작한다.
+ */
 /** 줄인 사진을 본인 폴더에 올리고 공개 주소(캐시를 피하려고 버전 값을 붙임)를 돌려준다. 다른 확장자의 예전 파일은 지운다 */
 export async function uploadAvatar(userId: string, file: File): Promise<string> {
   const { blob, ext } = await shrinkAvatar(file);

@@ -42,10 +42,10 @@ const state = vi.hoisted(() => ({
   destination: undefined as unknown,
   guide: undefined as unknown,
   fx: undefined as unknown,
-  postsArgs: [] as unknown[],
-  companionsArgs: [] as unknown[],
+  feedArgs: [] as unknown[],
   pinned: null as unknown,
   posts: [] as unknown[],
+  total: 0,
 }));
 
 vi.mock('./hooks/useDestinations', () => ({
@@ -68,22 +68,13 @@ vi.mock('./hooks/useDestinationChannel', () => ({
   useDestinationFollowerCount: () => ({ data: 1248 }),
   useUrgentCompanions: () => ({ data: [] }),
   usePinnedPost: () => ({ data: state.pinned }),
-  useChannelPosts: (args: unknown) => {
-    state.postsArgs.push(args);
+  useChannelFeedPage: (args: unknown) => {
+    state.feedArgs.push(args);
     return {
-      data: { pages: [{ posts: state.posts }] },
+      data: { entries: state.posts.map((post) => ({ kind: 'post', id: (post as { id: string }).id, post })), total: state.total || state.posts.length },
       isLoading: false,
       isError: false,
-      hasNextPage: false,
-    };
-  },
-  useChannelCompanions: (args: unknown) => {
-    state.companionsArgs.push(args);
-    return {
-      data: { pages: [{ posts: [] }] },
-      isLoading: false,
-      isError: false,
-      hasNextPage: false,
+      refetch: vi.fn(),
     };
   },
 }));
@@ -122,8 +113,8 @@ beforeEach(async () => {
   state.destination = KL;
   state.guide = GUIDE;
   state.fx = { perUsd: { USD: 1, MYR: 4.5, KRW: 1405.8 }, newestAt: null };
-  state.postsArgs = [];
-  state.companionsArgs = [];
+  state.feedArgs = [];
+  state.total = 0;
   state.pinned = null;
   state.posts = [];
   await i18n.changeLanguage('ko');
@@ -203,10 +194,11 @@ describe('DestinationChannelScreen', () => {
     act(() => {
       vi.advanceTimersByTime(400);
     });
-    expect(state.postsArgs.at(-1)).toMatchObject({
+    expect(state.feedArgs.at(-1)).toMatchObject({
       destinationId: 'kl',
       search: '바투 동굴',
-      sort: 'latest',
+      postSort: 'latest',
+      page: 1,
     });
   });
 
@@ -244,11 +236,11 @@ describe('DestinationChannelScreen', () => {
       '여행 꿀팁·환전',
       '로컬 맛집·숙소',
     ]);
-    expect(state.postsArgs.at(-1)).toMatchObject({ category: undefined });
+    expect(state.feedArgs.at(-1)).toMatchObject({ category: undefined });
     fireEvent.click(screen.getByRole('button', { name: '질문·Q&A' }));
-    expect(state.postsArgs.at(-1)).toMatchObject({ category: 'qna' });
+    expect(state.feedArgs.at(-1)).toMatchObject({ category: 'qna' });
     fireEvent.click(screen.getByRole('button', { name: '전체' }));
-    expect(state.postsArgs.at(-1)).toMatchObject({ category: undefined });
+    expect(state.feedArgs.at(-1)).toMatchObject({ category: undefined });
   });
 
   it('고정 글(공식 가이드)은 모든 탭에서 맨 위에 보인다', () => {
@@ -264,5 +256,25 @@ describe('DestinationChannelScreen', () => {
   it('고정 글이 없으면 카드를 그리지 않는다', () => {
     renderScreen();
     expect(screen.queryByTestId('pinned-card')).not.toBeInTheDocument();
+  });
+
+  it('글이 10개를 넘으면 숫자 쪽 넘김이 나오고, 번호를 누르면 그 쪽을 조회하며, 탭·검색·정렬을 바꾸면 1쪽으로 돌아간다', () => {
+    state.posts = Array.from({ length: 10 }, (_, i) => ({ id: `p${i}`, tags: [] }));
+    state.total = 35;
+    renderScreen();
+    expect(state.feedArgs.at(-1)).toMatchObject({ page: 1 });
+    const pager = screen.getByRole('navigation', { name: '페이지 이동' });
+    expect(pager).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '3페이지' }));
+    expect(state.feedArgs.at(-1)).toMatchObject({ page: 3 });
+    expect(screen.getByRole('button', { name: '3페이지' })).toHaveAttribute('aria-current', 'page');
+    fireEvent.click(screen.getByRole('button', { name: '질문·Q&A' }));
+    expect(state.feedArgs.at(-1)).toMatchObject({ page: 1, category: 'qna' });
+  });
+
+  it('글이 10개 이하이면 쪽 넘김을 그리지 않는다', () => {
+    state.posts = [{ id: 'p1', tags: [] }];
+    renderScreen();
+    expect(screen.queryByRole('navigation', { name: '페이지 이동' })).not.toBeInTheDocument();
   });
 });

@@ -9,8 +9,9 @@ import { ErrorState } from '@/shared/ui/states/ErrorState';
 import { SearchCapsule } from '@/shared/ui/SearchCapsule';
 import { Skeleton } from '@/shared/ui/states/Skeleton';
 import { ChannelPostCard } from './channel/ChannelPostCard';
-import { useChannelPosts } from './hooks/useDestinationChannel';
-import type { PostSort } from './communityService';
+import { useChannelFeedPage } from './hooks/useDestinationChannel';
+import { CHANNEL_PAGE_SIZE, type PostSort } from './communityService';
+import { NumberedPager } from './NumberedPager';
 import styles from './DestinationChannelScreen.module.css';
 import boardStyles from './FreeBoardScreen.module.css';
 
@@ -41,14 +42,27 @@ export function FreeBoardScreen() {
     trackScreenView('community_free_board');
   }, []);
 
-  const feed = useChannelPosts({
+  // 보는 조건(검색·정렬)이 바뀌면 1쪽부터
+  const viewKey = `${search}|${sort}`;
+  const [pageState, setPageState] = useState({ key: viewKey, page: 1 });
+  const page = pageState.key === viewKey ? pageState.page : 1;
+  const feed = useChannelFeedPage({
     destinationId: undefined,
     freeBoard: true,
     viewerId: user?.id ?? null,
     search,
-    sort,
+    postSort: sort,
+    companionSort: 'latest',
+    companionTab: false,
+    mixCompanions: false,
+    page,
   });
-  const items = feed.data?.pages.flatMap((p) => p.posts) ?? [];
+  const items = (feed.data?.entries ?? []).flatMap((e) => (e.kind === 'post' ? [e.post] : []));
+  const pageCount = Math.max(1, Math.ceil((feed.data?.total ?? 0) / CHANNEL_PAGE_SIZE));
+  function goToPage(next: number) {
+    setPageState({ key: viewKey, page: Math.min(Math.max(1, next), pageCount) });
+    window.scrollTo?.({ top: 0, behavior: 'smooth' });
+  }
   const filterText = search;
 
   return (
@@ -83,6 +97,7 @@ export function FreeBoardScreen() {
               select={{
                 value: sort,
                 ariaLabel: t('channel.sortAria'),
+                subtle: true,
                 options: (['latest', 'popular', 'comments'] as const).map((key) => ({ value: key, label: t(`channel.sort.${key}`) })),
                 onChange: (v) => setSort(v as PostSort),
               }}
@@ -119,13 +134,7 @@ export function FreeBoardScreen() {
               {items.map((post) => (
                 <ChannelPostCard key={post.id} post={post} />
               ))}
-              {feed.hasNextPage ? (
-                <div className={styles.loadMoreWrap}>
-                  <button type="button" className={styles.loadMore} onClick={() => feed.fetchNextPage()} disabled={feed.isFetchingNextPage}>
-                    {feed.isFetchingNextPage ? t('state.loading', { ns: 'common' }) : t('board.loadMore')}
-                  </button>
-                </div>
-              ) : null}
+              <NumberedPager page={page} pageCount={pageCount} onChange={goToPage} />
             </>
           )}
         </main>

@@ -1,0 +1,53 @@
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: var(--space-6) 0 var(--space-2);
+}
+
+.num,
+.numActive,
+.arrow {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.numActive {
+  background: var(--brand-solid);
+  color: var(--text-on-brand);
+}
+
+.arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.gap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  color: var(--text-tertiary);
+}
+
+@media (hover: hover) {
+  .num:hover,
+  .arrow:hover:not(:disabled) {
+    background: var(--surface-subtle);
+  }
+}

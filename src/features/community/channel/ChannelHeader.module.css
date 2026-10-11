@@ -288,18 +288,28 @@
     color: var(--text-muted);
   }
 
+  /* "내 여행" 화면의 새 여행 만들기·통계 버튼처럼 글자 폭만큼만 차지하고 오른쪽으로 몰린다 */
   .actions {
-    display: grid;
-    grid-template-columns: 2fr 3fr;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
     gap: 10px;
   }
 
   .followBtn,
   .followingBtn,
   .tripBtn {
-    min-height: 42px;
-    padding: 0 12px;
-    font-size: 14px;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding: 0 16px;
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+
+  .tripBtn svg {
+    width: 16px;
+    height: 16px;
   }
 
   .landmarks {

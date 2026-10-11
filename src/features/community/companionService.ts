@@ -173,6 +173,63 @@ export async function listCompanionPosts(opts: {
   return { posts, nextCursor };
 }
 
+function companionPageQuery(opts: { destinationId?: string; search?: string }, columns: string, exactCount = false) {
+  let query = getSupabaseClient()
+    .from('companion_posts')
+    .select(columns, exactCount ? { count: 'exact' } : undefined)
+    .eq('status', 'recruiting')
+    .is('deleted_at', null);
+  if (opts.destinationId) query = query.eq('destination_id', opts.destinationId);
+  const search = opts.search?.trim();
+  if (search) {
+    const pattern = orQuoted(`%${escapeLike(search)}%`);
+    query = query.or(`title.ilike.${pattern},body.ilike.${pattern}`);
+  }
+  return query;
+}
+
+/** 숫자 쪽 넘김 — page(1부터)번째 쪽의 모집글과 전체 수 */
+export async function listCompanionPostsPage(opts: {
+  destinationId?: string;
+  viewerId?: string | null;
+  search?: string;
+  sort?: CompanionSort;
+  page: number;
+  pageSize?: number;
+}): Promise<{ posts: CompanionPost[]; total: number }> {
+  const size = opts.pageSize ?? 10;
+  const from = (Math.max(1, opts.page) - 1) * size;
+  let query = companionPageQuery(opts, '*', true);
+  if (opts.sort === 'deadline') {
+    query = query.or(`start_date.gte.${todayLocal()},start_date.is.null`).order('start_date', { ascending: true, nullsFirst: false });
+  }
+  query = query.order('created_at', { ascending: false }).order('id', { ascending: false }).range(from, from + size - 1);
+  const { data, error, count } = await query;
+  if (error) throw error;
+  const rows = (data as unknown as CompanionPost[]) ?? [];
+  return { posts: await enrichCompanionPosts(rows, opts.viewerId ?? null), total: count ?? rows.length };
+}
+
+/** 쪽 나누기용 가벼운 목록(id·시각만, 최신순) */
+export async function listCompanionIndex(opts: { destinationId?: string; search?: string }, cap = 500): Promise<{ id: string; created_at: string }[]> {
+  const { data, error } = await companionPageQuery(opts, 'id, created_at')
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
+    .limit(cap);
+  if (error) throw error;
+  return (data as unknown as { id: string; created_at: string }[]) ?? [];
+}
+
+/** id로 모집글을 읽어 받은 순서대로 돌려준다(없는 글은 건너뜀) */
+export async function getCompanionPostsByIds(ids: string[], viewerId: string | null): Promise<CompanionPost[]> {
+  if (ids.length === 0) return [];
+  const { data, error } = await getSupabaseClient().from('companion_posts').select('*').in('id', ids);
+  if (error) throw error;
+  const byId = new Map(((data as CompanionPost[]) ?? []).map((p) => [p.id, p]));
+  const rows = ids.map((id) => byId.get(id)).filter((p): p is CompanionPost => !!p);
+  return enrichCompanionPosts(rows, viewerId);
+}
+
 /** 급구 동행 — 출발이 오늘 이후로 가장 가까운 모집 중 글(날짜 미정은 제외) */
 export async function listUrgentCompanionPosts(destinationId: string, limit = 12): Promise<CompanionPost[]> {
   const { data, error } = await getSupabaseClient()

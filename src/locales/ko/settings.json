@@ -89,7 +89,7 @@
   },
   "profile": {
     "title": "내 정보 변경",
-    "nameLabel": "표시 이름",
+    "nameLabel": "닉네임",
     "namePlaceholder": "다른 여행자에게 보일 이름 (한글 4~8자 · 영어·일본어 4~12자 · 중국어 2~6자)",
     "nameHint": "커뮤니티 글과 동행자 목록에 표시돼요.",
     "nameRequired": "이름을 입력해 주세요.",

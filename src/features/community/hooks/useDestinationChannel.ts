@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import {
   getDestinationFollowerCount,
   getDestinationGuide,
@@ -8,6 +8,7 @@ import {
   type PostSort,
 } from '../communityService';
 import type { PostCategory } from '../postMeta';
+import { listChannelCompanionPage, listChannelFeedPage } from '../channelFeedService';
 import {
   listCompanionPosts,
   listUrgentCompanionPosts,
@@ -146,5 +147,46 @@ export function useChannelCompanions({
       return undefined;
     },
     enabled: !!destinationId,
+  });
+}
+
+/**
+ * 숫자 쪽 넘김 목록(10개씩) — 도시·자유게시판. page는 1부터. 쪽을 바꾸는 동안 이전 쪽을 그대로 보여 준다(깜빡이지 않게).
+ * 동행 탭(companionTab)은 모집글만, 그 밖에는 일반 글(+'전체'·최신순이면 모집 중인 모집글을 시간순으로 섞음).
+ */
+export function useChannelFeedPage(args: {
+  destinationId: string | undefined;
+  freeBoard?: boolean;
+  viewerId: string | null;
+  search: string;
+  postSort: PostSort;
+  companionSort: CompanionSort;
+  category?: PostCategory;
+  companionTab: boolean;
+  mixCompanions: boolean;
+  page: number;
+}) {
+  const key = [
+    'community', 'channel-page', args.freeBoard ? 'free' : (args.destinationId ?? ''), args.viewerId ?? '', args.search,
+    args.companionTab ? `c:${args.companionSort}` : `p:${args.postSort}`, args.category ?? '', args.mixCompanions, args.page,
+  ] as const;
+  return useQuery({
+    queryKey: key,
+    queryFn: () =>
+      args.companionTab
+        ? listChannelCompanionPage({ destinationId: args.destinationId, viewerId: args.viewerId, search: args.search, sort: args.companionSort, page: args.page })
+        : listChannelFeedPage({
+            destinationId: args.destinationId,
+            freeBoard: args.freeBoard,
+            viewerId: args.viewerId,
+            search: args.search,
+            sort: args.postSort,
+            category: args.category,
+            page: args.page,
+            mixCompanions: args.mixCompanions,
+          }),
+    enabled: !!args.destinationId || !!args.freeBoard,
+    placeholderData: keepPreviousData,
+    staleTime: 30 * 1000,
   });
 }

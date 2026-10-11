@@ -84,3 +84,10 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+/* 정렬(최신순 등)은 검색보다 덜 눈에 띄게 — 작고 연하게 */
+.selectSubtle {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}

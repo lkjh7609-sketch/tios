@@ -9,15 +9,12 @@ vi.mock('@/shared/hooks/useSession', () => ({ useSession: () => ({ user: { id: '
 vi.mock('@/features/auth/loginPrompt', () => ({ useRequireLogin: () => () => true }));
 vi.mock('./channel/ChannelPostCard', () => ({ ChannelPostCard: ({ post }: { post: { id: string; title: string } }) => <div>{post.title}</div> }));
 vi.mock('./hooks/useDestinationChannel', () => ({
-  useChannelPosts: (args: unknown) => {
+  useChannelFeedPage: (args: unknown) => {
     state.args = args;
     return {
-      data: { pages: [{ posts: state.posts }] },
+      data: { entries: state.posts.map((post) => ({ kind: 'post', id: (post as { id: string }).id, post })), total: state.posts.length },
       isLoading: false,
       isError: false,
-      hasNextPage: false,
-      isFetchingNextPage: false,
-      fetchNextPage: vi.fn(),
       refetch: vi.fn(),
     };
   },
