@@ -123,20 +123,59 @@
   },
   "notifications": {
     "title": "通知",
+    "clearAll": "すべて削除",
     "aria": "通知",
     "ariaUnread": "通知(未読{{count}}件)",
     "empty": "新しい通知はありません。",
     "dismiss": "{{title}}の通知を消す",
-    "week": "出発まであと{{days}}日です",
-    "dayBefore": "明日出発です",
-    "today": "今日出発です!良い旅を",
-    "note": "コメント・返信・いいねのほか、出発7日前・前日・当日と目的地の渡航情報をお知らせします。旅行の通知はアプリを開いたときだけ表示されます。",
+    "note": "コメント・返信(プッシュ通知あり)といいね、出発7日前・3日前・当日、目的地の渡航情報、同行・共同編集の通知、運営からのお知らせをお届けします。",
     "community": {
       "post_comment": "{{name}}さんがあなたの投稿にコメントしました",
       "comment_reply": "{{name}}さんがあなたのコメントに返信しました",
       "post_like": "{{name}}さんがあなたの投稿にいいねしました",
       "comment_like": "{{name}}さんがあなたのコメントにいいねしました",
       "someone": "誰か"
+    },
+    "app": {
+      "trip_week": "旅行まであと少し · 出発7日前",
+      "trip_soon": "旅行まであと少し · 出発3日前",
+      "trip_today": "今日は旅行当日です。素敵な旅になりますように~",
+      "companion_applied": "{{name}}さんが同行を申請しました",
+      "companion_accepted": "同行申請が承認されました",
+      "companion_rejected": "今回は同行が見送りになりました",
+      "companion_matched": "同行が確定しました。チャットで予定を合わせましょう",
+      "companion_message": "{{name}}さんからメッセージが届きました",
+      "companion_message_many": "新着メッセージ{{count}}件",
+      "companion_review": "一緒の旅はいかがでしたか？レビューをお願いします",
+      "collab_joined": "{{name}}さんがこの旅行に参加しました",
+      "collab_left": "{{name}}さんがこの旅行から退出しました",
+      "collab_removed": "この旅行の共同編集から外されました",
+      "ops_content_removed": {
+        "post": "あなたの投稿は運営ポリシーにより非表示になりました",
+        "comment": "あなたのコメントは運営ポリシーにより非表示になりました",
+        "companion_post": "あなたの同行募集は運営ポリシーにより非表示になりました"
+      },
+      "ops_report_result": {
+        "actioned": "通報内容を確認し、対応しました",
+        "dismissed": "通報内容を確認しましたが、対応は不要でした"
+      },
+      "heading": {
+        "trip_week": "マイトリップ",
+        "trip_soon": "マイトリップ",
+        "trip_today": "マイトリップ",
+        "travel_alert": "渡航情報",
+        "companion_applied": "同行",
+        "companion_accepted": "同行",
+        "companion_rejected": "同行",
+        "companion_matched": "同行",
+        "companion_message": "同行チャット",
+        "companion_review": "同行レビュー",
+        "ops_content_removed": "運営対応",
+        "ops_report_result": "通報の結果",
+        "collab_joined": "共同編集",
+        "collab_left": "共同編集",
+        "collab_removed": "共同編集"
+      }
     },
     "announcement": {
       "notice": "新しいお知らせがあります",

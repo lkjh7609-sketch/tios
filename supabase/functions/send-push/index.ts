@@ -2,8 +2,9 @@
  * Supabase Edge Function: send-push — iOS 푸시 알림(APNs)
  *
  * 받는 사람·문구는 절대 호출자에게서 받지 않는다(아무나 푸시를 보내는 중계기가 되지 않게). 서버 안에서만 부른다: x-purge-secret(= PURGE_SECRET)이 맞아야 한다.
- *  - { kind: 'notification', notification_id }  DB 트리거(0103)가 커뮤니티 알림(내 글에 댓글·내 댓글에 답글)이 만들어질 때 부른다.
- *  - { kind: 'trip_reminders' }                 pg_cron이 매일 09:05(한국)에 부른다. 출발 3일 전 여행의 주인(설정 '출발 전 리마인더'를 끄지 않고 iOS 기기가 등록된 회원)에게.
+ *  - { kind: 'notification', notification_id }      DB 트리거(0112)가 커뮤니티 알림(내 글에 댓글·내 댓글에 답글)이 만들어질 때 부른다. 좋아요는 푸시하지 않는다.
+ *  - { kind: 'app_notification', notification_id }  DB 트리거(0112)가 app_notifications(출발 임박·여행경보·동행·공동 편집·운영 조치) 한 줄이 생기면 부른다.
+ *    받을지 말지(설정 묶음·전체 허용·차단)는 알림을 만들 때 이미 걸러졌다 — 여기서는 iOS 기기가 있으면 보낸다.
  * 토큰은 push_tokens(0024)의 iOS 기기들. APNs가 '더는 쓸 수 없는 토큰'이라고 하면 그 토큰을 지운다.
  *
  * 배포: `supabase functions deploy send-push --no-verify-jwt`(인증을 코드 안에서 한다).
@@ -13,9 +14,8 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { secretMatches } from '../purge-archive/paths.ts';
 import { apnsHost, buildPayload, classifyApnsResponse, importApnsKey, signProviderToken, type PushMessage } from './apns.ts';
-import { commentMessage, normalizeLocale, replyMessage, tripReminderMessage } from './messages.ts';
+import { appNotificationMessage, appNotificationPath, commentMessage, normalizeLocale, replyMessage, type AppNotificationData } from './messages.ts';
 
-const TRIP_BATCH = 200;
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 
 interface Sender {
@@ -105,23 +105,23 @@ Deno.serve(async (req) => {
     return json(200, await sender.send(tokens, { ...text, path }, admin, n.user_id));
   }
 
-  // ── 출발 3일 전 알림: cron만 ──
-  if (body.kind === 'trip_reminders') {
-    const { data: due, error } = await admin.rpc('push_trip_reminders_due', { p_limit: TRIP_BATCH });
-    if (error) return json(500, { error: 'due_failed' });
-    const totals = { users: 0, sent: 0, removed: 0, retry: 0, failed: 0, skipped: 0 };
-    for (const row of (due ?? []) as { user_id: string; trip_id: string; locale: string | null; title: string | null }[]) {
-      // 같은 여행을 두 번 보내지 않게 먼저 기록한다(유일 제약) — 못 보내면 지워서 다음에 다시
-      const { error: claimError } = await admin.from('push_log').insert({ user_id: row.user_id, kind: 'trip_reminder', ref_id: row.trip_id });
-      if (claimError) { totals.skipped++; continue; }
-      const tokens = await iosTokens(admin, row.user_id);
-      const text = tripReminderMessage(normalizeLocale(row.locale), row.title?.trim() || '');
-      const r = await sender.send(tokens, { ...text, path: `/plan/${row.trip_id}` }, admin, row.user_id);
-      totals.users++;
-      totals.sent += r.sent; totals.removed += r.removed; totals.retry += r.retry; totals.failed += r.failed;
-      if (r.sent === 0) await admin.from('push_log').delete().eq('user_id', row.user_id).eq('kind', 'trip_reminder').eq('ref_id', row.trip_id);
-    }
-    return json(200, totals);
+  // ── 여행·동행·공동 편집·운영 알림 한 건(app_notifications) ──
+  if (body.kind === 'app_notification') {
+    if (typeof body.notification_id !== 'string') return json(400, { error: 'invalid_request' });
+    const { data: n } = await admin
+      .from('app_notifications')
+      .select('id, user_id, kind, trip_id, companion_post_id, data')
+      .eq('id', body.notification_id)
+      .maybeSingle();
+    if (!n) return json(200, { skipped: true });
+    const tokens = await iosTokens(admin, n.user_id);
+    if (tokens.length === 0) return json(200, { skipped: true, reason: 'no_tokens' });
+    const { data: me } = await admin.from('profiles').select('locale').eq('id', n.user_id).maybeSingle();
+    const data = (n.data ?? {}) as AppNotificationData & { post_id?: string | null };
+    const text = appNotificationMessage(normalizeLocale(me?.locale), n.kind, data);
+    if (!text) return json(200, { skipped: true, reason: 'unknown_kind' });
+    const path = appNotificationPath(n.kind, n, data);
+    return json(200, await sender.send(tokens, { ...text, path }, admin, n.user_id));
   }
 
   return json(400, { error: 'unknown_kind' });

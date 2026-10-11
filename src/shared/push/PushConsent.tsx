@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
 import { isNativeApp } from '@/shared/platform';
 import { useProfile, useUpdateProfile } from '@/shared/hooks/useProfile';
-import { withNotificationsEnabled } from '@/shared/api/profileService';
+import { normalizeNotificationPrefs, withNotificationsEnabled } from '@/shared/api/profileService';
 import { openPushSettings, readPushPermission, registerPushNotifications } from './registerPush';
 
 function askedKey(userId: string) {
@@ -81,7 +81,7 @@ export function PushConsent({ userId }: { userId: string | undefined }) {
         setOpen(false);
       }}
       onConfirm={() => {
-        if (profile) updateProfile.mutate({ notification_prefs: withNotificationsEnabled(profile.notification_prefs, true) });
+        if (profile) updateProfile.mutate({ notification_prefs: withNotificationsEnabled(normalizeNotificationPrefs(profile.notification_prefs), true) });
         void registerPushNotifications(userId).then(async (ok) => {
           if (ok) return;
           // 못 받은 이유가 iOS 권한 거부면 iPhone 설정으로 안내한다

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from '@/shared/hooks/useMediaQuery';
 import { PopoverSheet } from '@/shared/ui/PopoverSheet';
 import { useAlertLabels } from '@/features/travelAlerts/useAlertLabels';
+import { appNoticePath, type AppNotice } from './appNotices';
 import { useTripNotifications, type TripNotification } from './useTripNotifications';
 import styles from './NotificationBell.module.css';
 
@@ -12,7 +13,7 @@ import styles from './NotificationBell.module.css';
 export function NotificationBell() {
   const { t } = useTranslation('common');
   const { countryName, levelName } = useAlertLabels();
-  const { signedIn, items, unreadCount, markAllRead, dismiss } = useTripNotifications();
+  const { signedIn, items, unreadCount, markAllRead, dismiss, clearAll } = useTripNotifications();
   const [open, setOpen] = useState(false);
   // 폰(앱): 말풍선 대신 아래에서 올라오는 시트(PopoverSheet) — 바깥 누르기는 그 시트의 어두운 배경이 맡는다
   const phone = useMediaQuery('(max-width: 1023px)');
@@ -48,16 +49,35 @@ export function NotificationBell() {
   const message = (n: TripNotification) => {
     if (n.kind === 'announcement') return t(`notifications.announcement.${n.noticeKind}`, { version: n.version ?? '' });
     if (n.kind === 'community') return t(`notifications.community.${n.type}`, { name: n.actorName || t('notifications.community.someone') });
-    if (n.kind === 'alert') {
-      return t('travelAlert.bell', {
-        country: countryName({ code: n.countryCode, nameKo: n.countryNameKo }),
-        level: n.level,
-        name: levelName(n.level),
-      });
+    return appMessage(n);
+  };
+
+  const appMessage = (n: AppNotice) => {
+    const base = { name: n.name || t('notifications.community.someone'), count: n.count };
+    switch (n.type) {
+      case 'travel_alert':
+        return t('travelAlert.bell', {
+          country: countryName({ code: n.countryCode ?? '', nameKo: n.countryNameKo ?? '' }),
+          level: n.level ?? '',
+          name: levelName((n.level ?? 2) as 1 | 2 | 3 | 4),
+        });
+      case 'trip_week':
+      case 'trip_soon':
+      case 'companion_message':
+        return t(`notifications.app.${n.type}${n.type === 'companion_message' && n.count > 1 ? '_many' : ''}`, base);
+      case 'ops_content_removed':
+        return t(`notifications.app.ops_content_removed.${n.target === 'comment' || n.target === 'companion_post' ? n.target : 'post'}`);
+      case 'ops_report_result':
+        return t(`notifications.app.ops_report_result.${n.result === 'actioned' ? 'actioned' : 'dismissed'}`);
+      default:
+        return t(`notifications.app.${n.type}`, base);
     }
-    return n.stage === 'week'
-      ? t('notifications.week', { days: n.daysUntil })
-      : t(n.stage === 'dayBefore' ? 'notifications.dayBefore' : 'notifications.today');
+  };
+
+  const titleOf = (n: TripNotification) => {
+    if (n.kind === 'community') return n.postTitle;
+    if (n.kind === 'announcement') return n.title;
+    return n.title || t(`notifications.app.heading.${n.type}`);
   };
 
   return (
@@ -83,9 +103,16 @@ export function NotificationBell() {
       </button>
 
       {open ? (
-        <PopoverSheet phone={phone} onClose={() => setOpen(false)}>
-        <div className={styles.panel} role="dialog" aria-label={t('notifications.title')}>
-          <h2 className={styles.heading}>{t('notifications.title')}</h2>
+        <PopoverSheet phone={phone} from="top" onClose={() => setOpen(false)}>
+        <div className={styles.panel} role="dialog" aria-label={t('notifications.title')} data-top-sheet={phone ? '' : undefined}>
+          <div className={styles.headRow}>
+            <h2 className={styles.heading}>{t('notifications.title')}</h2>
+            {items.length > 0 ? (
+              <button type="button" className={styles.clearAll} onClick={clearAll}>
+                {t('notifications.clearAll')}
+              </button>
+            ) : null}
+          </div>
           {items.length === 0 ? (
             <p className={styles.empty}>{t('notifications.empty')}</p>
           ) : (
@@ -98,14 +125,14 @@ export function NotificationBell() {
                         ? `/community/post/${n.postId}${n.commentId ? `#comment-${n.commentId}` : ''}`
                         : n.kind === 'announcement'
                           ? `/notices?open=${n.announcementId}`
-                          : `/plan/${n.tripId}`
+                          : appNoticePath(n)
                     }
                     className={styles.itemLink}
                     onClick={() => setOpen(false)}
                   >
                     {n.unread ? <span className={styles.dot} aria-hidden="true" /> : null}
                     <span className={styles.itemText}>
-                      <span className={styles.itemTitle}>{n.kind === 'community' ? n.postTitle : n.title}</span>
+                      <span className={styles.itemTitle}>{titleOf(n)}</span>
                       <span className={styles.itemMessage}>{message(n)}</span>
                     </span>
                   </Link>
@@ -113,7 +140,7 @@ export function NotificationBell() {
                     type="button"
                     className={styles.remove}
                     onClick={() => dismiss(n.id)}
-                    aria-label={t('notifications.dismiss', { title: n.kind === 'community' ? n.postTitle : n.title })}
+                    aria-label={t('notifications.dismiss', { title: titleOf(n) })}
                   >
                     <X size={16} aria-hidden="true" />
                   </button>

@@ -69,3 +69,10 @@ export async function deleteCommunityNotice(rowId: string): Promise<void> {
   const { error } = await supabase.from('notifications').delete().eq('id', rowId);
   if (error) throw error;
 }
+
+/** 내 커뮤니티 알림을 모두 지운다(RLS가 본인 것만 허용) */
+export async function deleteAllCommunityNotices(userId: string): Promise<void> {
+  const supabase = getSupabaseClient();
+  const { error } = await supabase.from('notifications').delete().eq('user_id', userId);
+  if (error) throw error;
+}
