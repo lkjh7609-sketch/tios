@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-10-12 (앱 12) — iOS 1.0.0 출시 준비
+
+- **결정(사용자)**: 프로·인앱결제 없이 출시(사업자 미정), 항공은 Kayak을 기다리지 않고 Ignav + Trip.com/Kiwi 구조로 MVP, 한국+호주 스토어, 외부 TestFlight 테스트는 안 함. 무료 한도 기본 3개 + 추가 방법은 협의 중(아래 '남은 것').
+- **버전 1.0.0**: `MARKETING_VERSION` 1.0.0. 설정의 버전은 앱에서 설치된 앱의 버전(`@capacitor/app`)을 읽는다(웹은 예전처럼 업데이트 공지의 버전, 기본값 1.0.0).
+- **약관·개인정보처리방침**(루트 `terms.html`·`privacy.html`, 2026-10-12 시행): 푸시(APNs)·카메라·위치(앱), 출발 3일 전 이메일 중단, 태그 삭제, IDFA 미수집, 무료 여행 한도, Ignav. 웹 저장소에도 같은 파일을 옮겼다(웹 PR #41, App Store의 개인정보처리방침 URL이 웹 페이지).
+- **`PrivacyInfo.xcprivacy`**: 대략적 위치(접속 국가)·고객 지원·성능 데이터를 수집 항목에 추가(App Privacy 입력값과 같게).
+- **Universal Link**: `https://triptic.my/.well-known/apple-app-site-association`이 사이트 첫 화면(`text/html`)을 돌려주고 있었다 → 웹 저장소에서 파일·헤더 추가(PR #41). 앱 저장소의 파일은 웹에 배포되지 않는다.
+- **심사용 데모 계정** `apple.review@triptic.my` 생성(이메일 확인 처리, 비밀번호는 저장소 밖 `~/Desktop/Triptic 보안/App Review/demo-account.txt`). Supabase Redirect URL `com.triptic.travel://auth/callback` 등록 확인.
+- **입력 자료**: `docs/launch/app-store-listing.md` — 앱 정보·한/영 설명·키워드·심사 메모·연령 등급 답·App Privacy 답·스크린샷 규격.
+- **남은 것**: 웹 PR #41 머지·배포 확인, 무료 한도 3개(+추가 방법) 반영(DB는 0110에서 기본 2), Apple 입력·스크린샷, 심사 제출.
+
 ## 2026-10-12 (앱 11) — 태그 제거 · 영어/일본어/중국어 글 길이 점검 · 마이리얼트립 속도
 
 - **태그 제거(사용자 결정)**: 동행글·일반 글 모두 태그를 없앴다(검색이 있다). 글 쓰기의 태그 입력, 동행 선호 조건의 태그 고르기, 글·동행 상세와 홈 동행 카드의 태그 표시, 도시 채널·자유게시판의 태그 필터와 '인기 태그' 카드를 지웠다. DB 열(`tags`)과 서버 함수는 그대로 두고, 새 글은 태그 없이 저장되며 예전 글을 고칠 때는 달려 있던 태그를 그대로 둔다.
