@@ -4,6 +4,19 @@
 
 ---
 
+### 2026-10-11 (앱 1) — iOS 앱 첫 TestFlight 이후 모바일 수정 6건
+
+브랜치 `app/mobile-polish`(앱 전용 저장소 `tios`). 첫 TestFlight 설치 후 사용자 점검 6건. **웹 저장소(`Triptic`)에는 반영하지 않는다.**
+
+- **상하단 공백**: 원인은 상단 안전 영역이 3겹 — ① 네이티브 `contentInset: automatic` ② `.app-shell`의 `padding-top: env(safe-area-inset-top)` ③ `HomeTopBar`·`GuestBanner` 자체 패딩. `capacitor.config.json`을 `contentInset: never` + `backgroundColor #FDFBF7`로, 상단은 셸이 한 번만(HomeTopBar·GuestBanner에서 env 패딩 제거), 하단은 탭바가 한 번만 맡게 정리. 상태 표시줄 글자색은 `StatusBar.style: DEFAULT`로 두고 앱에서 테마에 맞춰 바꾼다(`watchNativeStatusBar`, Capacitor는 `Style.Light`가 '밝은 배경용(어두운 글자)').
+- **설정(모바일)**: 상위 메뉴(환경설정·알림 설정·데이터 및 저장공간·커뮤니티·앱 정보) → 세부 화면. 라우트 `/settings/:section?`(뒤로가기·화면 전환 방향 자동). 프로필 영역을 누르면 내 정보 변경, 로그아웃·계정 삭제는 맨 아래 좌우(계정 삭제는 심사 때 찾기 쉽게 그대로 둠). 탭 이름 ko·en `My`. PC 설정(`SettingsDesktop`)은 그대로. 시험 `SettingsScreen.test.tsx`.
+- **화면 전환**: 이미 있던 View Transitions(iOS 18+ WKWebView에서만 동작)에 더해, 지원하지 않는 환경에선 방향별 밀기 애니메이션(Web Animations)으로 대체(`AppShell`). 모바일 팝업·시트(`[role=dialog]`)는 아래에서 올라오는 `sheetRise`(개별 속성 translate·scale로 움직여 팝업 자체 transform과 안 겹침).
+- **PDF**: 앱(WKWebView)에선 `jsPDF.save()`의 링크 다운로드가 조용히 무시돼 생성이 안 되는 것처럼 보였다. 앱에서는 임시 폴더에 파일로 쓰고 iOS 공유 시트(`@capacitor/filesystem`·`@capacitor/share` 새로 추가, 앱에서만 동적 import)로 건넨다. 같은 곳에서 발견: 공유 링크가 `capacitor://localhost/shared/…`로 만들어지던 것을 `publicOrigin()`(앱=운영 도메인)으로 고침.
+- **저장이 10초 넘게 걸림(미해결, 진단 중)**: 이 Mac에서 재 보니 Supabase 응답은 빠르다(연결 5ms·REST 25ms·프리플라이트 0.3초) → 네트워크 거리 문제가 아니다. 서버 함수 `trip-itinerary-write`도 단순(병렬 조회 + RPC 1번). 인증 이벤트 리스너는 모두 `setTimeout`으로 미뤄 데드락 소지 없음. 남은 후보: 앱에서만 생기는 인증 락·토큰 갱신 대기(8초 제한 `TOKEN_REFRESH_TIMEOUT_MS`). `saveTrip`에 구간별 시간 로그(`[saveTrip] … +ms`)를 임시로 넣었고, `webContentsDebuggingEnabled`를 켜서 Mac Safari → 개발자용 → iPhone에서 콘솔·네트워크를 볼 수 있게 했다. **둘 다 원인 확인 뒤 제거**(출시 전 필수).
+- 확인 못 한 것: Xcode가 없어 실기기 확인은 다음 TestFlight 빌드에서.
+
+---
+
 ### 2026-10-09 (18) — 홈 인기 여행기 카드에서 '일정 복사하기' 제거
 
 브랜치 `admin/stories-no-copy`. **사용자 지시**: 홈 인기 여행기 카드의 '일정 복사하기'를 모바일·PC 모두 지우고, 모바일은 좋아요 수·댓글 수를 보여 준다(복사는 게시글 안에서).

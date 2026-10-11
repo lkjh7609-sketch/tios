@@ -144,8 +144,12 @@ export class TripService {
 
   /** 여행 저장 (신규 생성 또는 갱신) */
   async saveTrip(project: LocalProject, name: string): Promise<TripRow> {
+    // TODO(진단 후 제거): 앱에서 저장이 10초 넘게 걸리는 구간을 Safari 웹 인스펙터 콘솔에서 찾는다
+    const t0 = performance.now();
+    const lap = (label: string) => console.info(`[saveTrip] ${label} +${Math.round(performance.now() - t0)}ms`);
     const supabase = getSupabaseClient();
     const user = await this.getSessionUser();
+    lap('session');
     if (!user) throw new Error('Not signed in');
 
     const isNewTrip = !project.supabaseId;
@@ -214,12 +218,14 @@ export class TripService {
       }
     }
     const tripId = data.id;
+    lap('trips row');
 
     // ADR-002 M7 컷오버 — 정규화 테이블이 이제 1차 데이터라 이 호출이
     // 실패하면 저장 자체가 실패해야 한다(예전 fire-and-forget과 다름).
     const { error: fnErr } = await supabase.functions.invoke('trip-itinerary-write', {
       body: { tripId, ...content },
     });
+    lap('edge function');
     if (fnErr) {
       captureError(fnErr, { context: 'tripItineraryWrite', tripId });
       throw fnErr;
@@ -239,7 +245,9 @@ export class TripService {
       if (touched.data) data = touched.data as Omit<TripRow, 'content'>;
     }
 
+    lap('touch');
     if (isNewTrip) await this.notifyQuotaAfterCreate(user.id);
+    lap('done');
 
     return { ...data, content };
   }
