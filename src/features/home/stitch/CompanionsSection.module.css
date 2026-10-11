@@ -345,12 +345,19 @@
   .foot {
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
+    gap: 16px; /* 작성자와 신청하기 버튼이 너무 붙어 있던 것 */
+    margin-top: 16px;
   }
 
+  /* 신청하기 버튼: 카드 폭의 2/3, 높이도 줄여 가운데에 둔다 */
   .talk {
+    align-self: center;
+    box-sizing: border-box;
+    width: 67%;
+    min-height: 30px;
     justify-content: center;
-    padding: 8px 10px;
+    padding: 5px 10px;
+    font-size: 0.75rem;
   }
 
   .topLeft {

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Heart, MessageCircle } from 'lucide-react';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { DATE_FNS_LOCALE } from '@/features/plan/planDateFormat';
-import { AuthorName } from './AuthorName';
+import { AuthorName, demographicsText } from './AuthorName';
 import { spotsLeft } from './companionPrefs';
 import { getPostImageUrl } from './imageProcessing';
 import { postTitleOf } from './postMeta';
@@ -38,13 +38,17 @@ export function BoardRow({ item }: { item: AllFeedItem }) {
 
   if (item.kind === 'companion') {
     const post = item.post;
+    // 나잇대·성별 칩: PC는 작성자 이름 옆, 모바일은 제목과 같은 줄의 맨 오른쪽(제목 아래 줄에는 작성자·몇 일 전)
+    const demographics = demographicsText(post.author, t);
     return (
       <Link to={`/community/companion/${post.id}`} className={styles.row}>
         <span className={styles.place}>{post.destination?.name ?? t('companion.detail.anyDestination')}</span>
-        <span className={`${styles.title} ${styles.titleWide}`}>{post.title}</span>
+        <span className={`${styles.title} ${styles.titleWide} ${demographics ? styles.titleWithDemo : ''}`}>{post.title}</span>
+        {demographics ? <span className={styles.demoTop}>{demographics}</span> : null}
         <span className={styles.meta}>
           <span className={styles.cAuthor}>
-            <AuthorName profile={post.author} />
+            <AuthorName profile={post.author} hideDemographics />
+            {demographics ? <span className={styles.demoInline}>{demographics}</span> : null}
           </span>
           <span className={styles.cDate}>{time}</span>
         </span>

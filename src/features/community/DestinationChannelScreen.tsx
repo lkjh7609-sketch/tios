@@ -67,6 +67,11 @@ export function DestinationChannelScreen() {
 }
 
 function DestinationChannel({ slug }: { slug: string | undefined }) {
+  // 머리 사진을 상태 표시줄(다이나믹 아일랜드) 자리까지 채운다 — 셸의 위쪽 안전 영역 여백을 이 화면 안쪽으로 옮긴다(tokens.css)
+  useEffect(() => {
+    document.documentElement.setAttribute('data-hero-top', '');
+    return () => document.documentElement.removeAttribute('data-hero-top');
+  }, []);
   const { t } = useTranslation(['community', 'common']);
   const navigate = useNavigate();
   const { user } = useSession();

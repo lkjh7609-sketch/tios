@@ -25,9 +25,8 @@
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
-  /* 하단 탭바(56px) + 노치 세이프에어리어 — 이 화면은 이제 모바일에서도
-     쓰이므로(PostDetailScreen.module.css의 commentInputRow와 동일한 이유) */
-  padding: 1.5rem 1rem calc(56px + var(--space-6) + env(safe-area-inset-bottom));
+  /* 하단 탭바는 화면 아래에 따로 붙어 있어(AppShell) 탭바만큼의 여백을 또 두면 맨 아래가 휑하다 — 아래 여백은 조금만 */
+  padding: 1.5rem 1rem var(--space-4);
   display: flex;
   flex-direction: column;
   gap: 2rem;

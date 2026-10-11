@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import styles from './AuthorName.module.css';
 
 interface AuthorNameProps {
+  /** true면 나잇대·성별 칩을 빼고 이름만 — 목록이 칩을 다른 자리에 따로 놓을 때(BoardRow) */
+  hideDemographics?: boolean;
   profile:
     | {
         display_name: string;
@@ -16,22 +18,26 @@ interface AuthorNameProps {
     | undefined;
 }
 
-/** 커뮤니티 전역에서 작성자 이름을 보여주는 공통 조각 — 관리자는 이름 옆에
- * 배지가 붙어 일반 사용자와 구분된다(is_admin은 community_profiles 뷰, 0041).
- * 관리자 계정의 표시 이름 자체가 "관리자"라 텍스트 배지를 쓰면 "관리자 관리자"로
- * 겹쳐 보여서 아이콘 배지로 대신한다.
- * 동행 후기(0047)를 받은 사용자는 이름 옆에 평균 별점이 붙는다. */
-export function AuthorName({ profile }: AuthorNameProps) {
-  const { t } = useTranslation('community');
-  const ratingCount = Number(profile?.rating_count ?? 0);
-  const ratingAvg = Number(profile?.rating_avg ?? 0);
-  // 동행 화면에서만 채워지는 나잇대·성별 — 둘 다 없으면 아무것도 안 보인다
-  const demographics = [
+/** 동행 화면에서만 채워지는 나잇대·성별 글("50대 이상 · 남성") — 둘 다 없으면 빈 글 */
+export function demographicsText(profile: AuthorNameProps['profile'], t: (key: string) => string): string {
+  return [
     profile?.age_band ? t(`companion.ages.${profile.age_band}`) : null,
     profile?.gender ? t(`companion.gender.${profile.gender}`) : null,
   ]
     .filter(Boolean)
     .join(' · ');
+}
+
+/** 커뮤니티 전역에서 작성자 이름을 보여주는 공통 조각 — 관리자는 이름 옆에
+ * 배지가 붙어 일반 사용자와 구분된다(is_admin은 community_profiles 뷰, 0041).
+ * 관리자 계정의 표시 이름 자체가 "관리자"라 텍스트 배지를 쓰면 "관리자 관리자"로
+ * 겹쳐 보여서 아이콘 배지로 대신한다.
+ * 동행 후기(0047)를 받은 사용자는 이름 옆에 평균 별점이 붙는다. */
+export function AuthorName({ profile, hideDemographics = false }: AuthorNameProps) {
+  const { t } = useTranslation('community');
+  const ratingCount = Number(profile?.rating_count ?? 0);
+  const ratingAvg = Number(profile?.rating_avg ?? 0);
+  const demographics = hideDemographics ? '' : demographicsText(profile, t);
   return (
     <>
       {profile?.display_name || t('post.fallbackAuthor')}

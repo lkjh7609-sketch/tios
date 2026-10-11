@@ -242,6 +242,14 @@
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
 }
+/* 머리 사진이 상태 표시줄(다이나믹 아일랜드) 자리까지 이어지는 화면(도시 게시판) — 위쪽 안전 영역 여백을 셸 대신 화면 안쪽
+   (main)이 갖게 해서, 그 화면의 머리말이 음수 여백으로 그 자리까지 올라갈 수 있게 한다. 화면이 html[data-hero-top]을 켠다 */
+html[data-hero-top] .app-shell {
+  padding-top: 0;
+}
+html[data-hero-top] .app-shell > main {
+  padding-top: env(safe-area-inset-top);
+}
 .tab-bar {
   padding-bottom: env(safe-area-inset-bottom);
   height: calc(56px + env(safe-area-inset-bottom));
