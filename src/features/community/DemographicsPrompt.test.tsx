@@ -5,9 +5,8 @@ import '@/shared/i18n';
 
 const state = vi.hoisted(() => ({
   user: { id: 'u1' } as { id: string } | null,
-  profile: { gender: null, age_band: null, demographics_skips: 0 } as unknown,
+  profile: { gender: null, age_band: null } as unknown,
   mutateAsync: vi.fn(),
-  skip: vi.fn(),
 }));
 
 vi.mock('@/shared/hooks/useSession', () => ({ useSession: () => ({ user: state.user }) }));
@@ -16,7 +15,6 @@ vi.mock('@/shared/hooks/useProfile', () => ({
   useUpdateProfile: () => ({ mutateAsync: state.mutateAsync, isPending: false }),
   profileQueryKey: (id: string) => ['profile', id],
 }));
-vi.mock('@/shared/api/profileService', () => ({ skipMyDemographics: () => state.skip() }));
 vi.mock('@/shared/a11y/useFocusTrap', () => ({ useFocusTrap: () => ({ current: null }) }));
 
 import { DemographicsPrompt, shouldAskDemographics } from './DemographicsPrompt';
@@ -31,17 +29,16 @@ function renderPrompt() {
 
 beforeEach(() => {
   state.user = { id: 'u1' };
-  state.profile = { gender: null, age_band: null, demographics_skips: 0 };
+  state.profile = { gender: null, age_band: null };
   state.mutateAsync.mockReset().mockResolvedValue(undefined);
-  state.skip.mockReset().mockResolvedValue(undefined);
 });
 
 describe('shouldAskDemographics', () => {
-  it('둘 중 하나라도 비어 있고 두 번 미만 건너뛰었을 때만 묻는다', () => {
-    expect(shouldAskDemographics({ gender: null, age_band: null, demographics_skips: 0 })).toBe(true);
-    expect(shouldAskDemographics({ gender: 'male', age_band: null, demographics_skips: 1 })).toBe(true);
-    expect(shouldAskDemographics({ gender: 'male', age_band: '40s', demographics_skips: 0 })).toBe(false);
-    expect(shouldAskDemographics({ gender: null, age_band: null, demographics_skips: 2 })).toBe(false);
+  it('둘 중 하나라도 비어 있으면 묻는다(필수 — 예전에 "나중에"를 눌렀어도 묻는다)', () => {
+    expect(shouldAskDemographics({ gender: null, age_band: null })).toBe(true);
+    expect(shouldAskDemographics({ gender: 'male', age_band: null })).toBe(true);
+    expect(shouldAskDemographics({ gender: null, age_band: '40s' })).toBe(true);
+    expect(shouldAskDemographics({ gender: 'male', age_band: '40s' })).toBe(false);
     expect(shouldAskDemographics(undefined)).toBe(false);
   });
 });
@@ -58,15 +55,28 @@ describe('DemographicsPrompt', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
-  it('"나중에"는 서버에 건너뜀을 알리고 닫는다', async () => {
+  it('필수라 "나중에"도 닫기 버튼도 없고, 둘 중 하나만 골라서는 저장할 수 없다', () => {
     renderPrompt();
-    fireEvent.click(screen.getByRole('button', { name: '나중에' }));
-    await waitFor(() => expect(state.skip).toHaveBeenCalled());
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '나중에' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('radio', { name: '여성' }));
+    expect(screen.getByRole('button', { name: '저장' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('radio', { name: '30대 초반' }));
+    expect(screen.getByRole('button', { name: '저장' })).toBeEnabled();
+  });
+
+  it('고른 칩을 다시 눌러도 선택이 풀리지 않는다(바꾸기만 가능)', () => {
+    renderPrompt();
+    const female = screen.getByRole('radio', { name: '여성' });
+    fireEvent.click(female);
+    fireEvent.click(female);
+    expect(female).toHaveAttribute('aria-checked', 'true');
+    fireEvent.click(screen.getByRole('radio', { name: '남성' }));
+    expect(screen.getByRole('radio', { name: '남성' })).toHaveAttribute('aria-checked', 'true');
+    expect(female).toHaveAttribute('aria-checked', 'false');
   });
 
   it('이미 입력했으면 뜨지 않는다', () => {
-    state.profile = { gender: 'male', age_band: '30s_early', demographics_skips: 0 };
+    state.profile = { gender: 'male', age_band: '30s_early' };
     renderPrompt();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });

@@ -249,7 +249,7 @@ export function EditProfileModal({ onClose, profile, updateProfile }: EditProfil
           </div>
           <div className={modalStyles.field}>
             <span className={modalStyles.label}>{t('demographics.settingsTitle', { ns: 'community' })}</span>
-            <DemographicsFields gender={gender} ageBand={ageBand} onChange={(next) => { setGender(next.gender); setAgeBand(next.ageBand); }} />
+            <DemographicsFields required gender={gender} ageBand={ageBand} onChange={(next) => { setGender(next.gender); setAgeBand(next.ageBand); }} />
             <p className={modalStyles.hint}>{t('demographics.settingsHint', { ns: 'community' })}</p>
           </div>
           <div className={modalStyles.actions}>

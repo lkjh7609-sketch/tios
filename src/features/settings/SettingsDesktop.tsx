@@ -418,6 +418,7 @@ export function SettingsDesktop() {
               </h2>
               <p className={styles.cardDesc}>{t('demographics.settingsHint', { ns: 'community' })}</p>
               <DemographicsFields
+                required
                 gender={profile?.gender ?? null}
                 ageBand={profile?.age_band ?? null}
                 onChange={(next) => updateProfile.mutate({ gender: next.gender, age_band: next.ageBand })}
