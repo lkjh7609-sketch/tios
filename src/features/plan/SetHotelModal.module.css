@@ -163,7 +163,7 @@
 .secondary,
 .primary {
   flex: 1;
-  height: 48px;
+  height: 44px;
   border-radius: var(--radius-md);
   font-size: var(--font-body-size);
   font-weight: 600;
@@ -173,9 +173,10 @@
 
 .secondary {
   appearance: none;
-  background: var(--surface-subtle);
-  border: none;
+  background: var(--surface-card);
+  border: 1px solid var(--border); /* 다른 시트의 취소 버튼과 같은 흰 바탕 윤곽선 */
   color: var(--text-body);
+  font-weight: 500;
 }
 
 

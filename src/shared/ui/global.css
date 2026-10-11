@@ -284,3 +284,9 @@ html[data-nav='fade']::view-transition-new(root) { animation-name: vt-rise-in; a
     animation: none;
   }
 }
+
+/* 체크박스·라디오 — 브라우저 기본 파란색 대신 앱 색 */
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--brand-solid);
+}

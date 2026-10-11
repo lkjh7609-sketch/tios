@@ -42,6 +42,8 @@
   min-height: 44px;
   border: 1px solid var(--border-control);
   border-radius: var(--radius-md);
+  background: var(--surface-card); /* 다크 모드에서 입력칸만 흰색으로 남지 않게 */
+  color: var(--text-primary);
   padding: 0 var(--space-3);
   font-size: var(--font-body-size);
 }

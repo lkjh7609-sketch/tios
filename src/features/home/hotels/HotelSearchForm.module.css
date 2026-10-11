@@ -293,6 +293,7 @@
     min-width: 0;
     max-height: 80dvh;
     margin: 0;
+    padding-inline: var(--space-5);
     padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
     border: 0;
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
