@@ -21,7 +21,7 @@ describe('설정 화면 버전 = 가장 최근 업데이트 공지의 버전', (
   it('업데이트 공지가 없으면 null(→ 기본값 사용)', () => {
     expect(latestUpdateVersion(undefined)).toBeNull();
     expect(latestUpdateVersion([])).toBeNull();
-    expect(FALLBACK_APP_VERSION).toBe('1.0.2');
+    expect(FALLBACK_APP_VERSION).toBe('1.0.0');
   });
 
   it('여러 업데이트 중 게시일이 가장 늦은 것의 버전', () => {
