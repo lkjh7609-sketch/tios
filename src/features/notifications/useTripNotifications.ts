@@ -1,18 +1,15 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useMemo, useState, useSyncExternalStore } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, subDays } from 'date-fns';
 import { useSession } from '@/shared/hooks/useSession';
-import { useTrips } from '@/features/plan/hooks/useTrips';
 import {
   dismissNotification,
   markNotificationsRead,
   readNotificationState,
   subscribeNotifications,
 } from './notificationStore';
-import { useDestinationCoords, useTravelAlerts } from '@/features/travelAlerts/useTravelAlerts';
-import { buildAlertNotices, type AlertNotice } from './alertNotices';
 import { useAnnouncements } from '@/features/notices/useAnnouncements';
-import { buildTripReminders, type TripReminder } from './tripReminders';
+import { APP_ID_PREFIX, deleteAppNotice, listAppNotices, markAppNoticesRead, type AppNotice } from './appNotices';
 import {
   COMMUNITY_ID_PREFIX,
   deleteCommunityNotice,
@@ -32,7 +29,7 @@ export interface AnnouncementNotice {
   unread: boolean;
 }
 
-export type TripNotification = ((TripReminder | AlertNotice) & { unread: boolean }) | CommunityNotice | AnnouncementNotice;
+export type TripNotification = AppNotice | CommunityNotice | AnnouncementNotice;
 
 /** 종 알림에 올리는 공지는 최근 한 달 안의 것만, 최대 5개 */
 const ANNOUNCEMENT_DAYS = 30;
@@ -40,30 +37,20 @@ const ANNOUNCEMENT_MAX = 5;
 
 const communityKey = (userId: string | null) => ['notifications', 'community', userId ?? ''] as const;
 
+const appKey = (userId: string | null) => ['notifications', 'app', userId ?? ''] as const;
+
 const today = () => format(new Date(), 'yyyy-MM-dd');
 
 /**
- * 종 모양 알림 — 내 글·댓글에 달린 댓글·답글·좋아요(서버가 만든 알림, 1분마다·창에 돌아올 때 다시 읽음),
- * 내 여행의 출발 7일 전·하루 전·당일, 목적지 나라의 여행경보(2단계 이상). 여행 알림은 푸시 없이 앱을 열었을 때만 계산한다.
- * 로그인하지 않았으면 비어 있다
+ * 종 모양 알림 — 서버가 만든 알림을 1분마다·창에 돌아올 때 다시 읽는다: 내 글·댓글에 달린 댓글·답글·좋아요(0087),
+ * 내 여행의 출발 임박·여행경보, 동행·공동 편집·운영 조치(0112). 읽음·지움은 서버에 기록한다(기기가 바뀌어도 같다).
+ * 운영자 공지는 이 기기에만 읽음을 기록한다. 로그인하지 않았으면 비어 있다
  */
 export function useTripNotifications() {
   const { user } = useSession();
   const userId = user?.id ?? null;
-  const { data: trips } = useTrips();
-  const { alerts } = useTravelAlerts();
-  const { data: coords } = useDestinationCoords();
-  // 앱을 켜 둔 채 날짜가 바뀌어도(자정) 돌아오면 다시 계산한다
-  const [todayYmd, setTodayYmd] = useState(today);
-  useEffect(() => {
-    const refresh = () => setTodayYmd(today());
-    document.addEventListener('visibilitychange', refresh);
-    window.addEventListener('focus', refresh);
-    return () => {
-      document.removeEventListener('visibilitychange', refresh);
-      window.removeEventListener('focus', refresh);
-    };
-  }, []);
+  // 앱을 켜 둔 채 날짜가 바뀌어도 공지 기간(30일)이 맞게 — 창에 돌아올 때 오늘을 다시 읽는다
+  const [todayYmd] = useState(today);
 
   const queryClient = useQueryClient();
   const { data: community } = useQuery({
@@ -73,7 +60,22 @@ export function useTripNotifications() {
     refetchInterval: 60_000,
     refetchOnWindowFocus: true,
   });
+  const { data: app } = useQuery({
+    queryKey: appKey(userId),
+    queryFn: listAppNotices,
+    enabled: !!userId,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
+  });
   const { data: announcements } = useAnnouncements(!!userId);
+  const markAppRead = useMutation({
+    mutationFn: () => markAppNoticesRead(userId!),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: appKey(userId) }),
+  });
+  const deleteApp = useMutation({
+    mutationFn: (rowId: string) => deleteAppNotice(rowId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: appKey(userId) }),
+  });
   const markCommunityRead = useMutation({
     mutationFn: () => markCommunityNoticesRead(userId!),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: communityKey(userId) }),
@@ -91,14 +93,6 @@ export function useTripNotifications() {
 
   const items = useMemo<TripNotification[]>(() => {
     if (!userId || !state) return [];
-    // 경보가 더 급하니 먼저
-    const all = [
-      ...buildAlertNotices(trips ?? [], coords ?? [], alerts, todayYmd),
-      ...buildTripReminders(trips ?? [], todayYmd),
-    ];
-    const local = all
-      .filter((r) => !state.dismissed.includes(r.id))
-      .map((r) => ({ ...r, unread: !state.read.includes(r.id) }));
     // 렌더 중에 Date.now()를 부르지 않도록 이미 있는 todayYmd 상태에서 기준일을 뽑는다
     const sinceYmd = format(subDays(new Date(`${todayYmd}T00:00:00`), ANNOUNCEMENT_DAYS), 'yyyy-MM-dd');
     const notices: AnnouncementNotice[] = (announcements ?? [])
@@ -115,9 +109,10 @@ export function useTripNotifications() {
       }))
       .filter((n) => !state.dismissed.includes(n.id))
       .map((n) => ({ ...n, unread: !state.read.includes(n.id) }));
-    // 사람들이 남긴 반응이 가장 새로운 소식이라 맨 위에, 그다음 공지
-    return [...(community ?? []), ...notices, ...local];
-  }, [userId, state, trips, coords, alerts, todayYmd, community, announcements]);
+    // 서버가 만든 알림은 새것부터, 그 아래에 운영자 공지
+    const server = [...(community ?? []), ...(app ?? [])].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    return [...server, ...notices];
+  }, [userId, state, todayYmd, community, app, announcements]);
 
   return {
     signedIn: !!userId,
@@ -127,13 +122,15 @@ export function useTripNotifications() {
       if (!userId) return;
       markNotificationsRead(
         userId,
-        items.filter((i) => i.kind !== 'community').map((i) => i.id),
+        items.filter((i) => i.kind === 'announcement').map((i) => i.id),
       );
       if (items.some((i) => i.kind === 'community' && i.unread)) markCommunityRead.mutate();
+      if (items.some((i) => i.kind === 'app' && i.unread)) markAppRead.mutate();
     },
     dismiss: (id: string) => {
       if (!userId) return;
       if (id.startsWith(COMMUNITY_ID_PREFIX)) deleteCommunity.mutate(id.slice(COMMUNITY_ID_PREFIX.length));
+      else if (id.startsWith(APP_ID_PREFIX)) deleteApp.mutate(id.slice(APP_ID_PREFIX.length));
       else dismissNotification(userId, id);
     },
   };

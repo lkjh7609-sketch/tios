@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { apnsHost, base64url, buildPayload, classifyApnsResponse, importApnsKey, safePath, signProviderToken } from './apns';
-import { commentMessage, normalizeLocale, replyMessage, tripReminderMessage } from './messages';
+import { commentMessage, normalizeLocale, replyMessage, appNotificationMessage, appNotificationPath } from './messages';
 
 function toPem(pkcs8: ArrayBuffer): string {
   const b64 = btoa(String.fromCharCode(...new Uint8Array(pkcs8)));
@@ -75,7 +75,12 @@ describe('푸시 문구', () => {
     expect(normalizeLocale('fr')).toBe('en');
     expect(commentMessage('ko', '민수')).toEqual({ title: '새 댓글', body: '민수님이 내 글에 댓글을 남겼어요' });
     expect(replyMessage('en', 'Ann')).toEqual({ title: 'New reply', body: 'Ann replied to your comment' });
-    expect(tripReminderMessage('ko', '도쿄 3박 4일').title).toBe('3일 뒤 출발이에요');
-    expect(tripReminderMessage('zh-TW', 'X').body).toContain('X');
+    expect(appNotificationMessage('ko', 'trip_week', { title: '도쿄' })).toEqual({ title: '여행이 얼마 안 남았어요', body: '도쿄 출발까지 7일 남았어요' });
+    expect(appNotificationMessage('ko', 'trip_today', { title: '도쿄' })?.body).toContain('즐거운 여행이 되었으면 좋겠어요');
+    expect(appNotificationMessage('zh-TW', 'collab_joined', { title: 'X', name: 'Y' })?.body).toContain('X');
+    expect(appNotificationMessage('en', 'companion_message', { count: 3 })?.body).toBe('3 new messages');
+    expect(appNotificationMessage('en', 'nope', {})).toBeNull();
+    expect(appNotificationPath('companion_message', { trip_id: null, companion_post_id: 'c1' }, null)).toBe('/community/companion/c1/chat');
+    expect(appNotificationPath('trip_soon', { trip_id: 't1', companion_post_id: null }, null)).toBe('/plan/t1');
   });
 });

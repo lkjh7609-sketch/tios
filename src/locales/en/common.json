@@ -127,16 +127,54 @@
     "ariaUnread": "Notifications ({{count}} unread)",
     "empty": "No new notifications.",
     "dismiss": "Dismiss notification for {{title}}",
-    "week": "{{days}} days until you leave",
-    "dayBefore": "You leave tomorrow",
-    "today": "You leave today! Have a great trip",
-    "note": "You'll see comments, replies and likes, plus 7 days / 1 day / day-of trip reminders and travel alerts for your destination. Trip reminders only show when you open the app.",
+    "note": "You'll see comments and replies (also as push) and likes, trip reminders at 7 days, 3 days and on the day, travel advisories for your destination, companion and shared-trip updates, and moderation notices.",
     "community": {
       "post_comment": "{{name}} commented on your post",
       "comment_reply": "{{name}} replied to your comment",
       "post_like": "{{name}} liked your post",
       "comment_like": "{{name}} liked your comment",
       "someone": "Someone"
+    },
+    "app": {
+      "trip_week": "Your trip is coming up · 7 days to go",
+      "trip_soon": "Your trip is coming up · 3 days to go",
+      "trip_today": "It's trip day! Hope you have a wonderful trip~",
+      "companion_applied": "{{name}} wants to join you",
+      "companion_accepted": "Your companion request was accepted",
+      "companion_rejected": "It won't work out this time",
+      "companion_matched": "You're matched! Line up plans in the chat",
+      "companion_message": "{{name}} sent a message",
+      "companion_message_many": "{{count}} new messages",
+      "companion_review": "How was the trip together? Leave a review",
+      "collab_joined": "{{name}} joined this trip",
+      "collab_left": "{{name}} left this trip",
+      "collab_removed": "You were removed from this trip",
+      "ops_content_removed": {
+        "post": "Your post was hidden under our policies",
+        "comment": "Your comment was hidden under our policies",
+        "companion_post": "Your companion post was hidden under our policies"
+      },
+      "ops_report_result": {
+        "actioned": "We reviewed your report and took action",
+        "dismissed": "We reviewed your report; no action was needed"
+      },
+      "heading": {
+        "trip_week": "Trip",
+        "trip_soon": "Trip",
+        "trip_today": "Trip",
+        "travel_alert": "Travel advisory",
+        "companion_applied": "Companion",
+        "companion_accepted": "Companion",
+        "companion_rejected": "Companion",
+        "companion_matched": "Companion",
+        "companion_message": "Companion chat",
+        "companion_review": "Companion review",
+        "ops_content_removed": "Moderation",
+        "ops_report_result": "Report result",
+        "collab_joined": "Shared trip",
+        "collab_left": "Shared trip",
+        "collab_removed": "Shared trip"
+      }
     },
     "announcement": {
       "notice": "A new notice was posted",

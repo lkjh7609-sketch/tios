@@ -127,16 +127,54 @@
     "ariaUnread": "알림 (안 읽음 {{count}}개)",
     "empty": "새 알림이 없어요.",
     "dismiss": "{{title}} 알림 지우기",
-    "week": "출발이 {{days}}일 남았어요",
-    "dayBefore": "내일 출발해요",
-    "today": "오늘 출발해요! 즐거운 여행 되세요",
-    "note": "댓글·답글·좋아요 알림과 함께, 여행 7일 전·하루 전·당일, 목적지의 여행경보를 알려 드려요. 여행 알림은 앱을 열었을 때만 보여요.",
+    "note": "댓글·답글(푸시 포함)과 좋아요, 출발 7일 전·3일 전·당일, 목적지 여행경보, 동행·공동 편집 소식, 운영 조치를 알려 드려요.",
     "community": {
       "post_comment": "{{name}}님이 내 글에 댓글을 남겼어요",
       "comment_reply": "{{name}}님이 내 댓글에 답글을 남겼어요",
       "post_like": "{{name}}님이 내 글을 좋아해요",
       "comment_like": "{{name}}님이 내 댓글을 좋아해요",
       "someone": "누군가"
+    },
+    "app": {
+      "trip_week": "여행이 얼마 안 남았어요 · 출발 7일 전",
+      "trip_soon": "여행이 얼마 안 남았어요 · 출발 3일 전",
+      "trip_today": "오늘은 여행 당일이에요. 즐거운 여행이 되었으면 좋겠어요~",
+      "companion_applied": "{{name}}님이 동행을 신청했어요",
+      "companion_accepted": "동행 신청이 수락됐어요",
+      "companion_rejected": "이번에는 동행이 어렵게 됐어요",
+      "companion_matched": "동행이 확정됐어요. 대화방에서 일정을 맞춰 보세요",
+      "companion_message": "{{name}}님이 메시지를 보냈어요",
+      "companion_message_many": "새 메시지 {{count}}개가 도착했어요",
+      "companion_review": "함께한 여행은 어땠나요? 후기를 남겨 주세요",
+      "collab_joined": "{{name}}님이 이 여행에 참여했어요",
+      "collab_left": "{{name}}님이 이 여행에서 나갔어요",
+      "collab_removed": "이 여행의 공동 편집에서 제외됐어요",
+      "ops_content_removed": {
+        "post": "내 글이 운영 정책에 따라 숨김 처리됐어요",
+        "comment": "내 댓글이 운영 정책에 따라 숨김 처리됐어요",
+        "companion_post": "내 동행 글이 운영 정책에 따라 숨김 처리됐어요"
+      },
+      "ops_report_result": {
+        "actioned": "신고하신 내용을 확인해 조치했어요",
+        "dismissed": "신고하신 내용을 검토했고, 조치할 사항은 없었어요"
+      },
+      "heading": {
+        "trip_week": "내 여행",
+        "trip_soon": "내 여행",
+        "trip_today": "내 여행",
+        "travel_alert": "여행경보",
+        "companion_applied": "동행",
+        "companion_accepted": "동행",
+        "companion_rejected": "동행",
+        "companion_matched": "동행",
+        "companion_message": "동행 대화",
+        "companion_review": "동행 후기",
+        "ops_content_removed": "운영 조치",
+        "ops_report_result": "신고 처리 결과",
+        "collab_joined": "공동 편집",
+        "collab_left": "공동 편집",
+        "collab_removed": "공동 편집"
+      }
     },
     "announcement": {
       "notice": "새 공지사항이 올라왔어요",

@@ -14,7 +14,7 @@ import { BackupModal } from '@/features/plan/BackupModal';
 import { getStoredTheme, setTheme, type ThemePreference } from '@/shared/theme';
 import { registerPushNotifications } from '@/shared/push/registerPush';
 import { clearOfflineCache } from '@/shared/offline/persister';
-import { notificationsEnabled, withNotificationsEnabled, type NotificationKey, type NotificationPrefs } from '@/shared/api/profileService';
+import { normalizeNotificationPrefs, notificationsEnabled, withNotificationsEnabled, type NotificationKey, type NotificationPrefs } from '@/shared/api/profileService';
 import { isNativeApp } from '@/shared/platform';
 import { ProfileAvatar } from './ProfileAvatar';
 import { useIsAdminViewer } from '@/features/community/hooks/usePostMeta';
@@ -35,10 +35,10 @@ import { useAppVersion } from '@/features/notices/useAppVersion';
 import styles from './SettingsScreen.module.css';
 
 const NOTIFICATION_LABEL_KEYS: Record<NotificationKey, string> = {
-  preDeparture: 'notifications.preDeparture',
-  flightChanges: 'notifications.flightChanges',
-  communityReplies: 'notifications.communityReplies',
-  marketing: 'notifications.marketing',
+  trip: 'notifications.trip',
+  community: 'notifications.community',
+  companion: 'notifications.companion',
+  collab: 'notifications.collab',
 };
 
 /** 이 사이트가 이 기기에서 실제로 쓰는 저장 공간(MB). 잴 수 없는 환경이면 null */
@@ -94,6 +94,9 @@ export function SettingsScreen() {
     });
   }, []);
 
+  // 운영자 계정에만 보이는 운영 콘솔 줄 — 앱에는 주소창이 없어 콘솔(/admin)로 들어갈 길이 설정뿐이다
+  const { data: isAdminViewer } = useIsAdminViewer(user?.id ?? null);
+
   if (isDesktop && user) return <SettingsDesktop />;
 
   if (showDeleteFlow) {
@@ -122,12 +125,7 @@ export function SettingsScreen() {
   }
 
   function updateNotificationPref(key: NotificationKey, value: boolean) {
-    const base: NotificationPrefs = profile?.notification_prefs ?? {
-      preDeparture: true,
-      flightChanges: true,
-      communityReplies: true,
-      marketing: false,
-    };
+    const base: NotificationPrefs = normalizeNotificationPrefs(profile?.notification_prefs);
     updateProfile.mutate({ notification_prefs: { ...base, [key]: value } });
     // 알림을 켜는 순간 기기 등록도 확인한다(네이티브 앱에서만 동작 — src/shared/push/registerPush.ts. 보통은 로그인할 때 이미 등록돼 있다).
     if (value && user) {
@@ -135,12 +133,10 @@ export function SettingsScreen() {
     }
   }
 
-  // 운영자 계정에만 보이는 운영 콘솔 줄 — 앱에는 주소창이 없어 콘솔(/admin)로 들어갈 길이 설정뿐이다
-  const { data: isAdminViewer } = useIsAdminViewer(user?.id ?? null);
-  const currentPrefs: NotificationPrefs = profile?.notification_prefs ?? { preDeparture: true, flightChanges: true, communityReplies: true, marketing: false };
+  const currentPrefs: NotificationPrefs = normalizeNotificationPrefs(profile?.notification_prefs);
   const masterOn = notificationsEnabled(currentPrefs);
 
-  /** 알림 전체 허용 — 켜면 세부 항목을 기본값으로, 끄면 모두 끈다. 켤 때 앱에서는 이 기기도 등록한다(iOS에서 막혀 있으면 설정 안내) */
+  /** 알림 전체 허용 — 끄면 묶음 설정은 그대로 두고 서버가 모든 알림(운영 조치 포함)을 만들지 않는다. 켤 때 앱에서는 이 기기도 등록한다(iOS에서 막혀 있으면 설정 안내) */
   function setNotificationsMaster(value: boolean) {
     updateProfile.mutate({ notification_prefs: withNotificationsEnabled(currentPrefs, value) });
     if (value && user) {
@@ -206,7 +202,7 @@ export function SettingsScreen() {
           <input
             type="checkbox"
             disabled={!masterOn}
-            checked={masterOn && ((profile?.notification_prefs?.[key] as boolean | undefined) ?? key !== 'marketing')}
+            checked={masterOn && currentPrefs[key]}
             onChange={(e) => updateNotificationPref(key, e.target.checked)}
           />
         </label>

@@ -15,7 +15,7 @@ vi.mock('./registerPush', () => ({
   openPushSettings: () => push.openSettings(),
 }));
 vi.mock('@/shared/hooks/useProfile', () => ({
-  useProfile: () => ({ data: { notification_prefs: { preDeparture: false, flightChanges: false, communityReplies: false, marketing: false, enabled: false } } }),
+  useProfile: () => ({ data: { notification_prefs: { trip: false, community: false, companion: false, collab: false, enabled: false } } }),
   useUpdateProfile: () => ({ mutate: push.mutate }),
 }));
 
@@ -42,7 +42,7 @@ describe('PushConsent', () => {
     render(<PushConsent userId="u1" />);
     fireEvent.click(await screen.findByRole('button', { name: '받을게요' }));
     expect(push.mutate).toHaveBeenCalledWith({
-      notification_prefs: expect.objectContaining({ enabled: true, preDeparture: true, flightChanges: true, communityReplies: true, marketing: false }),
+      notification_prefs: expect.objectContaining({ enabled: true }),
     });
     expect(push.register).toHaveBeenCalledWith('u1');
     expect(localStorage.getItem('triptic-push-asked-u1')).toBe('1');
