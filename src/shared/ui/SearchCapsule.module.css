@@ -1,0 +1,86 @@
+/* 검색 알약 — "내 여행" 검색 줄과 같은 모양 */
+.capsule {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 52px;
+  padding: 6px 6px 6px 20px;
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.capsule:focus-within {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.search {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.icon {
+  flex: none;
+  color: var(--text-tertiary);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 1rem; /* 16px 미만이면 iOS가 입력할 때 화면을 확대한다 */
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--text-placeholder);
+}
+
+.input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.clear {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.divider {
+  flex: none;
+  width: 1px;
+  height: 20px;
+  margin: 0 8px;
+  background: var(--border);
+}
+
+.select {
+  flex: none;
+  max-width: 45%;
+  padding: 6px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
