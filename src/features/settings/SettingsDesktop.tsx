@@ -57,6 +57,7 @@ import { ProfileAvatar } from './ProfileAvatar';
 import { AvatarError, isUploadedAvatar, removeAvatarFiles, uploadAvatar } from './avatar';
 import { showToast } from '@/shared/ui/toast';
 import { useAppVersion } from '@/features/notices/useAppVersion';
+import { MAX_TRIP_LIMIT as UNLIMITED_TRIP_LIMIT } from '@/features/community/adminService';
 import styles from './SettingsDesktop.module.css';
 
 type SectionKey = 'account' | 'display' | 'matching' | 'notifications' | 'data' | 'community';
@@ -244,7 +245,7 @@ export function SettingsDesktop() {
             ))}
           </nav>
 
-          {!isPro && profile ? (
+          {!isPro && profile && (profile.trip_limit ?? 0) < UNLIMITED_TRIP_LIMIT ? (
             <div className={styles.proBox}>
               <ShieldCheck size={20} aria-hidden="true" />
               <div>
