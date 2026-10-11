@@ -282,7 +282,7 @@ export class TripService {
   /** 함께하는 여행에서 나가기(소유자가 아닌 멤버만, 0056) */
   async leaveTrip(tripId: string): Promise<void> {
     const supabase = getSupabaseClient();
-    const user = await this.getCurrentUser();
+    const user = await this.getSessionUser();
     if (!user) throw new Error('Not signed in');
     const { error } = await supabase.from('trip_members').delete().eq('trip_id', tripId).eq('user_id', user.id);
     if (error) throw error;
@@ -299,7 +299,7 @@ export class TripService {
    * 어느 여행이 보이는지는 trips 조회 정책(소유자 또는 멤버, 0056)이 정한다. */
   async listTrips(): Promise<TripRow[]> {
     const supabase = getSupabaseClient();
-    const user = await this.getCurrentUser();
+    const user = await this.getSessionUser();
     if (!user) return [];
 
     const { data, error } = await supabase
@@ -380,7 +380,7 @@ export class TripService {
   /** 공유 링크 생성(또는 이미 있으면 재사용) */
   async createShareLink(tripId: string): Promise<string> {
     const supabase = getSupabaseClient();
-    const user = await this.getCurrentUser();
+    const user = await this.getSessionUser();
     if (!can('trip.collaborate', { userId: user?.id ?? null })) {
       throw new Error(i18next.t('plan:errors.shareUnavailable'));
     }

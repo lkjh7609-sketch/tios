@@ -64,6 +64,12 @@ export async function signOut(): Promise<void> {
 
 export async function getCurrentUser(): Promise<User | null> {
   const client = getSupabaseClient();
+  if (isNativeApp()) {
+    // 앱: getUser는 인증 서버 왕복인데 Supabase 인증 잠금을 쥔 채 기다려, 응답이 늦으면(2026-10-11 TestFlight에서 12초) 그동안
+    // 모든 요청이 멈췄다. 화면이 열릴 때마다 불렸다. 이 기기의 세션을 읽는다(만료면 갱신) — 신원은 요청마다 서버(JWT·RLS)가 확인한다
+    const { data } = await client.auth.getSession();
+    return data.session?.user ?? null;
+  }
   const { data, error } = await client.auth.getUser();
   if (error) {
     // 서버에 닿지 못한 것(회선 문제)은 로그아웃이 아니다 — 이 기기에 남은 세션을 그대로 쓴다.
