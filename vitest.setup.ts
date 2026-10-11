@@ -10,3 +10,20 @@ import i18n from '@/shared/i18n';
  */
 await i18n.changeLanguage('ko');
 await i18n.loadNamespaces(['common', 'home', 'plan', 'documents', 'community', 'settings', 'weather']);
+
+/**
+ * jsdom에는 matchMedia가 없다 — 폰/PC로 갈리는 화면(useMediaQuery)이 테스트에서 터지지 않게 "아무 조건도 안 맞는" 기본값을 둔다
+ * (= PC 모양). 폰 모양을 시험하려면 그 테스트에서 window.matchMedia를 직접 덮어쓴다.
+ */
+if (typeof window !== 'undefined' && typeof window.matchMedia !== 'function') {
+  window.matchMedia = ((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })) as unknown as typeof window.matchMedia;
+}

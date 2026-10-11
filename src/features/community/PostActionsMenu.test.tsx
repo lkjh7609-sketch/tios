@@ -69,4 +69,22 @@ describe('PostActionsMenu', () => {
     fireEvent.pointerDown(document.body);
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
+
+  it('폰(앱)에서는 드롭다운 대신 아래에서 올라오는 액션 시트로 같은 항목이 뜬다', () => {
+    const original = window.matchMedia;
+    window.matchMedia = ((query: string) => ({ matches: query.includes('max-width: 1023px'), media: query, addEventListener() {}, removeEventListener() {} })) as unknown as typeof window.matchMedia;
+    try {
+      const onDelete = vi.fn();
+      render(<PostActionsMenu targetType="post" targetId="p" authorId="me" onDelete={onDelete} />);
+      open();
+      const sheet = screen.getByRole('dialog');
+      expect(sheet).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: '취소' })).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('menuitem', { name: '삭제' }));
+      expect(onDelete).toHaveBeenCalled();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument(); // 고르면 시트는 닫힌다
+    } finally {
+      window.matchMedia = original;
+    }
+  });
 });

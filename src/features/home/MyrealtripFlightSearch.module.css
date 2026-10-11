@@ -789,3 +789,35 @@
   justify-content: flex-end;
   margin-top: var(--space-2);
 }
+
+/* 모바일(앱): 말풍선처럼 붙어 있던 패널을 화면 아래에 붙는 시트로(바깥 어두운 배경은 큰 그림자) */
+@media (max-width: 1023px) {
+  .popover {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 70;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-height: 80dvh;
+    margin: 0;
+    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+    border: 0;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.4);
+    overscroll-behavior: contain;
+  }
+
+  .popover::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 5px;
+    margin: -4px auto 12px;
+    border-radius: 9999px;
+    background: var(--border-strong);
+  }
+}

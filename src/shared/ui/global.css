@@ -178,6 +178,14 @@ textarea,
   [role='alertdialog'] {
     animation: sheetRise 380ms cubic-bezier(0.32, 0.72, 0, 1) backwards !important;
   }
+  /* 화면 아래에 붙은 시트(sheetGestures.ts가 data-sheet를 단다)는 아래에서 쭉 올라온다 */
+  [role='dialog'][data-sheet] {
+    animation: sheetSlideUp 420ms cubic-bezier(0.32, 0.72, 0, 1) backwards !important;
+  }
+}
+@keyframes sheetSlideUp {
+  from { translate: 0 100%; }
+  to { translate: 0 0; }
 }
 
 /* 공통 버튼 애니메이션 (터치 디바이스에서 누를 때 부드러운 축소/투명도 효과) */

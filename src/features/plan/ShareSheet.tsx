@@ -8,6 +8,7 @@ import { useSession } from '@/shared/hooks/useSession';
 import type { PdfExportInput } from './pdfExport';
 import { useTripMembers, initialsOf } from './hooks/useTripMembers';
 import { useLeaveTrip, useRemoveTripMember } from './hooks/useTrips';
+import { confirmDialog } from '@/shared/ui/dialogHost';
 import styles from './ShareSheet.module.css';
 import { Link, Clipboard, BookOpen, FileText, Users } from 'lucide-react';
 
@@ -66,15 +67,18 @@ export function ShareSheet({ tripId, onClose, itineraryText, pdfInput, isSample,
   }
 
   function handleRemoveMember(userId: string, name: string | null) {
-    if (!window.confirm(t('collab.removeConfirm', { name: name ?? t('desktop.memberUnknown') }))) return;
-    removeMember.mutate(userId, { onError: (err) => captureError(err, { context: 'removeTripMember' }) });
+    void confirmDialog({ title: t('collab.remove'), message: t('collab.removeConfirm', { name: name ?? t('desktop.memberUnknown') }), confirmLabel: t('collab.remove'), danger: true }).then((ok) => {
+      if (ok) removeMember.mutate(userId, { onError: (err) => captureError(err, { context: 'removeTripMember' }) });
+    });
   }
 
   function handleLeave() {
-    if (!window.confirm(t('collab.leaveConfirmShort'))) return;
-    leaveTrip.mutate(tripId, {
-      onSuccess: () => navigate('/plan', { replace: true }),
-      onError: (err) => captureError(err, { context: 'leaveTrip' }),
+    void confirmDialog({ title: t('collab.leave'), message: t('collab.leaveConfirmShort'), confirmLabel: t('collab.leave'), danger: true }).then((ok) => {
+      if (!ok) return;
+      leaveTrip.mutate(tripId, {
+        onSuccess: () => navigate('/plan', { replace: true }),
+        onError: (err) => captureError(err, { context: 'leaveTrip' }),
+      });
     });
   }
 
@@ -129,7 +133,7 @@ export function ShareSheet({ tripId, onClose, itineraryText, pdfInput, isSample,
   }
 
   async function handleRevoke() {
-    if (!window.confirm(t('share.revokeConfirm'))) return;
+    if (!(await confirmDialog({ title: t('share.revoke'), message: t('share.revokeConfirm'), confirmLabel: t('share.revoke'), danger: true }))) return;
     setLoading(true);
     try {
       await tripService.revokeShareLinks(tripId);

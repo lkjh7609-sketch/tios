@@ -27,8 +27,8 @@ export function ForkDialog({ originalStart, totalDays, onConfirm, onClose }: For
   const { endDate } = forkDates(originalStart, totalDays, start || originalStart);
 
   return (
-    <div className={modalStyles.overlay}>
-      <div ref={focusTrapRef} className={modalStyles.sheet} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={t('postTrip.forkDialogTitle')}>
+    <div className={`${modalStyles.overlay} ${modalStyles.center}`}>
+      <div ref={focusTrapRef} className={`${modalStyles.sheet} ${modalStyles.center}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={t('postTrip.forkDialogTitle')}>
         <h2 className={modalStyles.title}>{t('postTrip.forkDialogTitle')}</h2>
         <p className={styles.message}>{t('postTrip.forkConfirm')}</p>
         <label className={styles.field}>

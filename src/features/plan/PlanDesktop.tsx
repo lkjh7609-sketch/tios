@@ -11,6 +11,10 @@ import {
   Lightbulb,
   Download,
   MoreVertical,
+  Pencil,
+  Copy,
+  LogOut,
+  Trash2,
   Hotel,
   MapPin,
   Users,
@@ -36,6 +40,9 @@ import { mapConditionCode, weatherIcon } from '@/features/weather/conditionMap';
 import { formatTemp } from '@/features/weather/weatherRules';
 import { captureError } from '@/shared/monitoring';
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
+import { ActionSheet, type ActionSheetItem } from '@/shared/ui/ActionSheet';
+import { confirmDialog, promptDialog } from '@/shared/ui/dialogHost';
+import { useMediaQuery } from '@/shared/hooks/useMediaQuery';
 import { showToast } from '@/shared/ui/toast';
 import { useHomeStats, type TravelStats } from '@/features/home/useHomeStats';
 import { requireLogin } from '@/features/auth/loginPrompt';
@@ -445,6 +452,8 @@ function CountdownText({ nextTrip, isOngoing }: { nextTrip: TripRow | null; isOn
 function TripMenu({ trip, actions }: { trip: TripRow; actions: TripActions }) {
   const { t } = useTranslation(['plan', 'common']);
   const [open, setOpen] = useState(false);
+  // 폰(앱): 드롭다운 대신 아래에서 올라오는 액션 시트
+  const isPhone = useMediaQuery('(max-width: 1023px)');
 
   function stop(e: MouseEvent) {
     e.preventDefault();
@@ -466,6 +475,32 @@ function TripMenu({ trip, actions }: { trip: TripRow; actions: TripActions }) {
     else action();
   }
 
+  /** 이름 바꾸기 — 입력 시트(window.prompt 대신) */
+  function renameTrip() {
+    void promptDialog({ title: t('tripCard.renamePrompt'), defaultValue: trip.title, confirmLabel: t('common:action.save') }).then((next) => {
+      if (next) actions.onRename(trip.id, next);
+    });
+  }
+  function leaveTrip() {
+    void confirmDialog({ title: t('collab.leave'), message: t('collab.leaveConfirm', { title: trip.title }), confirmLabel: t('collab.leave'), danger: true }).then((ok) => {
+      if (ok) actions.onLeave?.(trip.id);
+    });
+  }
+  function deleteTrip() {
+    void confirmDialog({ title: t('common:action.delete'), message: t('tripCard.deleteConfirm', { title: trip.title }), confirmLabel: t('common:action.delete'), danger: true }).then((ok) => {
+      if (ok) actions.onDelete(trip.id);
+    });
+  }
+
+  /** 폰에서 ⋮를 누르면 뜨는 액션 시트의 항목 — 드롭다운과 같은 항목·같은 잠금 규칙 */
+  const sheetItems: ActionSheetItem[] = [
+    { key: 'rename', label: t('tripCard.rename'), icon: <Pencil size={18} aria-hidden="true" />, locked: lockedFor('rename'), onSelect: () => (lockedFor('rename') ? actions.onLocked?.() : renameTrip()) },
+    { key: 'duplicate', label: t('tripCard.duplicate'), icon: <Copy size={18} aria-hidden="true" />, locked: lockedFor('duplicate'), onSelect: () => (lockedFor('duplicate') ? actions.onLocked?.() : actions.onDuplicate(trip.id)) },
+    isMemberTrip
+      ? { key: 'leave', label: t('collab.leave'), icon: <LogOut size={18} aria-hidden="true" />, danger: true, locked: lockedFor('delete'), onSelect: () => (lockedFor('delete') ? actions.onLocked?.() : leaveTrip()) }
+      : { key: 'delete', label: t('common:action.delete'), icon: <Trash2 size={18} aria-hidden="true" />, danger: true, locked: lockedFor('delete'), onSelect: () => (lockedFor('delete') ? actions.onLocked?.() : deleteTrip()) },
+  ];
+
   return (
     <div className={styles.cardMenuWrap}>
       <button
@@ -481,7 +516,8 @@ function TripMenu({ trip, actions }: { trip: TripRow; actions: TripActions }) {
       >
         <MoreVertical size={16} />
       </button>
-      {open ? (
+      {open && isPhone ? <ActionSheet title={trip.title} items={sheetItems} cancelLabel={t('common:action.cancel')} onClose={() => setOpen(false)} /> : null}
+      {open && !isPhone ? (
         <div className={styles.cardMenu} role="menu" onMouseLeave={() => setOpen(false)}>
           <button
             type="button"
@@ -489,10 +525,7 @@ function TripMenu({ trip, actions }: { trip: TripRow; actions: TripActions }) {
             className={itemClassFor('rename')}
             aria-disabled={lockedFor('rename') ? true : undefined}
             onClick={(e) =>
-              run(e, 'rename', () => {
-                const next = window.prompt(t('tripCard.renamePrompt'), trip.title);
-                if (next && next.trim()) actions.onRename(trip.id, next.trim());
-              })
+              run(e, 'rename', renameTrip)
             }
           >
             {t('tripCard.rename')}
@@ -512,9 +545,7 @@ function TripMenu({ trip, actions }: { trip: TripRow; actions: TripActions }) {
               role="menuitem"
               className={`${itemClassFor('delete')} ${styles.cardMenuDanger}`}
               onClick={(e) =>
-                run(e, 'delete', () => {
-                  if (window.confirm(t('collab.leaveConfirm', { title: trip.title }))) actions.onLeave?.(trip.id);
-                })
+                run(e, 'delete', leaveTrip)
               }
             >
               {t('collab.leave')}
@@ -526,9 +557,7 @@ function TripMenu({ trip, actions }: { trip: TripRow; actions: TripActions }) {
               className={`${itemClassFor('delete')} ${styles.cardMenuDanger}`}
               aria-disabled={lockedFor('delete') ? true : undefined}
               onClick={(e) =>
-                run(e, 'delete', () => {
-                  if (window.confirm(t('tripCard.deleteConfirm', { title: trip.title }))) actions.onDelete(trip.id);
-                })
+                run(e, 'delete', deleteTrip)
               }
             >
               {t('common:action.delete')}

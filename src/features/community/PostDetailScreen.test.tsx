@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/shared/i18n';
 import i18n from '@/shared/i18n';
 import { PostDetailScreen } from './PostDetailScreen';
+import { DialogHost } from '@/shared/ui/dialogHost';
 import type { Comment, Post } from './types';
 
 const state = vi.hoisted(() => ({
@@ -101,6 +102,7 @@ const comment = (id: string, author_id: string): Comment => ({
 function renderScreen() {
   return render(
     <QueryClientProvider client={new QueryClient()}>
+      <DialogHost />
       <MemoryRouter initialEntries={['/community/post/p1']}>
         <Routes>
           <Route path="/community/post/:postId" element={<PostDetailScreen />} />
@@ -204,9 +206,10 @@ describe('PostDetailScreen — ⋮ 메뉴(수정·삭제·관리자 고정)', ()
   it('글을 지우면 그 글이 있던 도시 게시판으로 이동한다(지운 글 주소로 돌아오지 않는다)', async () => {
     state.user = { id: 'asker' };
     state.deletePost.mockResolvedValue(undefined);
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
     renderScreen();
     fireEvent.click(screen.getByRole('button', { name: '메뉴:삭제' }));
+    // 지우기 전에 앱 안 확인 창(window.confirm 대신)이 뜬다
+    fireEvent.click(await screen.findByRole('button', { name: '삭제' }));
     expect(await screen.findByText('도시 게시판 화면')).toBeInTheDocument();
     expect(state.deletePost).toHaveBeenCalledWith('p1');
   });
@@ -215,9 +218,9 @@ describe('PostDetailScreen — ⋮ 메뉴(수정·삭제·관리자 고정)', ()
     state.user = { id: 'asker' };
     state.post = post({ destination_id: null });
     state.deletePost.mockResolvedValue(undefined);
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
     renderScreen();
     fireEvent.click(screen.getByRole('button', { name: '메뉴:삭제' }));
+    fireEvent.click(await screen.findByRole('button', { name: '삭제' }));
     expect(await screen.findByText('자유게시판 화면')).toBeInTheDocument();
   });
 

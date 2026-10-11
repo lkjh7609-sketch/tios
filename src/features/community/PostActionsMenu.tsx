@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EllipsisVertical, Pencil, Pin, PinOff, Trash2 } from 'lucide-react';
+import { EllipsisVertical, Flag, Pencil, Pin, PinOff, Trash2, UserX } from 'lucide-react';
 import { useSession } from '@/shared/hooks/useSession';
+import { useMediaQuery } from '@/shared/hooks/useMediaQuery';
+import { ActionSheet, type ActionSheetItem } from '@/shared/ui/ActionSheet';
+import { confirmDialog } from '@/shared/ui/dialogHost';
 import { useBlockUser } from './hooks/useCommunitySafety';
 import { ReportModal } from './ReportModal';
 import type { ReportTargetType } from './types';
@@ -38,6 +41,8 @@ export function PostActionsMenu({
   const [showReport, setShowReport] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const isOwn = !!user && user.id === authorId;
+  // 폰(앱): 드롭다운 대신 아래에서 올라오는 액션 시트
+  const isPhone = useMediaQuery('(max-width: 1023px)');
 
   // 메뉴 밖을 누르거나 Esc를 누르면 닫는다(터치 기기엔 마우스가 없어 mouseleave로는 안 닫힌다)
   useEffect(() => {
@@ -58,14 +63,23 @@ export function PostActionsMenu({
 
   function handleBlock() {
     setOpen(false);
-    if (window.confirm(t('menu.blockConfirm'))) {
-      blockMutation.mutate(authorId);
-    }
+    void confirmDialog({ title: t('menu.blockUser'), message: t('menu.blockConfirm'), confirmLabel: t('menu.blockUser'), danger: true }).then((ok) => {
+      if (ok) blockMutation.mutate(authorId);
+    });
   }
 
   const showOwn = isOwn && (onEdit || onDelete);
   const showOthers = !isOwn;
   if (!showOwn && !showOthers && !onTogglePin) return null;
+
+  const sheetItems: ActionSheetItem[] = [];
+  if (isOwn && onEdit) sheetItems.push({ key: 'edit', label: t('action.edit', { ns: 'common' }), icon: <Pencil size={18} aria-hidden="true" />, onSelect: onEdit });
+  if (onTogglePin) sheetItems.push({ key: 'pin', label: t(pinned ? 'detail.unpin' : 'detail.pin'), icon: pinned ? <PinOff size={18} aria-hidden="true" /> : <Pin size={18} aria-hidden="true" />, onSelect: onTogglePin });
+  if (onDelete) sheetItems.push({ key: 'delete', label: t('action.delete', { ns: 'common' }), icon: <Trash2 size={18} aria-hidden="true" />, danger: true, onSelect: onDelete });
+  if (!isOwn) {
+    sheetItems.push({ key: 'report', label: t('menu.report'), icon: <Flag size={18} aria-hidden="true" />, onSelect: () => setShowReport(true) });
+    sheetItems.push({ key: 'block', label: t('menu.blockUser'), icon: <UserX size={18} aria-hidden="true" />, danger: true, onSelect: handleBlock });
+  }
 
   return (
     <div className={styles.wrap} ref={wrapRef}>
@@ -79,7 +93,8 @@ export function PostActionsMenu({
       >
         <EllipsisVertical size={18} aria-hidden="true" />
       </button>
-      {open ? (
+      {open && isPhone ? <ActionSheet items={sheetItems} cancelLabel={t('action.cancel', { ns: 'common' })} onClose={() => setOpen(false)} /> : null}
+      {open && !isPhone ? (
         <div className={styles.dropdown} role="menu">
           {isOwn && onEdit ? (
             <button

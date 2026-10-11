@@ -1,0 +1,112 @@
+/* 이름 바꾸기 같은 한 줄 입력 시트 — 아래에서 올라온다(폰). PC(1024px~)는 가운데 */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--surface-overlay);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.sheet {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 480px;
+  padding: 28px 16px calc(16px + env(safe-area-inset-bottom));
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--surface-card);
+}
+
+.sheet::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 36px;
+  height: 5px;
+  border-radius: 9999px;
+  background: var(--border-strong);
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .overlay {
+    align-items: center;
+  }
+
+  .sheet {
+    max-width: 380px;
+    padding-top: 20px;
+    border-radius: var(--radius-xl);
+  }
+
+  .sheet::before {
+    display: none;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 1rem; /* 16px 미만이면 iOS가 입력할 때 화면을 확대한다 */
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.secondary,
+.primary {
+  flex: 1;
+  min-height: 44px;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+.secondary {
+  border: 1px solid var(--border);
+  background: var(--surface-card);
+  color: var(--text-body);
+}
+
+.primary {
+  flex: 1.4;
+  border: 0;
+  background: var(--brand-solid);
+  color: var(--text-on-brand);
+  font-weight: 700;
+}
+
+.primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
