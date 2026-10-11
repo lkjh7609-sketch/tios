@@ -17,12 +17,13 @@ import { clearOfflineCache } from '@/shared/offline/persister';
 import { notificationsEnabled, withNotificationsEnabled, type NotificationKey, type NotificationPrefs } from '@/shared/api/profileService';
 import { isNativeApp } from '@/shared/platform';
 import { ProfileAvatar } from './ProfileAvatar';
+import { useIsAdminViewer } from '@/features/community/hooks/usePostMeta';
 import { showToast } from '@/shared/ui/toast';
 import { useMediaQuery } from '@/shared/hooks/useMediaQuery';
 import { SettingsDesktop } from './SettingsDesktop';
 import { DeleteAccountFlow } from './DeleteAccountFlow';
 import { BlockedUsersList } from './BlockedUsersList';
-import { Palette, Bell, HardDrive, Globe, Info, Sun, Moon, Monitor, ChevronRight, ArrowLeft, LogOut, UserX } from 'lucide-react';
+import { Palette, Bell, HardDrive, Globe, Info, Sun, Moon, Monitor, ChevronRight, ArrowLeft, LogOut, UserX, ShieldCheck } from 'lucide-react';
 
 import { EditProfileModal } from './EditProfileModal';
 import { UnitSettingsModal } from './UnitSettingsModal';
@@ -134,6 +135,8 @@ export function SettingsScreen() {
     }
   }
 
+  // 운영자 계정에만 보이는 운영 콘솔 줄 — 앱에는 주소창이 없어 콘솔(/admin)로 들어갈 길이 설정뿐이다
+  const { data: isAdminViewer } = useIsAdminViewer(user?.id ?? null);
   const currentPrefs: NotificationPrefs = profile?.notification_prefs ?? { preDeparture: true, flightChanges: true, communityReplies: true, marketing: false };
   const masterOn = notificationsEnabled(currentPrefs);
 
@@ -335,7 +338,16 @@ export function SettingsScreen() {
                 <ChevronRight size={18} className={styles.chevron} aria-hidden="true" />
               </Link>
             ))}
-            {/* 로그아웃·계정 삭제는 메뉴와 같은 모양의 줄로 — 앱 정보 바로 아래 */}
+            {isAdminViewer ? (
+              <Link to="/admin" className={styles.menuRow}>
+                <span className={styles.menuIcon}>
+                  <ShieldCheck size={20} />
+                </span>
+                <span className={styles.menuLabel}>{t('menu.admin')}</span>
+                <ChevronRight size={18} className={styles.chevron} aria-hidden="true" />
+              </Link>
+            ) : null}
+            {/* 로그아웃·계정 삭제는 메뉴와 같은 모양의 줄로 — 앱 정보(운영자는 운영 콘솔) 바로 아래 */}
             {user ? (
               <>
                 <button

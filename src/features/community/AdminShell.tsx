@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { Archive, Ban, BarChart3, CircleDollarSign, Flag, LayoutDashboard, Megaphone, Menu, MessageSquare, ShieldAlert, Users, X, type LucideIcon } from 'lucide-react';
+import { Archive, Ban, BarChart3, CircleDollarSign, Flag, LayoutDashboard, ArrowLeft, Megaphone, Menu, MessageSquare, ShieldAlert, Users, X, type LucideIcon } from 'lucide-react';
 import { ADMIN_GROUPS, type AdminSection } from './adminSections';
 import { useSectionLabel } from './useSectionLabel';
 import styles from './AdminShell.module.css';
@@ -49,6 +50,10 @@ export function AdminShell({ active, onSelect, badges = {}, children }: AdminShe
           <Menu size={20} aria-hidden="true" />
         </button>
         <span className={styles.topTitle}>{labelOf(active)}</span>
+        {/* 앱에는 주소창·뒤로가기 막대가 없어 콘솔에서 나갈 길이 필요하다 */}
+        <Link to="/settings" className={styles.exitLink}>
+          <ArrowLeft size={16} aria-hidden="true" /> {t('admin.nav.backToApp')}
+        </Link>
       </header>
 
       {open ? <div className={styles.scrim} onClick={() => setOpen(false)} aria-hidden="true" /> : null}

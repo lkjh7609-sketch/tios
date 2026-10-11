@@ -253,6 +253,7 @@
     "notifications": "Notification settings",
     "data": "Data & storage",
     "community": "Community",
-    "about": "About the app"
+    "about": "About the app",
+    "admin": "Admin console"
   }
 }

@@ -250,6 +250,7 @@
     "notifications": "通知設定",
     "data": "データとストレージ",
     "community": "コミュニティ",
-    "about": "アプリ情報"
+    "about": "アプリ情報",
+    "admin": "運営コンソール"
   }
 }

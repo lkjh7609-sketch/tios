@@ -13,6 +13,9 @@ import { Skeleton } from '@/shared/ui/states/Skeleton';
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
 import { AuthorName } from './AuthorName';
 import { PostActionsMenu } from './PostActionsMenu';
+import { useIsAdminViewer } from './hooks/usePostMeta';
+import { setCompanionPostStatus } from './adminService';
+import { confirmDialog } from '@/shared/ui/dialogHost';
 import { prefsLabel, sanitizeTags, spotsLeft } from './companionPrefs';
 import { CompanionApplyModal } from './CompanionApplyModal';
 import {
@@ -48,6 +51,7 @@ export function CompanionDetailScreen() {
 
   const { data: post, isLoading, isError, refetch } = useCompanionPost(postId, user?.id ?? null);
   const isOwn = !!user && !!post && user.id === post.author_id;
+  const { data: isAdminViewer } = useIsAdminViewer(user?.id ?? null);
   const applicationsQuery = useApplicationsForPost(isOwn ? postId : undefined);
   const respondToApplication = useRespondToApplication(postId ?? '');
   const withdrawApplication = useWithdrawApplication();
@@ -82,6 +86,24 @@ export function CompanionDetailScreen() {
       navigate('/community?tab=companion', { replace: true });
     } catch (err) {
       captureError(err, { context: 'cancelCompanionPost' });
+    }
+  }
+
+  /** 운영자 삭제 — 남의 동행글을 'removed'로(운영자만 모든 동행글의 상태를 바꿀 수 있다는 DB 규칙, 0032) */
+  async function handleAdminRemove() {
+    const ok = await confirmDialog({
+      title: t('companion.detail.adminRemoveTitle'),
+      message: t('companion.detail.adminRemoveConfirm'),
+      confirmLabel: t('companion.detail.adminRemoveTitle'),
+      danger: true,
+    });
+    if (!ok) return;
+    try {
+      await setCompanionPostStatus(post!.id, 'removed');
+      navigate('/community?tab=companion', { replace: true });
+    } catch (err) {
+      captureError(err, { context: 'adminRemoveCompanionPost' });
+      showToast(t('companion.detail.adminRemoveFailed'), { tone: 'error' });
     }
   }
 
@@ -181,6 +203,7 @@ export function CompanionDetailScreen() {
                 targetType="companion_post"
                 targetId={post.id}
                 authorId={post.author_id}
+                onDelete={isAdminViewer ? () => void handleAdminRemove() : undefined}
                 onReported={() => navigate('/community', { replace: true })}
               />
             ) : null}

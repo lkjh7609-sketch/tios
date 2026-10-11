@@ -310,7 +310,8 @@
         "members": "회원",
         "content": "콘텐츠",
         "insights": "데이터"
-      }
+      },
+      "backToApp": "앱으로"
     },
     "dashboard": {
       "loadFailed": "대시보드를 불러오지 못했어요.",
@@ -779,7 +780,10 @@
         "recruiting": "모집 중",
         "matched": "매칭 확정"
       },
-      "groupTotal_other": "총 {{count}}명"
+      "groupTotal_other": "총 {{count}}명",
+      "adminRemoveTitle": "동행글 삭제",
+      "adminRemoveConfirm": "이 동행글을 삭제할까요? 모집 목록에서 사라지고 지원자도 더 이상 볼 수 없어요.",
+      "adminRemoveFailed": "삭제하지 못했어요. 잠시 후 다시 시도해 주세요."
     },
     "apply": {
       "dialogLabel": "동행 지원",
