@@ -21,6 +21,7 @@ import { generateShortId } from '@/shared/utils/id';
 import { captureError, track } from '@/shared/monitoring';
 import { can } from '@/shared/entitlements';
 import { showToast } from '@/shared/ui/toast';
+import { MAX_TRIP_LIMIT as UNLIMITED_TRIP_LIMIT } from '@/features/community/adminService';
 import { forkDates, shiftYmd } from '@/features/plan/forkDates';
 import { reconstructTripContent, type TripItineraryRaw, type TripDayRow, type ItineraryItemRow } from '@/features/plan/itineraryTransform';
 
@@ -264,6 +265,8 @@ export class TripService {
         .eq('id', userId)
         .maybeSingle();
       if (!profile || profile.plan !== 'free') return;
+      // 한도가 사실상 없으면(0114, 1000 이상) '남은 N개' 안내는 하지 않는다
+      if ((profile.trip_limit as number) >= UNLIMITED_TRIP_LIMIT) return;
       const remaining = Math.max(0, (profile.trip_limit as number) - (profile.trips_created_count as number));
       showToast(i18next.t('plan:quota.tripCreatedToast', { remaining }), { tone: 'success' });
     } catch {
