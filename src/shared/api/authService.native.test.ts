@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const signInWithOAuth = vi.fn();
+const getUser = vi.fn();
+const getSession = vi.fn();
 vi.mock('./supabaseClient', () => ({
-  getSupabaseClient: () => ({ auth: { signInWithOAuth } }),
+  getSupabaseClient: () => ({ auth: { signInWithOAuth, getUser, getSession } }),
   supabaseAuthStorageKey: () => null,
 }));
 vi.mock('@/shared/offline/persister', () => ({ clearOfflineCache: vi.fn() }));
@@ -14,7 +16,7 @@ vi.mock('@/shared/i18n', () => ({ default: { t: (k: string) => k } }));
 vi.mock('@/shared/monitoring', () => ({ captureError: vi.fn() }));
 vi.mock('@/shared/ui/toast', () => ({ showToast: vi.fn() }));
 
-import { signInWithProvider } from './authService';
+import { getCurrentUser, signInWithProvider } from './authService';
 
 describe('signInWithProvider — 앱에서는 인앱 브라우저로', () => {
   beforeEach(() => {
@@ -51,5 +53,31 @@ describe('signInWithProvider — 앱에서는 인앱 브라우저로', () => {
     expect(arg.options.redirectTo).not.toContain('com.triptic.travel');
     expect(arg.options.skipBrowserRedirect).toBeUndefined();
     expect(open).not.toHaveBeenCalled();
+  });
+});
+
+describe('getCurrentUser — 앱에서는 인증 서버를 기다리지 않는다', () => {
+  beforeEach(() => {
+    getUser.mockReset();
+    getSession.mockReset();
+    native = true;
+  });
+
+  it('앱: 이 기기의 세션 사용자를 읽고 getUser(서버 왕복)는 부르지 않는다', async () => {
+    getSession.mockResolvedValue({ data: { session: { user: { id: 'u1' } } } });
+    await expect(getCurrentUser()).resolves.toEqual({ id: 'u1' });
+    expect(getUser).not.toHaveBeenCalled();
+  });
+
+  it('앱: 세션이 없으면 null', async () => {
+    getSession.mockResolvedValue({ data: { session: null } });
+    await expect(getCurrentUser()).resolves.toBeNull();
+  });
+
+  it('웹: 예전처럼 getUser로 서버에 확인한다', async () => {
+    native = false;
+    getUser.mockResolvedValue({ data: { user: { id: 'u2' } }, error: null });
+    await expect(getCurrentUser()).resolves.toEqual({ id: 'u2' });
+    expect(getSession).not.toHaveBeenCalled();
   });
 });
