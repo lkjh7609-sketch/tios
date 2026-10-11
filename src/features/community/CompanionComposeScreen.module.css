@@ -389,6 +389,9 @@
 }
 
 .rowNote {
+  display: block; /* "(including you)" 같은 보충 설명은 라벨 아래 줄에 — 라벨 옆에 붙으면 영어에서 줄이 늘어난다 */
+  font-size: 0.75rem;
+  line-height: 1rem;
   font-weight: 400;
   color: var(--text-muted);
 }
@@ -516,6 +519,7 @@
 
 .stepperValue {
   min-width: 40px;
+  white-space: nowrap; /* "2 people"가 두 줄로 꺾이지 않게 */
   font-size: 1.0625rem;
   font-weight: 700;
   text-align: center;
@@ -601,5 +605,12 @@
 @media (min-width: 1024px) {
   .rowError {
     padding: 0 0 12px;
+  }
+}
+
+/* 일정 값(예: 10.22(Thu) ~ 10.25(Sun) · 3N 4D)은 62%에서 잘려 영어에서 날짜가 끊겼다 — 폰에서는 더 넓게 */
+@media (max-width: 1023px) {
+  .valueBtnDate {
+    max-width: 78%;
   }
 }

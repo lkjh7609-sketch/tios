@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { differenceInCalendarDays, parseISO } from 'date-fns';
-import type { PopularTag } from '../communityService';
 import { spotsLeft } from '../companionPrefs';
 import type { CompanionPost, DestinationGuide } from '../types';
 import {
@@ -293,39 +292,6 @@ export function UrgentCompanionsCard({ posts }: { posts: CompanionPost[] }) {
           </button>
         </nav>
       ) : null}
-    </section>
-  );
-}
-
-/** 이 도시 인기 태그 — 누르면 그 태그가 달린 글만 본다 */
-export function PopularTagsCard({
-  city,
-  tags,
-  onTagClick,
-}: {
-  city: string;
-  tags: PopularTag[];
-  onTagClick: (tag: string) => void;
-}) {
-  const { t } = useTranslation('community');
-  if (tags.length === 0) return null;
-  return (
-    <section className={styles.card} aria-labelledby="channel-tags-title">
-      <h2 id="channel-tags-title" className={styles.cardTitle}>
-        {t('channel.popularTags', { city })}
-      </h2>
-      <div className={styles.tagCloud}>
-        {tags.map((item) => (
-          <button
-            key={item.tag}
-            type="button"
-            className={styles.tagBtn}
-            onClick={() => onTagClick(item.tag)}
-          >
-            #{item.tag}
-          </button>
-        ))}
-      </div>
     </section>
   );
 }

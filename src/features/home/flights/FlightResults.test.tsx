@@ -67,7 +67,8 @@ describe('FlightResults — 우리 화면의 항공 운임 결과', () => {
     fireEvent.click(link);
     expect(toast).toHaveBeenCalledWith('선택하신 항공권의 예약 페이지로 이동합니다.');
     // 실시간 변동 고지 + 제휴사 이름은 화면에 쓰지 않는다
-    expect(screen.getByText(/실시간 좌석 변동 및 결제 수단/)).toBeInTheDocument();
+    expect(screen.getByText('표시된 가격은 검색 시점의 참고 가격이에요.')).toBeInTheDocument();
+    expect(screen.queryByText(/실시간 좌석 변동/)).not.toBeInTheDocument();
     const text = container.textContent?.toLowerCase() ?? '';
     for (const name of ['trip.com', 'kiwi', 'ignav', 'travelpayouts', '마이리얼트립']) expect(text).not.toContain(name);
   });

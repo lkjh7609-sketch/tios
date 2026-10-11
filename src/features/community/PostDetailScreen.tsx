@@ -460,16 +460,6 @@ export function PostDetailScreen() {
           </section>
         ) : null}
 
-        {post.tags.length > 0 ? (
-          <div className={styles.tagRow}>
-            {post.tags.map((tag) => (
-              <span key={tag} className={styles.tagChip}>
-                #{tag}
-              </span>
-            ))}
-          </div>
-        ) : null}
-
         <hr className={styles.rule} />
 
         <div className={styles.actionRow}>

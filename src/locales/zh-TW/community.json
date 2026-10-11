@@ -959,7 +959,7 @@
     "pickDate": "選擇日期",
     "length": "{{nights}} 晚 {{days}} 天",
     "sameDay": "當日往返",
-    "confirmRange": "{{range}} 選擇完成（{{length}}）",
+    "confirmRange": "選擇完成（{{length}}）",
     "confirmTbd": "以日期未定完成選擇",
     "confirmNone": "請選擇日期",
     "reset": "重設選擇",

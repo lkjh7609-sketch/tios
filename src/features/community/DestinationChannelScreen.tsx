@@ -19,7 +19,6 @@ import { ChannelPinnedCard } from './channel/ChannelPinnedCard';
 import { ChannelPostCard } from './channel/ChannelPostCard';
 import {
   FxAndPricesCard,
-  PopularTagsCard,
   TripCard,
   UrgentCompanionsCard,
 } from './channel/ChannelSidebar';
@@ -32,7 +31,6 @@ import {
   useDestinationFollowerCount,
   useDestinationGuide,
   usePinnedPost,
-  usePopularTags,
   useUrgentCompanions,
 } from './hooks/useDestinationChannel';
 import { useDestination } from './hooks/useDestinations';
@@ -87,11 +85,9 @@ function DestinationChannel({ slug }: { slug: string | undefined }) {
   const { data: fxRates } = useFxRates();
   const { data: urgent } = useUrgentCompanions(destination?.id);
   const { data: pinned } = usePinnedPost(destination?.id, viewerId);
-  const { data: popularTags } = usePopularTags(destination?.id);
 
   const [tab, setTab] = useState<ChannelTab>('all');
   const [draft, setDraft] = useState('');
-  const [tag, setTag] = useState('');
   const [postSort, setPostSort] = useState<PostSort>('latest');
   const [companionSort, setCompanionSort] = useState<CompanionSort>('latest');
   const search = useDebounced(draft.trim(), SEARCH_DEBOUNCE_MS);
@@ -107,7 +103,6 @@ function DestinationChannel({ slug }: { slug: string | undefined }) {
     search,
     sort: postSort,
     category: tab === 'all' || tab === 'companion' ? undefined : tab,
-    tag: tag || undefined,
   });
   const companions = useChannelCompanions({
     destinationId: destination?.id,
@@ -156,16 +151,7 @@ function DestinationChannel({ slug }: { slug: string | undefined }) {
 
   function searchLandmark(name: string) {
     setTab('all');
-    setTag('');
     setDraft(name);
-    feedTop.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  /** 태그(카드·인기 태그)를 누르면 그 태그가 달린 글만 — 동행 탭이었으면 전체 탭으로 */
-  function filterByTag(name: string) {
-    if (isCompanionTab) setTab('all');
-    setDraft('');
-    setTag(name);
     feedTop.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -173,11 +159,11 @@ function DestinationChannel({ slug }: { slug: string | undefined }) {
   const sortOptions = isCompanionTab
     ? (['latest', 'deadline'] as const)
     : (['latest', 'popular', 'comments'] as const);
-  const filterText = search || (tag ? `#${tag}` : '');
+  const filterText = search;
   const postItems = posts.data?.pages.flatMap((p) => p.posts) ?? [];
   const companionItems = companions.data?.pages.flatMap((p) => p.posts) ?? [];
   // '전체'(최신순·태그 없음)에는 모집 중인 모집글도 시간순으로 섞는다
-  const mergeCompanions = tab === 'all' && postSort === 'latest' && companionSort === 'latest' && !tag;
+  const mergeCompanions = tab === 'all' && postSort === 'latest' && companionSort === 'latest';
   const allItems = mergeAllFeed(postItems, mergeCompanions ? companionItems : [], !!posts.hasNextPage);
 
   return (
@@ -251,15 +237,7 @@ function DestinationChannel({ slug }: { slug: string | undefined }) {
 
         <div className={styles.columns}>
           <main className={styles.feed}>
-            {pinned ? <ChannelPinnedCard post={pinned} onTagClick={filterByTag} /> : null}
-            {tag && !isCompanionTab ? (
-              <div className={styles.tagFilter} role="status">
-                <span>{t('channel.tagFilter', { tag })}</span>
-                <button type="button" className={styles.tagFilterClear} onClick={() => setTag('')}>
-                  {t('channel.tagFilterClear')}
-                </button>
-              </div>
-            ) : null}
+            {pinned ? <ChannelPinnedCard post={pinned} /> : null}
             {feed.isLoading ? (
               <>
                 <Skeleton height="140px" />
@@ -282,10 +260,7 @@ function DestinationChannel({ slug }: { slug: string | undefined }) {
                   <button
                     type="button"
                     className={styles.emptyCta}
-                    onClick={() => {
-                      setDraft('');
-                      setTag('');
-                    }}
+                    onClick={() => setDraft('')}
                   >
                     {t('channel.searchClear')}
                   </button>
@@ -304,7 +279,7 @@ function DestinationChannel({ slug }: { slug: string | undefined }) {
                   ? companionItems.map((post) => <ChannelCompanionCard key={post.id} post={post} />)
                   : allItems.map((item) =>
                       item.kind === 'post' ? (
-                        <ChannelPostCard key={item.id} post={item.post} onTagClick={filterByTag} />
+                        <ChannelPostCard key={item.id} post={item.post} />
                       ) : (
                         <ChannelCompanionCard key={item.id} post={item.post} />
                       ),
@@ -343,7 +318,6 @@ function DestinationChannel({ slug }: { slug: string | undefined }) {
                 guide={guide}
               />
             ) : null}
-            <PopularTagsCard city={city} tags={popularTags ?? []} onTagClick={filterByTag} />
           </aside>
         </div>
       </div>

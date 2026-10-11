@@ -18,10 +18,7 @@ import { clearDraft, isEmptyDraft, readDraft, writeDraft, type ComposeDraft } fr
 import { formatTripPeriod } from './tripPeriodText';
 import { CATEGORY_ICONS } from './categoryIcons';
 import {
-  MAX_TAGS,
   MAX_TITLE_LENGTH,
-  MAX_TAG_LENGTH,
-  normalizeTag,
   POST_CATEGORIES,
   postTitleOf,
   type PostCategory,
@@ -38,6 +35,7 @@ const RichTextEditor = lazy(() => import('./editor/RichTextEditor'));
 const MAX_BODY_LENGTH = 3000;
 const AUTOSAVE_DELAY_MS = 700;
 const QUICK_PICK_COUNT = 4;
+const NO_TAGS: string[] = [];
 
 /**
  * 글쓰기 — Stitch 시안(Stitch/community/Writing)대로: 사진 → 여행지(필수) → 이야기(필수) → 내 일정 첨부(선택).
@@ -106,8 +104,8 @@ function ComposeForm({ userId, editing }: { userId: string; editing?: Post }) {
   const [title, setTitle] = useState(editing?.title ?? (editing ? postTitleOf(editing) : ''));
   const [body, setBody] = useState(editing?.body ?? '');
   const [category, setCategory] = useState<PostCategory | ''>(editing?.category ?? '');
-  const [tags, setTags] = useState<string[]>(editing?.tags ?? []);
-  const [tagDraft, setTagDraft] = useState('');
+  // 태그 입력은 없앴다(검색이 있다) — 새 글은 태그 없이, 예전 글을 고칠 땐 달려 있던 태그를 그대로 둔다
+  const tags = editing?.tags ?? NO_TAGS;
   const [tripId, setTripId] = useState(editing?.trip_id ?? '');
   // 첨부한 일정을 다른 사람이 복사해도 되는가 — 기본은 허용 안 함(0070)
   const [allowCopy, setAllowCopy] = useState(editing?.allow_copy ?? false);
@@ -167,9 +165,9 @@ function ComposeForm({ userId, editing }: { userId: string; editing?: Post }) {
       allowCopy,
       images: photos.map(({ storagePath, width, height }) => ({ storagePath, width, height })),
       category,
-      tags,
+      tags: [],
     }),
-    [destinationId, freeBoard, title, body, tripId, allowCopy, photos, category, tags],
+    [destinationId, freeBoard, title, body, tripId, allowCopy, photos, category],
   );
 
   // 쓰는 대로 잠깐 멈추면 저장한다
@@ -192,7 +190,6 @@ function ComposeForm({ userId, editing }: { userId: string; editing?: Post }) {
     setTitle(pendingDraft.title);
     setBody(pendingDraft.body);
     setCategory(pendingDraft.category);
-    setTags(pendingDraft.tags);
     if (
       !trips ||
       pendingDraft.tripId === '' ||
@@ -245,38 +242,6 @@ function ComposeForm({ userId, editing }: { userId: string; editing?: Post }) {
   const blocked = blockedBody !== null && blockedBody === body;
   const publishDisabled = createPost.isPending || updatePost.isPending || photoState.uploading || blocked;
 
-  // ── 태그 입력 ──────────────────────────────────────────────────────────────
-  function addTag(raw: string): boolean {
-    const tag = normalizeTag(raw);
-    if (!tag) return false;
-    if (tags.length >= MAX_TAGS || tags.some((x) => x.toLowerCase() === tag.toLowerCase()))
-      return false;
-    setTags([...tags, tag]);
-    return true;
-  }
-
-  /** 입력 칸에 남아 있는 글자도 태그로 쳐서 게시한다 */
-  function finalTags(): string[] {
-    const pending = normalizeTag(tagDraft);
-    if (
-      pending &&
-      tags.length < MAX_TAGS &&
-      !tags.some((x) => x.toLowerCase() === pending.toLowerCase())
-    )
-      return [...tags, pending];
-    return tags;
-  }
-
-  function onTagKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.nativeEvent.isComposing) return; // 한글 조합 중 Enter는 글자 확정이다
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      if (addTag(tagDraft)) setTagDraft('');
-    } else if (e.key === 'Backspace' && tagDraft === '' && tags.length > 0) {
-      setTags(tags.slice(0, -1));
-    }
-  }
-
   async function handlePublish() {
     setSubmitError(null);
     if (tooLong) {
@@ -308,7 +273,7 @@ function ComposeForm({ userId, editing }: { userId: string; editing?: Post }) {
           postId: editing.id,
           title: title.trim(),
           body: dropUnknownImages(body, photos.map((p) => p.storagePath)).trim(),
-          tags: finalTags(),
+          tags,
           images: photos.map(({ storagePath, width, height }) => ({ storagePath, width, height })),
         });
         showToast(t('compose.edit.done'), { tone: 'success' });
@@ -322,7 +287,7 @@ function ComposeForm({ userId, editing }: { userId: string; editing?: Post }) {
         tripId: tripId || null,
         allowCopy: !!tripId && allowCopy,
         category: effectiveCategory as PostCategory,
-        tags: finalTags(),
+        tags,
         images: photos.map(({ storagePath, width, height }) => ({ storagePath, width, height })),
         userId,
       });
@@ -488,52 +453,6 @@ function ComposeForm({ userId, editing }: { userId: string; editing?: Post }) {
     </section>
   );
 
-  const tagsSection = (
-    <section
-      className={`${styles.section} ${desktop ? styles.card : ''}`}
-      aria-labelledby="compose-tags-label"
-    >
-      <div className={styles.labelRow}>
-        <h2 id="compose-tags-label" className={styles.label}>
-          {t('compose.tags.label')}
-          <span className={styles.labelSub}> {t('compose.tags.optional', { max: MAX_TAGS })}</span>
-        </h2>
-        <span className={styles.counter}>
-          {tags.length}/{MAX_TAGS}
-        </span>
-      </div>
-      <div className={styles.tagBox}>
-        {tags.map((tag) => (
-          <span key={tag} className={styles.tagChip}>
-            #{tag}
-            <button
-              type="button"
-              className={styles.tagRemove}
-              aria-label={t('compose.tags.remove', { tag })}
-              onClick={() => setTags(tags.filter((x) => x !== tag))}
-            >
-              <X size={12} aria-hidden="true" />
-            </button>
-          </span>
-        ))}
-        {tags.length < MAX_TAGS ? (
-          <input
-            className={styles.tagInput}
-            value={tagDraft}
-            maxLength={MAX_TAG_LENGTH + 1}
-            placeholder={tags.length === 0 ? t('compose.tags.placeholder') : ''}
-            aria-label={t('compose.tags.label')}
-            onChange={(e) => setTagDraft(e.target.value.replace(/,/g, ''))}
-            onKeyDown={onTagKeyDown}
-            onBlur={() => {
-              if (addTag(tagDraft)) setTagDraft('');
-            }}
-          />
-        ) : null}
-      </div>
-      <p className={styles.tagHint}>{t('compose.tags.hint', { max: MAX_TAG_LENGTH })}</p>
-    </section>
-  );
 
   const titleSection = (
     <section className={`${styles.section} ${desktop ? styles.card : ''}`} aria-labelledby="compose-title-label">
@@ -760,7 +679,6 @@ function ComposeForm({ userId, editing }: { userId: string; editing?: Post }) {
         {editing || freeBoard ? null : categorySection}
         {titleSection}
         {storySection}
-        {tagsSection}
         {editing ? null : tripSection}
         {submitError ? (
           <p className={styles.submitError} role="alert">

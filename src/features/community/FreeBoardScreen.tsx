@@ -34,7 +34,6 @@ export function FreeBoardScreen() {
   const { user } = useSession();
   const requireLogin = useRequireLogin();
   const [draft, setDraft] = useState('');
-  const [tag, setTag] = useState('');
   const [sort, setSort] = useState<PostSort>('latest');
   const search = useDebounced(draft.trim(), SEARCH_DEBOUNCE_MS);
 
@@ -48,10 +47,9 @@ export function FreeBoardScreen() {
     viewerId: user?.id ?? null,
     search,
     sort,
-    tag: tag || undefined,
   });
   const items = feed.data?.pages.flatMap((p) => p.posts) ?? [];
-  const filterText = search || (tag ? `#${tag}` : '');
+  const filterText = search;
 
   return (
     <div className={styles.page}>
@@ -93,14 +91,6 @@ export function FreeBoardScreen() {
         </div>
 
         <main className={boardStyles.feed}>
-          {tag ? (
-            <div className={styles.tagFilter} role="status">
-              <span>{t('channel.tagFilter', { tag })}</span>
-              <button type="button" className={styles.tagFilterClear} onClick={() => setTag('')}>
-                {t('channel.tagFilterClear')}
-              </button>
-            </div>
-          ) : null}
           {feed.isLoading ? (
             <>
               <Skeleton height="140px" />
@@ -112,7 +102,7 @@ export function FreeBoardScreen() {
             <div className={styles.empty}>
               <h3>{filterText ? t('channel.searchEmpty', { query: filterText }) : t('board.empty')}</h3>
               {filterText ? (
-                <button type="button" className={styles.emptyCta} onClick={() => { setDraft(''); setTag(''); }}>
+                <button type="button" className={styles.emptyCta} onClick={() => setDraft('')}>
                   {t('channel.searchClear')}
                 </button>
               ) : (
@@ -127,7 +117,7 @@ export function FreeBoardScreen() {
           ) : (
             <>
               {items.map((post) => (
-                <ChannelPostCard key={post.id} post={post} onTagClick={(name) => { setDraft(''); setTag(name); }} />
+                <ChannelPostCard key={post.id} post={post} />
               ))}
               {feed.hasNextPage ? (
                 <div className={styles.loadMoreWrap}>

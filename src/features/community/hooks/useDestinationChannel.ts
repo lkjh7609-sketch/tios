@@ -3,7 +3,6 @@ import {
   getDestinationFollowerCount,
   getDestinationGuide,
   getPinnedPost,
-  listPopularTags,
   listPosts,
   type PostCursor,
   type PostSort,
@@ -51,16 +50,6 @@ export function usePinnedPost(destinationId: string | undefined, viewerId: strin
     queryFn: () => getPinnedPost(destinationId!, viewerId),
     enabled: !!destinationId,
     staleTime: 60 * 1000,
-  });
-}
-
-/** 도시 인기 태그 상위 6개 */
-export function usePopularTags(destinationId: string | undefined) {
-  return useQuery({
-    queryKey: ['community', 'popular-tags', destinationId ?? ''],
-    queryFn: () => listPopularTags(destinationId!, 6),
-    enabled: !!destinationId,
-    staleTime: 5 * 60 * 1000,
   });
 }
 

@@ -131,7 +131,7 @@
       "badgeData": "Google Maps & ChatGPT data free"
     },
     "deals": {
-      "title": "Lowest fares from Seoul (Incheon)",
+      "title": "Lowest fares from Seoul",
       "notice": "Prices are saved lowest fares from MyRealTrip, not live. They can change when you book.",
       "discount": "{{pct}}% below average",
       "plain": "Lowest round trip",
@@ -180,7 +180,7 @@
       "total": "{{price}} total",
       "book": "Book",
       "redirecting": "Opening the booking page for your selected flight.",
-      "priceNote": "Prices are reference fares at the time of search. Live seat changes and payment method (card discounts, etc.) can make the final price on the booking page differ slightly. The booking page opens with your route, dates and travelers filled in — you may need to pick the same flight again.",
+      "priceNote": "Prices are reference fares at the time of search.",
       "empty": "No flights found for these conditions. Try other dates or airports.",
       "emptyFiltered": "No flights match these filters. Try changing them.",
       "searchOnSite": "Search on the booking site",
@@ -304,7 +304,7 @@
     },
     "myrealtripDefaultKeyword": "Seoul",
     "seeAllOnMyrealtrip": "See more {{keyword}} on MyRealTrip",
-    "heading": "What would you like to experience?",
+    "heading": "What would you like to do?",
     "providerShort": "Book with",
     "popularSearch": "Popular searches",
     "popularCities": "Popular destinations",
@@ -681,7 +681,7 @@
     }
   },
   "airport": {
-    "title": "Incheon Airport live departures & arrivals",
+    "title": "Incheon live departures & arrivals",
     "titleOf": "{{name}} live departures & arrivals",
     "updated": "As of {{time}} (KST)",
     "tabsLabel": "Departures and arrivals",

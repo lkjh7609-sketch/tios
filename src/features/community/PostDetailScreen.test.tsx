@@ -151,10 +151,10 @@ describe('PostDetailScreen — 조회수', () => {
 });
 
 describe('PostDetailScreen — 분류·태그·채택 답변', () => {
-  it('분류와 태그를 보여 준다', () => {
+  it('분류는 보여 주고 태그는 보여 주지 않는다', () => {
     renderScreen();
     expect(screen.getByText(/질문·Q&A/)).toBeInTheDocument();
-    expect(screen.getByText('#바투동굴')).toBeInTheDocument();
+    expect(screen.queryByText('#바투동굴')).not.toBeInTheDocument();
   });
 
   it('질문 글 작성자만, 남의 댓글에 채택 버튼이 있다(자기 댓글엔 없음)', () => {

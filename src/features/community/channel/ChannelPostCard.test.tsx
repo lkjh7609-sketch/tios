@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/shared/i18n';
@@ -40,13 +40,12 @@ function post(over: Partial<Post> = {}): Post {
   };
 }
 
-function renderCard(p: Post, onTagClick = vi.fn()) {
+function renderCard(p: Post) {
   render(
     <MemoryRouter>
-      <ChannelPostCard post={p} onTagClick={onTagClick} />
+      <ChannelPostCard post={p} />
     </MemoryRouter>,
   );
-  return onTagClick;
 }
 
 beforeEach(async () => {
@@ -61,10 +60,9 @@ describe('ChannelPostCard', () => {
     expect(screen.getByText(/· 여행기·후기$/)).toBeInTheDocument();
   });
 
-  it('태그를 누르면 글 상세로 가지 않고 태그 콜백만 부른다', () => {
-    const onTagClick = renderCard(post({ tags: ['바투동굴', '아침'] }));
-    fireEvent.click(screen.getByRole('button', { name: '#아침' }));
-    expect(onTagClick).toHaveBeenCalledWith('아침');
+  it('태그는 카드에 보이지 않는다', () => {
+    renderCard(post({ tags: ['바투동굴', '아침'] }));
+    expect(screen.queryByText('#아침')).not.toBeInTheDocument();
     expect(screen.getByRole('link')).toHaveAttribute('href', '/community/post/p1');
   });
 

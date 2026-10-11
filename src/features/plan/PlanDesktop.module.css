@@ -505,7 +505,8 @@
 }
 .cardStatusRow {
   display: flex;
-  flex-wrap: wrap; /* 영어처럼 글이 길면 배지·메뉴가 다음 줄 오른쪽으로 내려간다(상태 글을 말줄임하지 않고) */
+  /* 한 줄 고정 — 영어처럼 글이 길어 배지·메뉴가 다음 줄로 내려가면 제목이 아래로 밀렸다. 모자라면 상태 글만 말줄임 */
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.25rem 0.5rem;
@@ -514,6 +515,7 @@
 .statusIndicator {
   display: flex;
   align-items: center;
+  flex: 0 0 auto;
   gap: 0.375rem;
   min-width: 0;
   font-size: var(--font-caption-size);
@@ -537,7 +539,10 @@
   border-radius: 50%;
 }
 .travelersBadge {
-  flex: none;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap; /* "1 traveler"가 trav-/eler로 잘려 두 줄이 되던 것 */
   hyphens: none;
   font-size: var(--font-caption-size);
@@ -681,6 +686,7 @@
 }
 .toolkitTitleRow {
   display: flex;
+  flex: none;
   align-items: center;
   gap: 0.5rem;
 }
@@ -689,8 +695,14 @@
   font-weight: 700;
   color: var(--pd-ink);
   margin: 0;
+  white-space: nowrap;
 }
 .syncBadge {
+  min-width: 0;
+  margin-left: 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   padding: 0.125rem 0.5rem;
   border-radius: 0.25rem;
   background: var(--pd-soft);
@@ -962,12 +974,15 @@
   color: var(--pd-accent);
 }
 .cardStatusRight {
+  flex: 0 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 0.25rem;
   margin-left: auto;
 }
 .cardMenuWrap {
+  flex: none;
   position: relative;
 }
 .cardMenuButton {

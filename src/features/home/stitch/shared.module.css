@@ -54,6 +54,7 @@
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
+  white-space: nowrap;
   gap: 4px;
   min-height: 44px;
   font-size: 0.9375rem;

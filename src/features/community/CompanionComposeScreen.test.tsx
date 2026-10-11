@@ -101,7 +101,7 @@ describe('CompanionComposeScreen — 시안 구성', () => {
       'true',
     );
     expect(screen.getByRole('button', { name: '20대 초반' })).toBeInTheDocument();
-    expect(screen.getByText('0/3')).toBeInTheDocument();
+    expect(screen.queryByText('0/3')).not.toBeInTheDocument(); // 태그 고르기는 없앴다
     expect(screen.getByRole('button', { name: '동행 모집글 게시하기' })).toBeInTheDocument();
     expect(
       screen.getByText('작성된 모집글은 커뮤니티 가이드라인을 준수해야 해요.'),
@@ -220,7 +220,6 @@ describe('CompanionComposeScreen — 게시', () => {
     fireEvent.click(screen.getByRole('button', { name: '인원 늘리기' }));
     fireEvent.click(screen.getByRole('radio', { name: '여성' }));
     fireEvent.click(screen.getByRole('button', { name: '30대 후반' }));
-    fireEvent.click(screen.getByRole('button', { name: '#사진촬영' }));
     fireEvent.click(screen.getByRole('button', { name: '동행 모집글 게시하기' }));
     await advance(50);
     expect(mutateAsync.mock.calls[0][0]).toMatchObject({
@@ -228,7 +227,7 @@ describe('CompanionComposeScreen — 게시', () => {
       startDate: '2026-10-20',
       endDate: '2026-10-24',
       groupSize: 3,
-      prefs: { gender: 'female', ages: ['30s_late'], tags: ['photo'] },
+      prefs: { gender: 'female', ages: ['30s_late'], tags: [] },
     });
   });
 
