@@ -11,7 +11,7 @@
 
 ## 🚀 iOS 앱 출시 — 1.0.0 MVP로 진행 (2026-10-12 결정, 이전의 '보류'를 대체)
 
-**결정(사용자)**: Kayak 운영 키를 기다리지 않고 **현재 구조(항공 = Ignav 운임 목록 + 예약은 Trip.com KR/Kiwi.com, 호텔 = Agoda, 투어 = 마이리얼트립·Klook)로 MVP 출시**. Kayak 키가 오면 그때 바꾼다(기존 계획 유지). **프로·인앱결제 없이** 출시(사업자 미정) — 앱에서 프로를 팔거나 외부 결제로 유도하지 않는다(Apple 3.1.1). 무료 한도는 기본 3개로 올리고 추가 방법은 협의 중(리딤 코드는 폐기 — 메모 참고). **한국 + 호주** 스토어, 무료, iPhone 전용. 심사·메타데이터 입력값은 `docs/launch/app-store-listing.md`, 심사용 계정은 `~/Desktop/Triptic 보안/App Review/demo-account.txt`(저장소에 비밀번호 쓰지 않는다).
+**결정(사용자)**: Kayak 운영 키를 기다리지 않고 **현재 구조(항공 = Ignav 운임 목록 + 예약은 Trip.com KR/Kiwi.com, 호텔 = Agoda, 투어 = 마이리얼트립·Klook)로 MVP 출시**. Kayak 키가 오면 그때 바꾼다(기존 계획 유지). **프로·인앱결제 없이** 출시(사업자 미정) — 앱에서 프로를 팔거나 외부 결제로 유도하지 않는다(Apple 3.1.1). 여행 생성 한도는 **일단 무제한**(2026-10-12, `trip_limit`=1000 — 사용자가 모이면 다시 둔다, 방법은 `0114_unlimited_free_trips.sql`; 리딤 코드는 폐기 — 메모 참고). **한국 + 호주** 스토어, 무료, iPhone 전용. 심사·메타데이터 입력값은 `docs/launch/app-store-listing.md`, 심사용 계정은 `~/Desktop/Triptic 보안/App Review/demo-account.txt`(저장소에 비밀번호 쓰지 않는다).
 **상태(2026-10-12)**: App Store Connect 앱 생성됨(1.0 Prepare for Submission, 번들 `com.triptic.travel`), 푸시(APNs) 서버·앱 실기기 확인, Supabase Redirect URL(`com.triptic.travel://auth/callback`) 등록 확인, `MARKETING_VERSION=1.0.0`(설정 화면 버전은 앱에서 설치된 앱 버전을 읽는다), 약관·개인정보처리방침 2026-10-12 반영(웹 저장소 PR로 배포), Universal Link용 AASA는 웹 저장소에서 배포(`~/Triptic` `public/.well-known/`).
 **남은 것**: Apple 입력(앱 정보·연령 등급·콘텐츠 권한·App Privacy·가격/국가·스크린샷·App Review 메모), 웹 PR 머지·AASA 응답 확인, 최종 빌드 선택 후 심사 제출. TestFlight 외부 테스트는 필수 아님.
 
