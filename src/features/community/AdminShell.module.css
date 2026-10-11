@@ -32,6 +32,19 @@
   cursor: pointer;
 }
 
+.exitLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  color: var(--brand-text);
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+  text-decoration: none;
+}
+
 .topTitle {
   font-size: var(--font-body-size);
   font-weight: 700;

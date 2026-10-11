@@ -313,7 +313,8 @@
         "members": "Members",
         "content": "Content",
         "insights": "Insights"
-      }
+      },
+      "backToApp": "Back to app"
     },
     "dashboard": {
       "loadFailed": "Couldn't load the dashboard.",
@@ -798,7 +799,10 @@
         "matched": "Matched"
       },
       "groupTotal_one": "{{count}} total",
-      "groupTotal_other": "{{count}} total"
+      "groupTotal_other": "{{count}} total",
+      "adminRemoveTitle": "Remove post",
+      "adminRemoveConfirm": "Remove this companion post? It disappears from the list and applicants can no longer see it.",
+      "adminRemoveFailed": "Couldn't remove it. Please try again later."
     },
     "apply": {
       "dialogLabel": "Apply to join",

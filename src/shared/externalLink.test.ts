@@ -33,9 +33,32 @@ describe('외부 링크 — 앱에서는 인앱 브라우저', () => {
     await vi.waitFor(() => expect(open).toHaveBeenCalledWith({ url: 'https://example.com/book?x=1' }));
   });
 
-  it('우리 사이트 주소·새 탭이 아닌 링크는 건드리지 않는다', () => {
+  it('새 탭 표시가 없는 바깥 주소 링크도 앱 안에서는 인앱 브라우저로 연다(앱을 떠나지 않게)', async () => {
+    const ev = clickLink({ href: 'https://www.myrealtrip.com/offers/1' });
+    expect(ev.defaultPrevented).toBe(true);
+    await vi.waitFor(() => expect(open).toHaveBeenCalledWith({ url: 'https://www.myrealtrip.com/offers/1' }));
+  });
+
+  it('우리 사이트 주소·다운로드 링크·mailto는 건드리지 않는다', () => {
     expect(clickLink({ href: '/plan/1', target: '_blank' }).defaultPrevented).toBe(false);
-    expect(clickLink({ href: 'https://example.com', }).defaultPrevented).toBe(false);
+    expect(clickLink({ href: 'https://example.com/a.pdf', download: '' }).defaultPrevented).toBe(false);
+    expect(clickLink({ href: 'mailto:a@b.c' }).defaultPrevented).toBe(false);
+    expect(open).not.toHaveBeenCalled();
+  });
+
+  it('window.open으로 여는 바깥 주소(마이리얼트립 등)도 앱에서는 인앱 브라우저로', async () => {
+    const result = window.open('https://myr.tl/abc', '_blank');
+    expect(result).toBeNull();
+    await vi.waitFor(() => expect(open).toHaveBeenCalledWith({ url: 'https://myr.tl/abc' }));
+  });
+
+  it('window.open: 우리 사이트 주소는 원래 동작, 설치를 풀면 window.open도 원래대로', () => {
+    const original = vi.fn(() => null);
+    uninstall();
+    window.open = original as unknown as typeof window.open;
+    uninstall = installExternalLinkHandler();
+    window.open('/terms.html', '_blank');
+    expect(original).toHaveBeenCalledWith('/terms.html', '_blank', undefined);
     expect(open).not.toHaveBeenCalled();
   });
 

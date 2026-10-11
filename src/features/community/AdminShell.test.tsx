@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 import '@/shared/i18n';
 import { AdminShell } from './AdminShell';
@@ -8,16 +9,23 @@ import { ADMIN_GROUPS, parseSection } from './adminSections';
 function renderShell(props: Partial<React.ComponentProps<typeof AdminShell>> = {}) {
   const onSelect = vi.fn();
   render(
-    <Suspense fallback={null}>
-      <AdminShell active="members" onSelect={onSelect} {...props}>
-        <p>본문</p>
-      </AdminShell>
-    </Suspense>,
+    <MemoryRouter>
+      <Suspense fallback={null}>
+        <AdminShell active="members" onSelect={onSelect} {...props}>
+          <p>본문</p>
+        </AdminShell>
+      </Suspense>
+    </MemoryRouter>,
   );
   return onSelect;
 }
 
 describe('AdminShell — 왼쪽 메뉴', () => {
+  it('작은 화면(앱) 위쪽 줄에 "앱으로" 링크가 있어 콘솔에서 나갈 수 있다', async () => {
+    renderShell();
+    expect(await screen.findByRole('link', { name: '앱으로' })).toHaveAttribute('href', '/settings');
+  });
+
   it('하는 일별로 묶인 메뉴(운영·회원·콘텐츠·데이터)와 개요 항목이 모두 있다', async () => {
     renderShell();
     const nav = await screen.findByRole('navigation');

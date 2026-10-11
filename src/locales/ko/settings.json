@@ -250,6 +250,7 @@
     "notifications": "알림 설정",
     "data": "데이터 및 저장공간",
     "community": "커뮤니티",
-    "about": "앱 정보"
+    "about": "앱 정보",
+    "admin": "운영 콘솔"
   }
 }

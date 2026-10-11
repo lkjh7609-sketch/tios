@@ -7,6 +7,7 @@ import '@/shared/i18n';
 const state = vi.hoisted(() => ({
   signOut: vi.fn().mockResolvedValue(undefined),
   mutate: vi.fn(),
+  admin: false,
   profile: { id: 'u1', display_name: '관리자', handle: 'dfxrj', plan: 'pro', locale: 'ko', temp_unit: 'c', distance_unit: 'km', base_currency: 'KRW', notification_prefs: { preDeparture: true, flightChanges: false, communityReplies: true, marketing: false }, avatar_url: null } as Record<string, unknown>,
 }));
 
@@ -15,6 +16,7 @@ vi.mock('@/shared/hooks/useProfile', () => ({ useProfile: () => ({ data: state.p
 vi.mock('@/shared/hooks/useMediaQuery', () => ({ useMediaQuery: () => false }));
 vi.mock('@/features/plan/hooks/useTrips', () => ({ useTrips: () => ({ data: [], refetch: vi.fn() }) }));
 vi.mock('@/features/plan/BackupModal', () => ({ BackupModal: () => null }));
+vi.mock('@/features/community/hooks/usePostMeta', () => ({ useIsAdminViewer: () => ({ data: state.admin }) }));
 vi.mock('./EditProfileModal', () => ({ EditProfileModal: () => <p>내 정보 변경 창</p> }));
 vi.mock('./BlockedUsersList', () => ({ BlockedUsersList: () => <p>차단한 사용자가 없어요.</p> }));
 vi.mock('@/features/notices/useAppVersion', () => ({ useAppVersion: () => '1.1.0' }));
@@ -38,6 +40,7 @@ function renderAt(path: string) {
 beforeEach(() => {
   state.signOut.mockClear();
   state.mutate.mockClear();
+  state.admin = false;
 });
 
 describe('SettingsScreen (모바일)', () => {
@@ -89,6 +92,17 @@ describe('SettingsScreen (모바일)', () => {
     expect(screen.getByRole('checkbox', { name: '알림 허용' })).not.toBeChecked();
     expect(screen.getByRole('checkbox', { name: '출발 전 리마인더' })).toBeDisabled();
     expect(screen.getByRole('checkbox', { name: '커뮤니티 답글' })).toBeDisabled();
+  });
+
+  it('운영 콘솔 줄은 운영자에게만 보이고 /admin으로 간다(앱에는 주소창이 없어서)', () => {
+    renderAt('/settings');
+    expect(screen.queryByRole('link', { name: '운영 콘솔' })).not.toBeInTheDocument();
+  });
+
+  it('운영자 계정이면 앱 정보 아래·로그아웃 위에 운영 콘솔 줄이 있다', () => {
+    state.admin = true;
+    renderAt('/settings');
+    expect(screen.getByRole('link', { name: '운영 콘솔' })).toHaveAttribute('href', '/admin');
   });
 
   it('로그아웃과 계정 삭제는 앱 정보 아래에 메뉴와 같은 줄로 있다', () => {

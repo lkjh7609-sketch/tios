@@ -310,7 +310,8 @@
         "members": "會員",
         "content": "內容",
         "insights": "數據"
-      }
+      },
+      "backToApp": "回到 App"
     },
     "dashboard": {
       "loadFailed": "無法載入儀表板。",
@@ -779,7 +780,10 @@
         "recruiting": "招募中",
         "matched": "已成團"
       },
-      "groupTotal_other": "共 {{count}} 人"
+      "groupTotal_other": "共 {{count}} 人",
+      "adminRemoveTitle": "刪除貼文",
+      "adminRemoveConfirm": "要刪除這則同行招募嗎？它會從列表消失，申請者也無法再查看。",
+      "adminRemoveFailed": "無法刪除，請稍後再試。"
     },
     "apply": {
       "dialogLabel": "申請加入同行",

@@ -1,4 +1,4 @@
-import { ChevronDown, PenLine, Search, Users, X } from 'lucide-react';
+import { PenLine, Users } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ import { useSession } from '@/shared/hooks/useSession';
 import { showToast } from '@/shared/ui/toast';
 import { trackScreenView } from '@/shared/monitoring';
 import { ErrorState } from '@/shared/ui/states/ErrorState';
+import { SearchCapsule } from '@/shared/ui/SearchCapsule';
 import { Skeleton } from '@/shared/ui/states/Skeleton';
 import { ChannelCompanionCard } from './channel/ChannelCompanionCard';
 import { ChannelHeader } from './channel/ChannelHeader';
@@ -232,47 +233,19 @@ function DestinationChannel({ slug }: { slug: string | undefined }) {
             })}
           </div>
           <div className={styles.tools}>
-            <label className={styles.search}>
-              <Search size={18} aria-hidden="true" className={styles.searchIcon} />
-              <input
-                type="search"
-                className={styles.searchInput}
-                value={draft}
-                placeholder={t('channel.searchPlaceholder', { city })}
-                aria-label={t('channel.searchAria', { city })}
-                onChange={(e) => setDraft(e.target.value)}
-              />
-              {draft ? (
-                <button
-                  type="button"
-                  className={styles.searchClear}
-                  aria-label={t('channel.searchClear')}
-                  onClick={() => setDraft('')}
-                >
-                  <X size={16} aria-hidden="true" />
-                </button>
-              ) : null}
-            </label>
-            {/* 검색창과 같은 모양의 정렬 선택 — 기본 화살표 대신 우리 화살표 */}
-            <span className={styles.sortWrap}>
-              <select
-                className={styles.sort}
-                value={sortValue}
-                aria-label={t('channel.sortAria')}
-                onChange={(e) =>
-                  isCompanionTab
-                    ? setCompanionSort(e.target.value as CompanionSort)
-                    : setPostSort(e.target.value as PostSort)
-                }
-              >
-                {sortOptions.map((key) => (
-                  <option key={key} value={key}>
-                    {t(`channel.sort.${key}`)}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={16} aria-hidden="true" className={styles.sortCaret} />
-            </span>
+            <SearchCapsule
+              value={draft}
+              onChange={setDraft}
+              placeholder={t('channel.searchPlaceholder', { city })}
+              ariaLabel={t('channel.searchAria', { city })}
+              clearLabel={t('channel.searchClear')}
+              select={{
+                value: sortValue,
+                ariaLabel: t('channel.sortAria'),
+                options: sortOptions.map((key) => ({ value: key, label: t(`channel.sort.${key}`) })),
+                onChange: (v) => (isCompanionTab ? setCompanionSort(v as CompanionSort) : setPostSort(v as PostSort)),
+              }}
+            />
           </div>
         </div>
 

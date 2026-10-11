@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useMediaQuery } from '@/shared/hooks/useMediaQuery';
+import { PopoverSheet } from '@/shared/ui/PopoverSheet';
 import { format, parseISO } from 'date-fns';
 import { CalendarDays, ChevronDown, Minus, Plus, Search, Users } from 'lucide-react';
 import { CityAutocomplete, type ExtraOption } from '@/features/plan/map/CityAutocomplete';
@@ -100,10 +102,13 @@ function GuestsPicker({ value, onChange }: { value: Guests; onChange: (g: Guests
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
+  // 폰(앱): 말풍선 대신 아래에서 올라오는 시트(PopoverSheet) — 바깥 누르기는 그 시트의 어두운 배경이 맡는다
+  const phone = useMediaQuery('(max-width: 1023px)');
 
   useEffect(() => {
     if (!open) return;
     const onDown = (e: PointerEvent) => {
+      if (phone) return;
       if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
     };
     const onKey = (e: globalThis.KeyboardEvent) => {
@@ -115,7 +120,7 @@ function GuestsPicker({ value, onChange }: { value: Guests; onChange: (g: Guests
       document.removeEventListener('pointerdown', onDown);
       document.removeEventListener('keydown', onKey);
     };
-  }, [open]);
+  }, [open, phone]);
 
   const summary = t('hotels.form.guestsN', { count: value.adults + value.childAges.length });
 
@@ -128,6 +133,7 @@ function GuestsPicker({ value, onChange }: { value: Guests; onChange: (g: Guests
         <ChevronDown size={16} aria-hidden="true" />
       </button>
       {open ? (
+        <PopoverSheet phone={phone} onClose={() => setOpen(false)}>
         <div id={panelId} role="dialog" aria-label={t('hotels.form.guests')} className={styles.popover}>
           <Stepper
             label={t('hotels.form.adults')}
@@ -163,6 +169,7 @@ function GuestsPicker({ value, onChange }: { value: Guests; onChange: (g: Guests
             {t('action.confirm', { ns: 'common' })}
           </button>
         </div>
+        </PopoverSheet>
       ) : null}
     </div>
   );

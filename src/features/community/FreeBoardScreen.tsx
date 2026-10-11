@@ -1,4 +1,4 @@
-import { ArrowLeft, MessagesSquare, PenLine, Search, X } from 'lucide-react';
+import { ArrowLeft, MessagesSquare, PenLine } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +6,7 @@ import { useRequireLogin } from '@/features/auth/loginPrompt';
 import { useSession } from '@/shared/hooks/useSession';
 import { trackScreenView } from '@/shared/monitoring';
 import { ErrorState } from '@/shared/ui/states/ErrorState';
+import { SearchCapsule } from '@/shared/ui/SearchCapsule';
 import { Skeleton } from '@/shared/ui/states/Skeleton';
 import { ChannelPostCard } from './channel/ChannelPostCard';
 import { useChannelPosts } from './hooks/useDestinationChannel';
@@ -76,29 +77,18 @@ export function FreeBoardScreen() {
       <div className={`${styles.container} ${styles.body}`}>
         <div className={styles.toolbar}>
           <div className={styles.tools}>
-            <label className={styles.search}>
-              <Search size={18} aria-hidden="true" className={styles.searchIcon} />
-              <input
-                type="search"
-                className={`${styles.searchInput} ${boardStyles.searchInput}`}
-                value={draft}
-                placeholder={t('board.searchPlaceholder')}
-                aria-label={t('board.searchPlaceholder')}
-                onChange={(e) => setDraft(e.target.value)}
-              />
-              {draft ? (
-                <button type="button" className={styles.searchClear} aria-label={t('channel.searchClear')} onClick={() => setDraft('')}>
-                  <X size={16} aria-hidden="true" />
-                </button>
-              ) : null}
-            </label>
-            <select className={`${styles.sort} ${boardStyles.sort}`} value={sort} aria-label={t('channel.sortAria')} onChange={(e) => setSort(e.target.value as PostSort)}>
-              {(['latest', 'popular', 'comments'] as const).map((key) => (
-                <option key={key} value={key}>
-                  {t(`channel.sort.${key}`)}
-                </option>
-              ))}
-            </select>
+            <SearchCapsule
+              value={draft}
+              onChange={setDraft}
+              placeholder={t('board.searchPlaceholder')}
+              clearLabel={t('channel.searchClear')}
+              select={{
+                value: sort,
+                ariaLabel: t('channel.sortAria'),
+                options: (['latest', 'popular', 'comments'] as const).map((key) => ({ value: key, label: t(`channel.sort.${key}`) })),
+                onChange: (v) => setSort(v as PostSort),
+              }}
+            />
           </div>
         </div>
 

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { Bell, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useMediaQuery } from '@/shared/hooks/useMediaQuery';
+import { PopoverSheet } from '@/shared/ui/PopoverSheet';
 import { useAlertLabels } from '@/features/travelAlerts/useAlertLabels';
 import { useTripNotifications, type TripNotification } from './useTripNotifications';
 import styles from './NotificationBell.module.css';
@@ -12,6 +14,8 @@ export function NotificationBell() {
   const { countryName, levelName } = useAlertLabels();
   const { signedIn, items, unreadCount, markAllRead, dismiss } = useTripNotifications();
   const [open, setOpen] = useState(false);
+  // 폰(앱): 말풍선 대신 아래에서 올라오는 시트(PopoverSheet) — 바깥 누르기는 그 시트의 어두운 배경이 맡는다
+  const phone = useMediaQuery('(max-width: 1023px)');
   const wrapRef = useRef<HTMLDivElement>(null);
   // 닫는 순간 안 읽은 것을 읽음으로 — 열어 둔 동안은 새 알림 표시가 그대로 보이게
   const markRef = useRef(markAllRead);
@@ -22,6 +26,7 @@ export function NotificationBell() {
   useEffect(() => {
     if (!open) return;
     const onPointer = (e: Event) => {
+      if (phone) return;
       if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
@@ -36,7 +41,7 @@ export function NotificationBell() {
       document.removeEventListener('keydown', onKey);
       markRef.current();
     };
-  }, [open]);
+  }, [open, phone]);
 
   if (!signedIn) return null;
 
@@ -78,6 +83,7 @@ export function NotificationBell() {
       </button>
 
       {open ? (
+        <PopoverSheet phone={phone} onClose={() => setOpen(false)}>
         <div className={styles.panel} role="dialog" aria-label={t('notifications.title')}>
           <h2 className={styles.heading}>{t('notifications.title')}</h2>
           {items.length === 0 ? (
@@ -117,6 +123,7 @@ export function NotificationBell() {
           )}
           <p className={styles.note}>{t('notifications.note')}</p>
         </div>
+        </PopoverSheet>
       ) : null}
     </div>
   );

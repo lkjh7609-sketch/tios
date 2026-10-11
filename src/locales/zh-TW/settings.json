@@ -250,6 +250,7 @@
     "notifications": "通知設定",
     "data": "資料與儲存空間",
     "community": "社群",
-    "about": "應用程式資訊"
+    "about": "應用程式資訊",
+    "admin": "營運後台"
   }
 }

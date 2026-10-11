@@ -310,7 +310,8 @@
         "members": "会員",
         "content": "コンテンツ",
         "insights": "データ"
-      }
+      },
+      "backToApp": "アプリへ"
     },
     "dashboard": {
       "loadFailed": "ダッシュボードを読み込めませんでした。",
@@ -779,7 +780,10 @@
         "recruiting": "募集中",
         "matched": "成立"
       },
-      "groupTotal_other": "計{{count}}名"
+      "groupTotal_other": "計{{count}}名",
+      "adminRemoveTitle": "投稿を削除",
+      "adminRemoveConfirm": "この同行募集を削除しますか？一覧から消え、応募者も見られなくなります。",
+      "adminRemoveFailed": "削除できませんでした。しばらくしてからお試しください。"
     },
     "apply": {
       "dialogLabel": "同行に応募",
