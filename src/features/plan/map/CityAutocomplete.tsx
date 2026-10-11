@@ -4,6 +4,7 @@ import { loadGoogleMapsPlaces } from '@/shared/api/googleMapsLoader';
 import { cityDisplayName } from '../cityName';
 import { buildCityOptions } from './cityPredictions';
 import { countryCodeOf, type SelectedPlace } from './usePlaceAutocomplete';
+import { dbCityPrediction, searchDbCities, selectedFromDbCity, type CityPrediction } from './destinationCities';
 import listStyles from '../airports/AirportPicker.module.css';
 
 interface CityAutocompleteProps {
@@ -44,7 +45,7 @@ async function fetchCityPredictions(
   input: string,
   language: string,
   sessionToken: google.maps.places.AutocompleteSessionToken,
-): Promise<google.maps.places.AutocompletePrediction[]> {
+): Promise<CityPrediction[]> {
   try {
     const { suggestions } = await places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
       input,
@@ -59,12 +60,12 @@ async function fetchCityPredictions(
         place_id: p.placeId,
         description: p.text.text,
         structured_formatting: { main_text: p.mainText?.text ?? '', secondary_text: p.secondaryText?.text ?? '' },
-      })) as google.maps.places.AutocompletePrediction[];
+      }));
   } catch {
     return new Promise((resolve) => {
       new google.maps.places.AutocompleteService().getPlacePredictions(
         { input, types: ['(cities)'], sessionToken },
-        (results) => resolve(results ?? []),
+        (results) => resolve((results ?? []) as CityPrediction[]),
       );
     });
   }
@@ -95,12 +96,21 @@ export function CityAutocomplete({
   const [text, setText] = useState(
     value ? shownText(value) : initialText,
   );
-  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [googlePreds, setGooglePreds] = useState<CityPrediction[]>([]);
+  const [dbPreds, setDbPreds] = useState<CityPrediction[]>([]);
   const [extras, setExtras] = useState<ExtraOption[]>([]);
   const extraAbort = useRef<AbortController | null>(null);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
   const lastValue = useRef(value);
+  // 우리 여행지 표의 도시가 먼저, 그 뒤에 구글 결과 — 같은 도시(같은 장소 ID 또는 같은 "도시(나라)")는 한 번만
+  const predictions = useMemo(() => {
+    if (dbPreds.length === 0) return googlePreds;
+    const dbLabels = new Set(buildCityOptions(dbPreds, i18n.language).map((o) => o.label));
+    const dbIds = new Set(dbPreds.map((p) => p.place_id));
+    const googleLabels = buildCityOptions(googlePreds, i18n.language).map((o) => o.label);
+    return [...dbPreds, ...googlePreds.filter((p, i) => !dbIds.has(p.place_id) && !dbLabels.has(googleLabels[i]))];
+  }, [dbPreds, googlePreds, i18n.language]);
   const options = useMemo(
     () => buildCityOptions(predictions, i18n.language),
     [predictions, i18n.language],
@@ -129,7 +139,8 @@ export function CityAutocomplete({
     const id = ++requestId.current;
     extraAbort.current?.abort();
     if (!next.trim()) {
-      setPredictions([]);
+      setGooglePreds([]);
+      setDbPreds([]);
       setExtras([]);
       return;
     }
@@ -146,13 +157,16 @@ export function CityAutocomplete({
             if (id === requestId.current) setExtras([]);
           });
       }
+      void searchDbCities(next, i18n.language).then((list) => {
+        if (id === requestId.current) setDbPreds(list.map((c) => dbCityPrediction(c, i18n.language)));
+      });
       try {
         const places = await loadGoogleMapsPlaces();
         token.current ??= new google.maps.places.AutocompleteSessionToken();
         const found = await fetchCityPredictions(places, next, i18n.language, token.current);
-        if (id === requestId.current) setPredictions(found);
+        if (id === requestId.current) setGooglePreds(found);
       } catch {
-        if (id === requestId.current) setPredictions([]);
+        if (id === requestId.current) setGooglePreds([]);
       }
     }, DEBOUNCE_MS);
   }
@@ -165,8 +179,18 @@ export function CityAutocomplete({
     onSelectExtra?.(option);
   }
 
-  async function choose(prediction: google.maps.places.AutocompletePrediction) {
+  async function choose(prediction: CityPrediction) {
     onSelectExtra?.(null);
+    if (prediction.db) {
+      // 우리 여행지 표의 도시 — 좌표·나라가 이미 있어 구글 상세 조회가 필요 없다
+      const selected: SelectedPlace = selectedFromDbCity(prediction.db);
+      setText(options.find((o) => o.placeId === prediction.place_id)?.name ?? selected.name);
+      setOpen(false);
+      token.current = null;
+      lastValue.current = selected;
+      onSelect(selected);
+      return;
+    }
     setText(options.find((o) => o.placeId === prediction.place_id)?.name ?? prediction.description);
     setOpen(false);
     try {

@@ -4,7 +4,13 @@
 
 ---
 
-### 2026-10-11 (앱 1) — iOS 앱 첫 TestFlight 이후 모바일 수정 6건
+### 2026-10-11 (앱 2) — 저장 지연 대응·도시 검색
+
+- **앱에서 인증 서버 왕복 제거**: 화면이 열릴 때마다(`useSession`) 부르던 `auth.getUser()`(인증 서버 왕복 + 인증 잠금)를 앱에서는 기기에 저장된 세션 읽기(`getSession`)로 바꿨다. 여행 목록·공유 링크·여행 나가기도 같다. TestFlight 웹 인스펙터에서 저장 직후 `/auth/v1/user`·`trips`·`bookings` 등이 한꺼번에 ~12초 멈춘 것에 대한 대응(원인 확정 아님 — 새 빌드에서 확인, 계속 느리면 CapacitorHttp 검토).
+- **여행 만들기 도시 검색**: 예전 `AutocompleteService`는 지도 스크립트를 처음 불러올 때 정한 언어 하나로만 찾아 한국어 화면에서 "뉴욕"이 안 나왔다. 새 Places API(`AutocompleteSuggestion`)로 요청마다 화면 언어를 지정한다(한·영·일·번체 어느 쪽으로 쳐도 나옴). 새 API를 못 쓰면 예전 방식으로 한 번 더 시도.
+- **도시 DB 우선**: 우리 여행지 표(`destinations`+`destination_translations`, 4개 언어 이름)에서 먼저 찾아 구글 결과 위에 같은 "도시(나라)" 모양으로 보여 준다. 같은 도시는 한 번만. DB 도시를 고르면 구글 상세 조회 없이 좌표·나라를 그대로 쓴다.
+
+## 2026-10-11 (앱 1) — iOS 앱 첫 TestFlight 이후 모바일 수정 6건
 
 브랜치 `app/mobile-polish`(앱 전용 저장소 `tios`). 첫 TestFlight 설치 후 사용자 점검 6건. **웹 저장소(`Triptic`)에는 반영하지 않는다.**
 
