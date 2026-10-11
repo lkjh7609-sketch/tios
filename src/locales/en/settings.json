@@ -27,11 +27,13 @@
     "unitSettings": "Unit Settings (Temp/Distance)"
   },
   "notifications": {
+    "master": "Allow notifications",
     "preDeparture": "Pre-departure reminder",
     "flightChanges": "Flight changes",
     "communityReplies": "Community replies",
     "marketing": "Marketing updates",
-    "hint": "Pre-departure reminders are emailed 3 days before your trip starts, at 9:00 AM Korea time. The other notifications will be supported in a future update."
+    "hint": "Pre-departure reminders are emailed 3 days before your trip starts, at 9:00 AM Korea time. The other notifications will be supported in a future update.",
+    "osDenied": "Please allow Triptic notifications in iPhone Settings."
   },
   "data": {
     "offlineCache": "Offline cache",
@@ -105,7 +107,9 @@
     "pixelAvatarLabel": "Pixel character",
     "pixelAvatarRandom": "Randomize",
     "pixelAvatarReset": "Back to original",
-    "pixelAvatarHint": "Shown as you in \"Travel buddies\" on the Stats tab — and to your buddies once you save."
+    "pixelAvatarHint": "This is your default profile picture. It also represents you in \"Travel buddies\" on the Stats tab, and your buddies see it once you save. You can upload a photo instead.",
+    "photoUpload": "Upload photo",
+    "photoRemove": "Remove photo (use character)"
   },
   "units": {
     "title": "Units",

@@ -84,6 +84,12 @@ export function randomAvatarSeed(): string {
   return `r${bytes[0]!.toString(36)}${bytes[1]!.toString(36)}`;
 }
 
+/** 프로필 사진 기본값 — 전신 도트에서 얼굴~상반신(머리·어깨·가슴)까지만 자른 정사각형에 가까운 그림(36×37칸) */
+export const AVATAR_BUST_ROWS = 37;
+export function avatarBustGrid(seed: string): Grid {
+  return avatarGrid(seed).slice(0, AVATAR_BUST_ROWS);
+}
+
 export function avatarGrid(seed: string): Grid {
   const r = rng(seed);
   const pick = <T,>(list: T[]) => list[Math.floor(r() * list.length)]!;

@@ -1,0 +1,20 @@
+/* 원형 틀 — 사진이든 도트든 틀을 가득 채운다 */
+.frame {
+  display: inline-block;
+  flex: none;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--brand-tint);
+}
+
+.fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+img.fill {
+  image-rendering: auto;
+}

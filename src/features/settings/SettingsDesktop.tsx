@@ -46,13 +46,14 @@ import { captureError, trackScreenView } from '@/shared/monitoring';
 import { getStoredTheme, setTheme, type ThemePreference } from '@/shared/theme';
 import { registerPushNotifications } from '@/shared/push/registerPush';
 import { clearOfflineCache } from '@/shared/offline/persister';
-import type { NotificationPrefs, ProfileRow } from '@/shared/api/profileService';
+import type { NotificationKey, NotificationPrefs, ProfileRow } from '@/shared/api/profileService';
 import { DeleteAccountFlow } from './DeleteAccountFlow';
 import { BlockedUsersList } from './BlockedUsersList';
 import { EditProfileModal } from './EditProfileModal';
 import { FeedbackModal } from './FeedbackModal';
 import { PasswordChangeDialog } from './PasswordChangeDialog';
 import { currentDeviceLabel } from './deviceInfo';
+import { ProfileAvatar } from './ProfileAvatar';
 import { AvatarError, isUploadedAvatar, removeAvatarFiles, uploadAvatar } from './avatar';
 import { showToast } from '@/shared/ui/toast';
 import { useAppVersion } from '@/features/notices/useAppVersion';
@@ -76,9 +77,9 @@ const UNIT_OPTIONS = [
   { value: 'f-km', temp: 'f', dist: 'km', label: '°F · km' },
 ] as const;
 
-const NOTIFICATION_KEYS: (keyof NotificationPrefs)[] = ['preDeparture', 'flightChanges', 'communityReplies', 'marketing'];
+const NOTIFICATION_KEYS: NotificationKey[] = ['preDeparture', 'flightChanges', 'communityReplies', 'marketing'];
 
-const NOTIFICATION_ICONS: Record<keyof NotificationPrefs, ReactNode> = {
+const NOTIFICATION_ICONS: Record<NotificationKey, ReactNode> = {
   preDeparture: <Plane size={18} />,
   flightChanges: <RefreshCw size={18} />,
   communityReplies: <MessagesSquare size={18} />,
@@ -189,7 +190,7 @@ export function SettingsDesktop() {
     if (profile && code !== profile.locale) updateProfile.mutate({ locale: code });
   }
 
-  function togglePref(key: keyof NotificationPrefs, value: boolean) {
+  function togglePref(key: NotificationKey, value: boolean) {
     updateProfile.mutate({ notification_prefs: { ...prefs, [key]: value } });
     if (value && user) registerPushNotifications(user.id).catch((err) => captureError(err, { context: 'registerPushNotifications' }));
   }
@@ -280,11 +281,7 @@ export function SettingsDesktop() {
               <div className={styles.profileRow}>
                 <div className={styles.profile}>
                   <div className={styles.avatarWrap}>
-                    <img
-                      src={profile?.avatar_url || user.user_metadata?.avatar_url || 'https://api.dicebear.com/7.x/notionists/svg?seed=' + user.email}
-                      alt=""
-                      className={styles.avatar}
-                    />
+                    <ProfileAvatar userId={user.id} pixelSeed={profile?.pixel_avatar_seed} photoUrl={profile?.avatar_url} className={styles.avatar} />
                     <button
                       type="button"
                       className={styles.cameraBtn}
@@ -449,7 +446,7 @@ export function SettingsDesktop() {
                         type="checkbox"
                         role="switch"
                         className={styles.switchInput}
-                        checked={prefs[key] ?? key !== 'marketing'}
+                        checked={(prefs[key] as boolean | undefined) ?? key !== 'marketing'}
                         aria-label={t(`desktop.notifications.${key}.title`)}
                         onChange={(e) => togglePref(key, e.target.checked)}
                       />

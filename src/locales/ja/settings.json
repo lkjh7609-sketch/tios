@@ -27,11 +27,13 @@
     "unitSettings": "単位設定 (温度/距離)"
   },
   "notifications": {
+    "master": "通知を許可",
     "preDeparture": "出発前のリマインダー",
     "flightChanges": "フライトの変更",
     "communityReplies": "コミュニティの返信",
     "marketing": "マーケティング情報",
-    "hint": "出発前リマインダーは、旅行開始の3日前の午前9時（韓国時間）にメールでお送りします。その他の通知は次回のアップデートで対応します。"
+    "hint": "出発前リマインダーは、旅行開始の3日前の午前9時（韓国時間）にメールでお送りします。その他の通知は次回のアップデートで対応します。",
+    "osDenied": "iPhoneの設定でTripticの通知を許可してください。"
   },
   "data": {
     "offlineCache": "オフラインキャッシュ",
@@ -102,7 +104,9 @@
     "pixelAvatarLabel": "ドットキャラクター",
     "pixelAvatarRandom": "ランダムで変更",
     "pixelAvatarReset": "最初の姿に戻す",
-    "pixelAvatarHint": "統計タブの「一緒に旅した友だち」で私を表します。保存すると友だちにもこの姿で見えます。"
+    "pixelAvatarHint": "プロフィール写真の初期の姿です。統計タブの「一緒に旅した友だち」でも私を表し、保存すると友だちにもこの姿で見えます。写真をアップロードして変えることもできます。",
+    "photoUpload": "写真をアップロード",
+    "photoRemove": "写真を削除(キャラクターに戻す)"
   },
   "units": {
     "title": "単位設定",

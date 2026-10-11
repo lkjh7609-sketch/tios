@@ -210,9 +210,10 @@
   "push": {
     "consent": {
       "title": "Turn on notifications?",
-      "message": "We'll send departure reminders and replies to your posts. You can turn them off anytime in Settings.",
+      "message": "Get reminders before your trip departs.\nWe'll also let you know about replies and comments.\n\nYou can change this anytime in\nSettings > Notification settings.",
       "later": "Not now",
-      "allow": "Turn on"
+      "allow": "Turn on",
+      "osDenied": "Please allow Triptic notifications in iPhone Settings."
     }
   }
 }
