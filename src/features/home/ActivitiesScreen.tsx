@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { Search, SlidersHorizontal } from 'lucide-react';
 import { trackScreenView } from '@/shared/monitoring';
 import { flagInvalid } from '@/shared/ui/invalidField';
@@ -15,7 +16,7 @@ import { ACTIVITY_CITIES, type ActivityCity } from './activities/activityCities'
 import { ActivityEmpty, ActivityProductGrid, ProductSkeletonGrid } from './activities/ActivityProductGrid';
 import { ActivityFilterDialog } from './activities/ActivityFilterDialog';
 import { DEFAULT_FILTERS, SORTS, countActiveFilters, type ActivityFilters, type ActivitySort } from './activities/activityFilters';
-import { useActivityList, useActivityPopularTitles } from './activities/useActivityList';
+import { activityListOptions, useActivityList, useActivityPopularTitles } from './activities/useActivityList';
 import styles from './ActivitiesScreen.module.css';
 
 /** 여행도 고른 도시도 없을 때 마이리얼트립에서 보여 줄 도시(마이리얼트립은 한국어 이름으로 찾는다) */
@@ -89,6 +90,17 @@ export function ActivitiesScreen() {
   useEffect(() => {
     trackScreenView('activities');
   }, []);
+
+  // 인기 여행지를 눌렀을 때 바로 뜨게 — 나머지 도시의 기본 추천 목록을 화면이 자리 잡은 뒤 하나씩 받아 둔다(서버 응답이 0.7~1.3초라 누른 뒤에 받으면 느리다).
+  // 이미 신선한 도시는 건너뛰고, 서버가 6시간 캐시해 두는 응답이다
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (!isMrt) return;
+    const timers = ACTIVITY_CITIES.map((city, i) =>
+      window.setTimeout(() => void queryClient.prefetchInfiniteQuery(activityListOptions(city.ko, 'recommended', DEFAULT_FILTERS)), 1200 + i * 400),
+    );
+    return () => timers.forEach((id) => window.clearTimeout(id));
+  }, [isMrt, queryClient]);
 
   function handleSearch(e: FormEvent) {
     e.preventDefault();

@@ -143,9 +143,21 @@ export async function openMyrealtripSearch(keyword: string, placement: PartnerPl
   await openPartnerLink({ brand: 'myrealtrip', kind: 'search', q: keyword, placement }, `${MYREALTRIP_SEARCH}${encodeURIComponent(keyword)}`);
 }
 
-/** 마이리얼트립 상품 페이지(상품 카드) — 누를 때만 마이링크를 만든다 */
+/** 마이링크를 이 시간 안에 못 받으면 원래 상품 주소로 먼저 연다(수수료 추적은 없음) — 새 링크를 만드는 데 3초 넘게 걸릴 때가 있다 */
+const PAGE_LINK_WAIT_MS = 4000;
+
+/**
+ * 마이리얼트립 상품 페이지(상품 카드). 카드가 화면에 나온 뒤 미리 받아 둔 링크(useMyrealtripLink)가 있으면 카드가 바로 열고,
+ * 여기는 아직 못 받았을 때만 온다 — 오래 걸리면 원래 주소로 연다.
+ */
 export async function openMyrealtripPage(url: string, placement: PartnerPlacement = 'product'): Promise<void> {
-  await openPartnerLink({ brand: 'myrealtrip', kind: 'page', url, placement }, url);
+  const params = { brand: 'myrealtrip', kind: 'page', url, placement };
+  await openInNewTab(() =>
+    Promise.race([
+      fetchPartnerLink(params).catch(() => url),
+      new Promise<string>((resolve) => window.setTimeout(() => resolve(url), PAGE_LINK_WAIT_MS)),
+    ]),
+  );
 }
 
 export interface FlightSearch {

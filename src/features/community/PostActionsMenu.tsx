@@ -44,9 +44,11 @@ export function PostActionsMenu({
   // 폰(앱): 드롭다운 대신 아래에서 올라오는 액션 시트
   const isPhone = useMediaQuery('(max-width: 1023px)');
 
-  // 메뉴 밖을 누르거나 Esc를 누르면 닫는다(터치 기기엔 마우스가 없어 mouseleave로는 안 닫힌다)
+  // 메뉴 밖을 누르거나 Esc를 누르면 닫는다(터치 기기엔 마우스가 없어 mouseleave로는 안 닫힌다).
+  // 폰의 액션 시트는 body에 따로 그려 wrapRef 밖이라, 시트 버튼을 누르는 순간(pointerdown) 닫혀 click이 못 오고 시트가 바로 사라졌다 —
+  // 시트는 자기 배경·취소·Esc로 닫으니 여기서는 드롭다운일 때만 듣는다
   useEffect(() => {
-    if (!open) return;
+    if (!open || isPhone) return;
     function onPointerDown(e: PointerEvent) {
       if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
     }
@@ -59,7 +61,7 @@ export function PostActionsMenu({
       document.removeEventListener('pointerdown', onPointerDown);
       document.removeEventListener('keydown', onKeyDown);
     };
-  }, [open]);
+  }, [open, isPhone]);
 
   function handleBlock() {
     setOpen(false);

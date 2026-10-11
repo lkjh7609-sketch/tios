@@ -28,7 +28,7 @@
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
     "reset": "Reset view",
-    "hintTouch": "Use two fingers to zoom and move",
+    "hintTouch": "Use two fingers\nto zoom and move",
     "hintMouse": "Drag to move · double-click or use +/− to zoom",
     "countriesButton": "See {{count}} visited countries",
     "countriesTitle": "Countries visited"

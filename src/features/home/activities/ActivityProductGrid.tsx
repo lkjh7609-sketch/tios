@@ -1,7 +1,8 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown } from 'lucide-react';
 import { MyrealtripLink } from '../MyrealtripLink';
-import { openMyrealtripPage, openMyrealtripSearch } from '@/features/plan/partnerLinks';
+import { openExternal, openMyrealtripPage, openMyrealtripSearch, useMyrealtripLink } from '@/features/plan/partnerLinks';
 import { INSTANT_TAG } from './activityFilters';
 import type { ActivityProduct } from './activityApi';
 import styles from './ActivityProductGrid.module.css';
@@ -14,12 +15,38 @@ function formatPrice(amount: number, currency: string, locale: string): string {
   }
 }
 
-function ProductCard({ product }: { product: ActivityProduct }) {
+/** 카드 사이 간격 — 한꺼번에 부르지 않고 차례로 링크를 받아 둔다 */
+const LINK_PREFETCH_STAGGER_MS = 350;
+
+function ProductCard({ product, index }: { product: ActivityProduct; index: number }) {
   const { t, i18n } = useTranslation('home');
   const instant = product.tags.includes(INSTANT_TAG);
+  const [opening, setOpening] = useState(false);
+  // 추적 링크(마이링크)는 처음 만들 때 3초 넘게 걸려, 누른 뒤에 만들면 한참 멈춘 것처럼 보인다. 그래서 화면에 나온 카드만 차례로 미리 받아 둔다.
+  // 서버가 같은 상품은 한 번만 만들어 저장하니 유료 호출은 상품당 처음 한 번뿐이고, 필터·더 보기로 보이지 않는 카드는 받지 않는다
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    const id = window.setTimeout(() => setArmed(true), 300 + index * LINK_PREFETCH_STAGGER_MS);
+    return () => window.clearTimeout(id);
+  }, [index]);
+  const link = useMyrealtripLink(armed ? { kind: 'page', url: product.url, placement: 'product' } : null);
+
+  async function open() {
+    if (link) {
+      openExternal(link);
+      return;
+    }
+    // 아직 못 받았으면 받는 동안 눌린 것을 보여 준다(오래 걸리면 원래 주소로)
+    setOpening(true);
+    try {
+      await openMyrealtripPage(product.url, 'product');
+    } finally {
+      setOpening(false);
+    }
+  }
+
   return (
-    // 추적 링크(마이링크, 만들 때마다 유료 호출)는 누를 때만 만든다 — 카드가 화면에 나올 때마다 만들면 필터·더 보기로 호출이 쌓인다
-    <button type="button" className={styles.card} onClick={() => void openMyrealtripPage(product.url, 'product')}>
+    <button type="button" className={styles.card} aria-busy={opening || undefined} data-opening={opening || undefined} onClick={() => void open()}>
       <span className={styles.media}>
         {product.imageUrl ? (
           <img
@@ -83,8 +110,8 @@ export function ActivityProductGrid({ products, hasMore, loadingMore, onMore }: 
   return (
     <>
       <div className={styles.grid}>
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
+        {products.map((p, i) => (
+          <ProductCard key={p.id} product={p} index={i} />
         ))}
       </div>
       {hasMore ? (

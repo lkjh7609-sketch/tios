@@ -80,6 +80,9 @@ describe('PostActionsMenu', () => {
       const sheet = screen.getByRole('dialog');
       expect(sheet).toBeInTheDocument();
       expect(screen.getByRole('button', { name: '취소' })).toBeInTheDocument();
+      // 실기기에서는 click 전에 pointerdown이 먼저 온다 — 시트 안을 눌러도 그 사이 시트가 닫히면 안 된다
+      fireEvent.pointerDown(screen.getByRole('menuitem', { name: '삭제' }));
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
       fireEvent.click(screen.getByRole('menuitem', { name: '삭제' }));
       expect(onDelete).toHaveBeenCalled();
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument(); // 고르면 시트는 닫힌다
