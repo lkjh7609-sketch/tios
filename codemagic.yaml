@@ -57,5 +57,5 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true
+        submit_to_testflight: false   # 내부 테스트는 베타 심사 불필요. 외부 테스트를 쓰려면 TestFlight 테스트 정보를 채운 뒤 true
         # 심사 제출은 App Store Connect에서 직접(스크린샷·설명·심사 메모를 채운 뒤)
