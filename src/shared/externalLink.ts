@@ -1,4 +1,5 @@
 import { isNativeApp } from './platform';
+import { SITE_ORIGIN } from './config';
 
 /** 인앱 브라우저를 못 쓸 때 window.open으로 돌아가는 동안엔, 아래 window.open 패치가 다시 가로채 무한히 돌지 않게 건너뛴다 */
 let bypassPatch = false;
@@ -35,6 +36,17 @@ export function isOutboundHttp(href: string, origin = window.location.origin): b
   }
 }
 
+/** 우리 사이트의 정적 페이지(`/something.html`)면 운영 사이트의 같은 주소, 아니면 null */
+export function staticPageUrl(href: string, origin = window.location.origin): string | null {
+  try {
+    const u = new URL(href, origin);
+    if (u.origin !== origin || !/^\/[\w-]+\.html$/.test(u.pathname)) return null;
+    return `${SITE_ORIGIN}${u.pathname}${u.search}${u.hash}`;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * 앱(iOS 셸) 안에서 우리 사이트가 아닌 http(s) 주소로 나가는 모든 이동을 인앱 브라우저로 돌린다 — 마이리얼트립·Agoda·Trip.com·Klook 등 제휴 링크가
  * 앱을 떠나 사파리나 그 회사 앱(유니버설 링크)으로 튀지 않게(2026-10-11, "마이리얼트립 이동은 모두 인앱 브라우저"):
@@ -48,7 +60,16 @@ export function installExternalLinkHandler(): () => void {
     const anchor = (e.target as Element | null)?.closest?.('a');
     if (!anchor || anchor.hasAttribute('download')) return;
     const href = anchor.href;
-    if (!href || !isOutboundHttp(href)) return;
+    if (!href) return;
+    if (!isOutboundHttp(href)) {
+      // 약관·개인정보처리방침 같은 정적 .html 페이지(`/terms.html`)는 앱 화면 경로가 아니다 — WKWebView는 target=_blank를 무시해 눌러도 반응이 없었다
+      // (2026-10-12, 심사 중 발견). 운영 사이트의 같은 페이지를 인앱 브라우저로 연다.
+      const staticPage = staticPageUrl(href);
+      if (!staticPage) return;
+      e.preventDefault();
+      void openExternalUrl(staticPage);
+      return;
+    }
     e.preventDefault();
     void openExternalUrl(href);
   };
