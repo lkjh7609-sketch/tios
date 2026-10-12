@@ -39,6 +39,9 @@ describe('외부 링크 — 앱에서는 인앱 브라우저', () => {
     expect(clickLink({ href: '/plan/abc' }).defaultPrevented).toBe(false);
     expect(staticPageUrl('/plan/abc')).toBeNull();
     expect(staticPageUrl('/terms.html#x')).toBe('https://triptic.my/terms.html#x');
+    // 언어별 번역본·한국어 고정 주소(?lang=ko)도 같은 방식
+    expect(staticPageUrl('/privacy-zh-TW.html')).toBe('https://triptic.my/privacy-zh-TW.html');
+    expect(staticPageUrl('/terms.html?lang=ko')).toBe('https://triptic.my/terms.html?lang=ko');
   });
 
   it('앱에서 target=_blank 바깥 주소는 인앱 브라우저로 열고 기본 동작은 막는다', async () => {
