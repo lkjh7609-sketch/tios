@@ -18,6 +18,8 @@ workflows:
         - triptic_app
       vars:
         BUNDLE_ID: com.triptic.travel
+        WIDGET_BUNDLE_ID: com.triptic.travel.widget
+        WATCH_BUNDLE_ID: com.triptic.travel.watchkitapp
         XCODE_PROJECT: ios/App/App.xcodeproj
         XCODE_SCHEME: App
         APP_STORE_APPLE_ID: "6820429874"   # 빌드 번호를 TestFlight 마지막 번호 + 1로 올리는 데 쓴다
@@ -32,11 +34,15 @@ workflows:
           npx cap sync ios
       - name: 서명 준비(키체인 초기화)
         script: keychain initialize
-      - name: 서명 파일 받기(없으면 App Store Connect API로 만든다)
+      - name: 서명 파일 받기(없으면 App Store Connect API로 만든다) — 앱·위젯·워치 각각
+        # ⚠️ 위젯(com.triptic.travel.widget)과 앱(com.triptic.travel)은 App Groups(group.com.triptic.travel)가 Apple Developer 사이트에서
+        #    켜져 있어야 프로파일에 들어간다(API로는 못 켠다 — 사용자/브라우저 작업). 워치 앱은 앱 그룹이 필요 없다.
         script: |
-          app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
-            --create
+          for ID in "$BUNDLE_ID" "$WIDGET_BUNDLE_ID" "$WATCH_BUNDLE_ID"; do
+            app-store-connect fetch-signing-files "$ID" \
+              --type IOS_APP_STORE \
+              --create
+          done
       - name: 인증서 키체인에 넣기
         script: keychain add-certificates
       - name: 서명 설정 적용
