@@ -42,6 +42,14 @@
 - 워치 화면 디자인은 아직 못 봤다 — 코드를 다듬기 전에 기기 모양 시안(웹 미리보기)을 먼저 만들어 확정하자고 제안해 둠.
 - 심사 중에는 main에 합치지 않는다. 1.0.1은 main에서 만든다.
 
+### ⏭ 출시(승인) 뒤에 바로 진행할 것 (사용자 결정 2026-10-12 — **지금은 적용하지 않는다**)
+1. **인천 전광판 정기 갱신** — 한국 06:00~24:00에 5분마다 DB(pg_cron)가 `incheon-board`를 불러 미리 받아 둔다(첫 방문 3~4초 빈 화면 해소). 코드는 브랜치 `airport/incheon-cron` · 초안 PR #29(`supabase/migrations/0115_incheon_board_cron.sql`, `refreshPolicy.ts`). **순서: ① `supabase functions deploy incheon-board` ② 0115 SQL 실행**(운영 적용은 사용자). 되돌리기 `select cron.unschedule('airport-board-refresh');`. 하루 외부 호출 약 432회(상한 900). 한국공항공사(`kac-board`)는 같은 문제지만 이번 범위 아님.
+2. **공항 화면 로딩 표시 개선(선택 제안, 아직 미승인)** — '불러오는 중' 문구 + 뼈대 줄, 마지막 값을 기기에 저장해 먼저 보여 주기.
+3. **스마트 앱 배너**(웹, 앱 미설치 아이폰 Safari에 'VIEW') — 웹 `index.html`에 `<meta name="apple-itunes-app" content="app-id=6820429874">`(+`app-argument`로 현재 주소). 앱이 스토어에 올라간 **뒤에** 웹 저장소 PR로.
+4. **App Store Connect 개인정보처리방침 URL**을 언어별로 — 영어(호주) `https://triptic.my/privacy-en.html`, 일본어 `…/privacy-ja.html`, 중국어(번체) `…/privacy-zh-TW.html`(한국어는 `…/privacy.html`). 약관 번역본의 법적 효력은 한국어 원문, 번역 검수 권장.
+5. **1.0.1**(main에서): 앱 약관 링크 수정(#23)·번역 연결(#26)·한도 무제한 화면 처리(#22)가 이미 main에 있다 — 새 빌드로 올릴 때 위 3·4번과 함께.
+6. **위젯 + 애플워치**(바로 위 '보류 중' 항목).
+
 ### 출시 체크리스트 (2026-10-12)
 - [x] 항공 MVP 구조 결정(Ignav + Trip.com/Kiwi.com) · 프로 없이 출시 · 한국+호주
 - [x] iPhone 전용 · 푸시(APNs) · Supabase Redirect URL · 심사용 데모 계정 · 약관/방침 최신화 · 1.0.0
