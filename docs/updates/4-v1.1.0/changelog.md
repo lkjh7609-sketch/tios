@@ -35,6 +35,13 @@
 - 이미 있던 것: 마지막으로 받은 값은 기기에 저장(IndexedDB, 24시간)돼 두 번째 방문부터는 바로 보인다 — 첫 방문·캐시가 없을 때가 문제였다.
 - 서버 쪽 근본 개선(운영 시간 5분 정기 갱신)은 출시 후 PR #29.
 
+## 2026-10-12 (앱 19) — 홈/잠금 화면 위젯 + 애플워치 앱(시작, 브랜치 `app/widget-watch`)
+
+- 사용자 요청: 애플워치에서 GPS로 일정 장소 중 가장 가까운 곳을 '현재 위치'로 보여 주고, 아래에 다음 장소와 출발 시각. 폰에는 위젯도.
+- 만든 것: 일정 내보내기(웹 `widgetSync.ts` → 네이티브 플러그인 `TripShare` → 앱 그룹 + WatchConnectivity), WidgetKit 위젯(홈 소·중, 잠금 화면 사각·한 줄), watchOS 앱(CoreLocation + 가장 가까운 장소 + 출발 시각), 공통 계산(`ios/App/Shared`, 맥에서 `sh ios/Tests/run.sh`로 시험 — 통과), 프로젝트 파일(`scripts/ios-add-widget-watch.rb`), Codemagic 서명(앱·위젯·워치 3개 번들 ID), 개인정보 매니페스트(UserDefaults 사유), 4개 언어 문구.
+- ⚠️ **Xcode 없이 만들어 아직 한 번도 빌드하지 못했다**(문법 검사·계산 시험만). Apple Developer 사이트에서 앱 그룹 `group.com.triptic.travel` 등록과 `com.triptic.travel`·`.widget`에 App Groups 켜기가 먼저 필요하다. 자세한 순서·확인 목록: `docs/ios-widget-watch.md`.
+- 1.0.0 심사 빌드와 무관(별도 브랜치). 1.1.0 후보.
+
 ## 2026-10-12 (앱 16) — 무료 여행 생성 한도 해제(출시 초기 무제한)
 
 - **사용자 결정**: 프로 없이 출시하니 한도 협의(기본 3개 + 추가 방법)를 접고 **일단 모두 무제한**, 사용자가 모이면 다시 둔다.
