@@ -35,6 +35,13 @@
 4. 앱에서 구글 지도 키의 '웹 주소 제한'이 `capacitor://localhost`에서 막힐 수 있다 — 첫 TestFlight에서 지도가 뜨는지 확인.
 5. 사용자 질문은 한두 번에 묶어서, 불확실하면 임의로 정하지 말고 묻는다. 비밀값(키·토큰)은 채팅에 쓰지 않는다.
 
+### ⏸ 보류 중 — 위젯 + 애플워치 앱 (1.1.0 후보, 사용자 결정 2026-10-12: **1.0.0 승인 뒤에 다시 논의**)
+- 요청: 애플워치에서 GPS로 일정 장소 중 가장 가까운 곳을 '현재 위치'로, 아래에 다음 장소·출발 시각. 폰에는 위젯(홈/잠금 화면).
+- 코드는 **브랜치 `app/widget-watch` · PR #25(초안, 머지 금지)**에 있다. 구조·번들 ID·확인 목록은 `docs/ios-widget-watch.md`(이 PR에 사본), 프로젝트 파일은 `scripts/ios-add-widget-watch.rb`.
+- ⚠️ **Xcode 없이 작성해 한 번도 빌드하지 못했다**(문법 검사·계산 시험 `sh ios/Tests/run.sh`만). 합치기 전에 Codemagic에서 그 브랜치를 먼저 빌드해 검증한다. 먼저 Apple Developer 사이트에서 앱 그룹 `group.com.triptic.travel` 등록 + `com.triptic.travel`·`.widget`에 App Groups 켜기(사용자 로그인 필요).
+- 워치 화면 디자인은 아직 못 봤다 — 코드를 다듬기 전에 기기 모양 시안(웹 미리보기)을 먼저 만들어 확정하자고 제안해 둠.
+- 심사 중에는 main에 합치지 않는다. 1.0.1은 main에서 만든다.
+
 ### 출시 체크리스트 (2026-10-12)
 - [x] 항공 MVP 구조 결정(Ignav + Trip.com/Kiwi.com) · 프로 없이 출시 · 한국+호주
 - [x] iPhone 전용 · 푸시(APNs) · Supabase Redirect URL · 심사용 데모 계정 · 약관/방침 최신화 · 1.0.0
