@@ -10,7 +10,7 @@ const publicDir = path.resolve(rootDir, 'public'); // Vite publicDir → dist/�
 
 // 루트의 정적 자산이 원본이다. Vite는 publicDir만 dist/로 복사하므로 매 dev/build 전에
 // public/으로 동기화한다(privacy.html/terms.html은 rollupOptions.input에 없어 이 경로로만
-// dist/에 들어간다).
+// dist/에 들어간다). 약관·방침의 영어·일본어·중국어(번체)판(`*-en`·`*-ja`·`*-zh-TW`)도 같다 — 한국어판이 기본 주소이고 번역본은 한국어판이 우선한다.
 //
 // ⚠️ Capacitor(네이티브 앱)는 capacitor.config.json의 webDir("dist")을 읽는다 — 즉
 // `vite build` 산출물이다. 루트 index.html은 Vite 번들링 전 원본(/src/app/main.tsx를
@@ -20,7 +20,7 @@ if (!fs.existsSync(publicDir)) {
     fs.mkdirSync(publicDir, { recursive: true });
 }
 
-const STATIC_ASSETS = ['manifest.json', 'sw.js', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-1024.png', 'privacy.html', 'terms.html'];
+const STATIC_ASSETS = ['manifest.json', 'sw.js', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-1024.png', 'privacy.html', 'terms.html', 'privacy-en.html', 'terms-en.html', 'privacy-ja.html', 'terms-ja.html', 'privacy-zh-TW.html', 'terms-zh-TW.html'];
 
 console.log('📦 Syncing Triptic static assets → public/ ...');
 
