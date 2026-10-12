@@ -6,10 +6,16 @@
  * 그 권한은 DB 함수 claim_airport_refresh가 한 번에 한 요청에게만 준다(0078) — 보는 사람이 많아도 3분에 출발·도착 각 1회,
  * 하루 상한(900회)을 넘으면 더 부르지 않는다(개발 계정 1,000회/일).
  *
+ * 정기 실행(0115): 한국 06:00~24:00에는 DB(pg_cron)가 5분마다 이 함수를 x-purge-secret과 함께 불러 값을 미리 갱신해 둔다.
+ * 그 시간대에 사람이 부르면 7분이 넘었을 때만 직접 갱신한다(정기 실행이 멈췄을 때의 안전망) — 평소엔 저장된 값을 바로 받는다.
+ * 새벽(00~06시)은 예전 방식 그대로(요청이 있을 때 3분이 지났으면 그 요청이 갱신). 정책 계산: refreshPolicy.ts.
+ *
  * 설정(한 번만): supabase secrets set INCHEON_API_KEY=<data.go.kr 일반 인증키>
  * 외부 호출이 실패하면 이전 값을 그대로 둔다(그 방향만) — 응답의 stale=true로 알린다.
  */
 import { createClient } from '@supabase/supabase-js';
+import { refreshAfterMs } from '../../../src/features/home/airport/refreshPolicy.ts';
+import { secretMatches } from '../purge-archive/paths.ts';
 import {
   boardWindow,
   extractItems,
@@ -24,7 +30,6 @@ const OPERATION: Record<BoardDirection, string> = {
   departures: 'getPassengerDeparturesOdp',
   arrivals: 'getPassengerArrivalsOdp',
 };
-const MIN_AGE_MS = 3 * 60 * 1000;
 const FETCH_TIMEOUT_MS = 8000;
 
 function corsHeaders(origin: string | null) {
@@ -80,13 +85,17 @@ Deno.serve(async (req) => {
   }
 
   const apiKey = Deno.env.get('INCHEON_API_KEY');
-  const age = board.fetched_at ? Date.now() - new Date(board.fetched_at).getTime() : Infinity;
+  const now = new Date();
+  // 정기 실행(pg_cron)이 부른 것인가 — 서버 안에서만 아는 비밀값이 맞을 때만
+  const fromCron = secretMatches(req.headers.get('x-purge-secret'), Deno.env.get('PURGE_SECRET'));
+  const refreshAfter = refreshAfterMs(now, fromCron);
+  const age = board.fetched_at ? now.getTime() - new Date(board.fetched_at).getTime() : Infinity;
   let current = board;
-  let stale = age >= MIN_AGE_MS;
+  let stale = age >= refreshAfter;
 
   if (stale && apiKey) {
-    // 갱신 권한(3분에 한 번·하루 상한) — 못 받으면 마지막 값을 그대로 돌려준다
-    const { data: claimed } = await admin.rpc('claim_airport_refresh');
+    // 갱신 권한(마지막 시도로부터 refreshAfter가 지났고 하루 상한 안일 때만) — 못 받으면 마지막 값을 그대로 돌려준다
+    const { data: claimed } = await admin.rpc('claim_airport_refresh', { p_min_age: `${Math.round(refreshAfter / 60_000)} minutes` });
     if (claimed === true) {
       const window = boardWindow();
       const [dep, arr] = await Promise.allSettled([
