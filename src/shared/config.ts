@@ -1,6 +1,9 @@
 /** 고객 문의 메일 — privacy.html/terms.html에 적힌 연락처와 같아야 한다 */
 export const CONTACT_EMAIL = 'admin@triptic.my';
 
+/** 운영 사이트 주소 — 앱(iOS 셸)에서 약관·개인정보처리방침 같은 정적 페이지를 인앱 브라우저로 열 때 쓴다 */
+export const SITE_ORIGIN = 'https://triptic.my';
+
 /** 제휴(어필리에이트) 링크. 바꿀 때는 여기만 */
 export const AFFILIATE_LINKS = {
   /** Klook 링크를 못 받았을 때 대신 여는 주소 — 제휴 연결 전이라 Klook 첫 화면(예전 트래블페이아웃 딜 링크는 2026-10-04에 뺐다) */

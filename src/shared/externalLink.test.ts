@@ -6,7 +6,7 @@ vi.mock('@capacitor/browser', () => ({ Browser: { open } }));
 let native = true;
 vi.mock('./platform', () => ({ isNativeApp: () => native }));
 
-import { installExternalLinkHandler, isOutboundHttp, openExternalUrl } from './externalLink';
+import { installExternalLinkHandler, isOutboundHttp, openExternalUrl, staticPageUrl } from './externalLink';
 
 function clickLink(attrs: Record<string, string>): MouseEvent {
   const a = document.createElement('a');
@@ -26,6 +26,20 @@ describe('외부 링크 — 앱에서는 인앱 브라우저', () => {
     uninstall = installExternalLinkHandler();
   });
   afterEach(() => uninstall());
+
+  it('앱에서 약관·개인정보처리방침(/terms.html 등) 링크는 운영 사이트 주소를 인앱 브라우저로 연다 — 눌러도 반응이 없던 문제', async () => {
+    const ev = clickLink({ href: '/terms.html', target: '_blank' });
+    expect(ev.defaultPrevented).toBe(true);
+    await vi.waitFor(() => expect(open).toHaveBeenCalledWith({ url: 'https://triptic.my/terms.html' }));
+    clickLink({ href: '/privacy.html', target: '_blank' });
+    await vi.waitFor(() => expect(open).toHaveBeenCalledWith({ url: 'https://triptic.my/privacy.html' }));
+  });
+
+  it('앱 화면 경로(/plan 등)는 건드리지 않는다', () => {
+    expect(clickLink({ href: '/plan/abc' }).defaultPrevented).toBe(false);
+    expect(staticPageUrl('/plan/abc')).toBeNull();
+    expect(staticPageUrl('/terms.html#x')).toBe('https://triptic.my/terms.html#x');
+  });
 
   it('앱에서 target=_blank 바깥 주소는 인앱 브라우저로 열고 기본 동작은 막는다', async () => {
     const ev = clickLink({ href: 'https://example.com/book?x=1', target: '_blank' });
