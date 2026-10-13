@@ -16,7 +16,7 @@ Apple이 요구한 것: ① 실기기 화면 녹화 ② 앱 목적·대상 ③ �
 ```
 Hello App Review team, thank you for the feedback. Here is the information you requested. Three screen recordings captured on a physical iPhone (launching the app, account registration, login with e-mail and Sign in with Apple, user-generated content with reporting/blocking, and account deletion) are attached.
 
-1) Screen recordings (3 files, captured on a physical iPhone; each starts from launching the app)
+1) Screen recordings (3 files, captured on a physical iPhone; each starts at the app's first screen)
 - video1_full_flow.mp4 (4:33): e-mail account registration with e-mail confirmation, creating a trip, posting in the community with a photo, creating a companion recruitment post, flight search and the booking link opening in the in-app browser, notification settings, blocking a user from a post's menu, and account deletion (done with a separate test account).
 - video2_demo_login.mp4 (0:53): login with the demo account provided in App Review Information, push notification permission, home, the airport tab and settings.
 - video3_apple_login_report.mp4 (0:47): Sign in with Apple, then reporting another user's post (reason selection and confirmation).
