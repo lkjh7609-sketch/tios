@@ -49,6 +49,7 @@
 4. **App Store Connect 개인정보처리방침 URL**을 언어별로 — 영어(호주) `https://triptic.my/privacy-en.html`, 일본어 `…/privacy-ja.html`, 중국어(번체) `…/privacy-zh-TW.html`(한국어는 `…/privacy.html`). 약관 번역본의 법적 효력은 한국어 원문, 번역 검수 권장.
 5. **1.0.1**(main에서): 앱 약관 링크 수정(#23)·번역 연결(#26)·한도 무제한 화면 처리(#22)가 이미 main에 있다 — 새 빌드로 올릴 때 위 3·4번과 함께.
 6. **위젯 + 애플워치**(바로 위 '보류 중' 항목).
+7. **Apple 로그인 계정 삭제 시 Apple 연결(토큰) 해제** — Apple 규칙 5.1.1(v): Sign in with Apple로 가입한 계정을 삭제하면 Apple 쪽 토큰도 revoke해야 한다. 지금 `api/deleteAccount.js`는 우리 데이터만 지우고 해제하지 않는다(삭제 뒤에도 기기의 'Apple로 로그인 중인 앱' 목록에 남을 수 있음). Supabase OAuth로 Apple을 처리해 Apple refresh token을 받는 방법부터 확인이 필요하다(쉽지 않을 수 있음). 1.0.1 이후.
 
 ### 출시 체크리스트 (2026-10-12)
 - [x] 항공 MVP 구조 결정(Ignav + Trip.com/Kiwi.com) · 프로 없이 출시 · 한국+호주
