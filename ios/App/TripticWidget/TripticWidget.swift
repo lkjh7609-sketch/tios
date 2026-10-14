@@ -263,6 +263,7 @@ struct TripWidgetView: View {
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .layoutPriority(1)   // 다음 장소 쪽에 폭을 조금 더 — 이름과 '출발 · N분 후'가 덜 접히게
                 }
             } else {
                 EmptyBlock(entry: entry)
