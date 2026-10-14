@@ -8,6 +8,7 @@ import UIKit
 // 위젯은 GPS를 쓰지 않는다(그건 애플워치). 앱이 앱 그룹에 저장해 둔 일정(TripShareKeys.payloadKey)만 읽는다.
 
 private let brand = Color(red: 0.18, green: 0.31, blue: 0.31)
+private let urgentColor = Color(red: 1.0, green: 0.55, blue: 0.0)
 
 struct TripEntry: TimelineEntry {
     let date: Date
@@ -96,11 +97,17 @@ private struct NextBlock: View {
     let stop: NextStop
     var compact = false
 
+    /// 출발까지 20분 이하(이미 늦은 것 포함)면 '곧 출발'로 주황 강조 — 워치와 같은 기준(TripLogic.urgentMinutes)
+    private var isUrgent: Bool {
+        if let m = stop.minutesUntilDeparture { return m <= TripLogic.urgentMinutes }
+        return false
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(TripStrings.string("next", entry.lang))
                 .font(.caption2.weight(.semibold))
-                .foregroundColor(brand)
+                .foregroundColor(isUrgent ? urgentColor : brand)
             Text(place.n)
                 .font(compact ? .subheadline.weight(.bold) : .headline.weight(.bold))
                 .lineLimit(2)
@@ -108,6 +115,7 @@ private struct NextBlock: View {
             if let line = departText(stop, now: entry.date, lang: entry.lang) {
                 Text(line)
                     .font(.caption.weight(.semibold))
+                    .foregroundColor(isUrgent ? urgentColor : .primary)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
             } else if let t = place.t {
