@@ -206,7 +206,22 @@ export function AirportBoard({ desktop, standalone = false, airport = 'icn' }: {
 
   // 아직 받는 중이거나 한 번도 받은 적이 없으면 섹션을 그리지 않는다(홈에 빈 틀을 남기지 않는다)
   if (isLoading)
-    return (
+    // 공항 화면 안에서는 '불러오는 중'이라고 말해 주고 전광판 모양의 뼈대 줄을 보여 준다(빈 화면처럼 보이지 않게). 홈의 한 섹션일 땐 조용히 자리만 잡는다
+    return standalone ? (
+      <section className={shared.section} aria-labelledby="home-airport-title" aria-busy="true">
+        <h2 id="home-airport-title" className={shared.title}>
+          {title}
+        </h2>
+        <p className={styles.loadingNote} role="status">
+          {t('airport.loading')}
+        </p>
+        <div className={styles.skeletonRows} aria-hidden="true">
+          {Array.from({ length: 6 }, (_, i) => (
+            <span key={i} className={styles.skeletonRow} />
+          ))}
+        </div>
+      </section>
+    ) : (
       <section className={shared.section} aria-hidden="true">
         <div className={styles.skeleton} />
       </section>

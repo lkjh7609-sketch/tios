@@ -249,7 +249,12 @@ export function ParkingMap({ airport }: { airport: string }) {
       </div>
 
       {isLoading ? (
-        <div className={styles.skeleton} aria-hidden="true" />
+        <>
+          <p className={styles.loadingNote} role="status">
+            {t('airportPage.parking.loading')}
+          </p>
+          <div className={styles.skeleton} aria-hidden="true" />
+        </>
       ) : airportLots.length === 0 ? (
         <p className={styles.empty}>{t('airportPage.parking.empty')}</p>
       ) : (

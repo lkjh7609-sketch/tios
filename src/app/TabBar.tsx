@@ -1,8 +1,10 @@
 import React from 'react';
 import { CircleUser, Home, LogIn, Luggage, PlaneTakeoff, Users } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { isHomeSectionPath } from '@/features/home/homeSections';
+import { prefetchAirportBoard } from '@/features/home/airport/useAirportBoard';
 import styles from './TabBar.module.css';
 
 interface TabDef {
@@ -35,6 +37,7 @@ function isTabActive(pathname: string, to: string): boolean {
 export function TabBar({ guest = false }: { guest?: boolean }) {
   const { pathname } = useLocation();
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   return (
     <nav className={`${styles.tabBar} tab-bar`} role="tablist" aria-label={t('nav.primary')}>
@@ -56,6 +59,8 @@ export function TabBar({ guest = false }: { guest?: boolean }) {
             role="tab"
             aria-selected={active}
             className={`${styles.tab} ${active ? styles.active : ''}`}
+            // 공항 탭은 누르는 순간(손가락이 닿을 때) 전광판을 미리 받아 둔다
+            onPointerDown={tab.to === '/airports' ? () => prefetchAirportBoard(queryClient) : undefined}
           >
             <span className={styles.icon} aria-hidden="true">
               {tab.icon}

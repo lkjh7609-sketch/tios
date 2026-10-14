@@ -677,7 +677,8 @@
         "cargo": "Cargo terminal",
         "rentalCar": "Rental car shuttle",
         "tower": "Control tower"
-      }
+      },
+      "loading": "Loading parking info…"
     }
   },
   "airport": {
@@ -760,6 +761,7 @@
       "prev": "Previous page",
       "next": "Next page",
       "goTo": "Page {{page}}"
-    }
+    },
+    "loading": "Loading live airport info…"
   }
 }

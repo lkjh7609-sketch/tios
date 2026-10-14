@@ -248,6 +248,17 @@ describe('AirportBoard', () => {
     expect(screen.queryByRole('heading')).not.toBeInTheDocument();
   });
 
+  it('공항 화면 안에서 받는 중이면 "불러오는 중" 문구와 뼈대 줄을 보여 준다(빈 화면처럼 보이지 않게) — 홈 섹션에서는 조용히', () => {
+    state.data = undefined;
+    state.isLoading = true;
+    const { container, rerender } = render(<AirportBoard desktop standalone />);
+    expect(screen.getByRole('status')).toHaveTextContent('공항 실시간 정보를 불러오는 중이에요');
+    expect(screen.getByRole('heading')).toBeInTheDocument();
+    expect(container.querySelectorAll('[aria-hidden="true"] > span')).toHaveLength(6);
+    rerender(<AirportBoard desktop />);
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
   it('오래 갱신하지 못했으면 마지막으로 받은 시각과 함께 안내한다', () => {
     setBoard({ fetchedAt: new Date(Date.now() - 40 * 60_000).toISOString() });
     render(<AirportBoard desktop />);
