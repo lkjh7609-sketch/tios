@@ -56,6 +56,9 @@ check(ns3.place.n == "구로몬 시장" && ns3.travelMinutes == 0 && ns3.minutes
 let ns4 = TripLogic.nextStop(places: osaka, currentIndex: 1, fromLat: 34.7053, fromLng: 135.4900, now: at("2026-11-15 12:55"), calendar: cal)!
 check(ns4.minutesUntilDeparture! < 0, "늦음 \(ns4.minutesUntilDeparture!)분")
 
+check(TripLogic.urgentMinutes == 20, "곧 출발 기준 20분")
+check(TripStrings.format("leaveIn", "en", TripStrings.untilText(minutes: 42, "en")) == "Leave in 42 min", "영어 출발 문구")
+check(TripStrings.format("dDay", "ja", 3) == "あと3日" && TripStrings.format("dDay", "ko", 3) == "D-3", "D-day 문구")
 // 문구·JSON
 check(TripStrings.resolve("zh-Hant-TW") == "zh-TW" && TripStrings.resolve("ja-JP") == "ja" && TripStrings.resolve("fr") == "en", "언어 정규화")
 check(TripStrings.format("leaveBy", "ja", "13:05") == "13:05 出発", "일본어 출발")
@@ -64,5 +67,5 @@ check(TripStrings.distanceText(240) == "240m" && TripStrings.distanceText(1530) 
 let json = String(data: try! JSONEncoder().encode(payload), encoding: .utf8)!
 check(TripShareKeys.decode(json) == payload, "JSON 왕복")
 check(TripShareKeys.decode("{bad") == nil, "깨진 JSON nil")
-for k in ["now","nowTime","before","next","last","leaveBy","leaveNow","inMin","inHourMin","late","travel","away","dayOf","noTrip","upcoming","upcomingToday","openApp","locating","needLocation","widgetName","widgetDesc"] { for l in ["ko","en","ja","zh-TW"] { check(TripStrings.string(k, l) != k, "문구 \(k)/\(l)") } }
+for k in ["now","nowTime","before","next","last","leaveBy","leaveNow","inMin","inHourMin","late","travel","away","dayOf","noTrip","upcoming","upcomingToday","openApp","locating","needLocation","widgetName","widgetDesc","leaveIn","allowForNearest","startsToday","dDay"] { for l in ["ko","en","ja","zh-TW"] { check(TripStrings.string(k, l) != k, "문구 \(k)/\(l)") } }
 print(fails == 0 ? "ALL PASS" : "\(fails) FAILED"); exit(fails == 0 ? 0 : 1)

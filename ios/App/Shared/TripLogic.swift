@@ -26,6 +26,9 @@ public struct NextStop: Equatable {
 }
 
 public enum TripLogic {
+    /// 출발까지 이 분 이하로 남으면 '곧 출발'로 강조한다(주황) — 사용자 결정 2026-10-14
+    public static let urgentMinutes = 20
+
     // MARK: 날짜
 
     static func ymd(_ date: Date, _ cal: Calendar) -> String {

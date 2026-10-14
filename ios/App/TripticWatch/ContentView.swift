@@ -1,91 +1,157 @@
 import SwiftUI
 
 private let brand = Color(red: 0.40, green: 0.75, blue: 0.70)
+private let urgent = Color(red: 1.0, green: 0.62, blue: 0.04)
 
+/// 시안 C(2026-10-14 확정): 한 화면에 하나씩 크게 — 1쪽 '현재 위치', 2쪽 '다음 장소·출발 시각'. 위아래로 밀거나(watchOS 10+ 디지털 크라운) 옆으로 넘긴다(watchOS 9).
+/// 곧 출발(20분 이하)은 주황. 위치를 못 잡으면 시각 기준으로 대신 안내한다.
 struct ContentView: View {
     @ObservedObject var model: WatchModel
+    @State private var page = 0
 
     var body: some View {
         // 30초마다 다시 그려서 '몇 분 후 출발'을 새로 계산한다
         TimelineView(.periodic(from: Date(), by: 30)) { context in
-            ScrollView {
-                VStack(alignment: .leading, spacing: 8) {
-                    body(now: context.date)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
+            content(now: context.date)
         }
     }
 
     @ViewBuilder
-    private func body(now: Date) -> some View {
+    private func content(now: Date) -> some View {
         let lang = model.lang
         switch model.todayState {
         case .active(let plan):
-            Text(TripStrings.format("dayOf", lang, plan.day, plan.totalDays) + " · " + plan.tripTitle)
-                .font(.caption2)
-                .foregroundColor(.secondary)
-                .lineLimit(1)
-            hereBlock(plan: plan, lang: lang)
-            Divider()
-            nextBlock(plan: plan, lang: lang, now: now)
+            pager {
+                hereScreen(plan: plan, lang: lang, now: now).tag(0)
+                nextScreen(plan: plan, lang: lang, now: now).tag(1)
+            }
         case .upcoming(let title, let days):
-            Text(days == 0 ? TripStrings.format("upcomingToday", lang, title) : TripStrings.format("upcoming", lang, title, days))
-                .font(.headline)
-            Text(TripStrings.string("openApp", lang)).font(.caption2).foregroundColor(.secondary)
+            VStack(spacing: 6) {
+                Text(title).font(.footnote.weight(.semibold)).foregroundColor(brand).lineLimit(2).minimumScaleFactor(0.8)
+                Text(days == 0 ? TripStrings.string("startsToday", lang) : TripStrings.format("dDay", lang, days))
+                    .font(.system(size: 30, weight: .heavy, design: .rounded))
+                    .minimumScaleFactor(0.7)
+                    .multilineTextAlignment(.center)
+                Text(TripStrings.string("openApp", lang)).font(.caption2).foregroundColor(.secondary).multilineTextAlignment(.center)
+            }
+            .padding(.horizontal, 6)
         case .none:
-            Text(TripStrings.string("noTrip", lang)).font(.headline)
-            if model.payload.trips.isEmpty {
-                Text(TripStrings.string("openApp", lang)).font(.caption2).foregroundColor(.secondary)
+            VStack(spacing: 6) {
+                Image(systemName: "calendar").font(.title2).foregroundColor(brand)
+                Text(TripStrings.string("noTrip", lang)).font(.headline).multilineTextAlignment(.center)
+                if model.payload.trips.isEmpty {
+                    Text(TripStrings.string("openApp", lang)).font(.caption2).foregroundColor(.secondary).multilineTextAlignment(.center)
+                }
             }
+            .padding(.horizontal, 6)
         }
     }
 
+    /// watchOS 10+는 위아래로 넘기는 세로 페이지(디지털 크라운), 9는 옆으로 넘기는 페이지
     @ViewBuilder
-    private func hereBlock(plan: ActivePlan, lang: String) -> some View {
-        Text(TripStrings.string("now", lang))
-            .font(.caption2.weight(.semibold))
-            .foregroundColor(brand)
-        if let here = model.here(in: plan), here.index < plan.places.count {
-            Text(plan.places[here.index].n)
-                .font(.headline)
-                .lineLimit(3)
-            Text(TripStrings.format("away", lang, TripStrings.distanceText(here.meters)))
-                .font(.caption2)
-                .foregroundColor(.secondary)
-        } else if model.locationDenied {
-            Text(TripStrings.string("needLocation", lang)).font(.footnote)
+    private func pager<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        if #available(watchOS 10.0, *) {
+            TabView(selection: $page) { content() }.tabViewStyle(.verticalPage)
         } else {
-            Text(TripStrings.string("locating", lang)).font(.footnote).foregroundColor(.secondary)
+            TabView(selection: $page) { content() }.tabViewStyle(.page)
         }
     }
 
-    @ViewBuilder
-    private func nextBlock(plan: ActivePlan, lang: String, now: Date) -> some View {
-        Text(TripStrings.string("next", lang))
-            .font(.caption2.weight(.semibold))
-            .foregroundColor(brand)
-        if let stop = model.next(in: plan, now: now) {
-            Text(stop.place.n)
-                .font(.headline)
-                .lineLimit(3)
-            if let at = stop.departAt, let minutes = stop.minutesUntilDeparture {
-                Text(TripStrings.format("leaveBy", lang, hm(at)))
-                    .font(.body.weight(.bold))
-                Text(minutes < 0 ? TripStrings.string("late", lang) : TripStrings.untilText(minutes: minutes, lang))
-                    .font(.caption)
-                    .foregroundColor(minutes <= 10 ? .orange : .secondary)
-            } else if let t = stop.place.t {
-                Text(t).font(.body.weight(.bold))
+    // MARK: 1쪽 — 현재 위치
+
+    private func header(plan: ActivePlan, lang: String) -> some View {
+        Text(TripStrings.format("dayOf", lang, plan.day, plan.totalDays) + " · " + plan.tripTitle)
+            .font(.caption2)
+            .foregroundColor(.secondary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+    }
+
+    private func hereScreen(plan: ActivePlan, lang: String, now: Date) -> some View {
+        let state = model.hereState(in: plan, now: now)
+        return VStack(alignment: .leading, spacing: 4) {
+            header(plan: plan, lang: lang)
+            Spacer(minLength: 0)
+            switch state {
+            case .gps(let index, let meters):
+                Label(TripStrings.string("now", lang), systemImage: "mappin.and.ellipse")
+                    .font(.footnote.weight(.semibold)).foregroundColor(brand)
+                placeName(plan.places[min(index, plan.places.count - 1)].n)
+                Text(TripStrings.format("away", lang, TripStrings.distanceText(meters)))
+                    .font(.footnote.weight(.bold)).foregroundColor(brand)
+            case .timed(let index):
+                Label(TripStrings.string("nowTime", lang), systemImage: "clock")
+                    .font(.footnote.weight(.semibold)).foregroundColor(brand)
+                if index >= 0, index < plan.places.count {
+                    placeName(plan.places[index].n)
+                    if let t = plan.places[index].t { Text(t).font(.footnote.weight(.bold)).foregroundColor(brand) }
+                } else {
+                    Text(TripStrings.string("before", lang)).font(.headline)
+                }
+                // 위치를 못 잡은 이유 — 시각 기준으로 대신 안내 중임을 알려 준다
+                Text(TripStrings.string(model.locationDenied ? "allowForNearest" : "locating", lang))
+                    .font(.caption2).foregroundColor(.secondary).lineLimit(2).minimumScaleFactor(0.8)
             }
-            if stop.travelMinutes > 0 {
-                Text(TripStrings.format("travel", lang, stop.travelMinutes))
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-            }
-        } else {
-            Text(TripStrings.string("last", lang)).font(.footnote)
+            Spacer(minLength: 0)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 4)
+    }
+
+    private func placeName(_ name: String) -> some View {
+        Text(name)
+            .font(.title3.weight(.bold))
+            .lineLimit(2)
+            .minimumScaleFactor(0.75)
+    }
+
+    // MARK: 2쪽 — 다음 장소·출발 시각
+
+    private func nextScreen(plan: ActivePlan, lang: String, now: Date) -> some View {
+        let stop = model.next(in: plan, now: now)
+        let tint: Color = {
+            if let m = stop?.minutesUntilDeparture, m <= TripLogic.urgentMinutes { return urgent }
+            return brand
+        }()
+        return VStack(alignment: .leading, spacing: 4) {
+            header(plan: plan, lang: lang)
+            Spacer(minLength: 0)
+            if let stop = stop {
+                Label(TripStrings.string("next", lang), systemImage: "arrow.right")
+                    .font(.footnote.weight(.semibold)).foregroundColor(tint)
+                Text(stop.place.n)
+                    .font(.footnote.weight(.semibold))
+                    .lineLimit(2).minimumScaleFactor(0.8)
+                if let at = stop.departAt, let minutes = stop.minutesUntilDeparture {
+                    Text(hm(at))
+                        .font(.system(size: 38, weight: .heavy, design: .rounded))
+                        .foregroundColor(minutes <= TripLogic.urgentMinutes ? urgent : .primary)
+                        .minimumScaleFactor(0.8)
+                    Text(departLine(minutes: minutes, lang: lang))
+                        .font(.footnote.weight(.bold))
+                        .foregroundColor(minutes <= TripLogic.urgentMinutes ? urgent : .primary)
+                        .lineLimit(2).minimumScaleFactor(0.8)
+                } else if let t = stop.place.t {
+                    Text(t).font(.system(size: 38, weight: .heavy, design: .rounded)).minimumScaleFactor(0.8)
+                }
+                if stop.travelMinutes > 0 {
+                    Text(TripStrings.format("travel", lang, stop.travelMinutes))
+                        .font(.caption2).foregroundColor(.secondary)
+                }
+            } else {
+                Text(TripStrings.string("last", lang)).font(.headline)
+            }
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 4)
+    }
+
+    /// "출발 · 42분 후" / 0분 이하 "지금 출발" / 이미 늦음 "서둘러요"
+    private func departLine(minutes: Int, lang: String) -> String {
+        if minutes < 0 { return TripStrings.string("late", lang) }
+        if minutes == 0 { return TripStrings.string("leaveNow", lang) }
+        return TripStrings.format("leaveIn", lang, TripStrings.untilText(minutes: minutes, lang))
     }
 
     private func hm(_ date: Date) -> String {

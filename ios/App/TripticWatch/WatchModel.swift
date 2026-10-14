@@ -77,6 +77,17 @@ final class WatchModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         return TripLogic.nearest(lat: loc.coordinate.latitude, lng: loc.coordinate.longitude, in: plan.places)
     }
 
+    /// 1쪽(현재 위치)에 보여 줄 것 — GPS를 잡았으면 가장 가까운 장소(거리 포함), 못 잡았으면 시각 기준(지금 일정 / 첫 일정 전)
+    enum HereState: Equatable {
+        case gps(index: Int, meters: Double)
+        case timed(index: Int)   // -1 = 첫 일정 전
+    }
+
+    func hereState(in plan: ActivePlan, now: Date) -> HereState {
+        if let h = here(in: plan) { return .gps(index: h.index, meters: h.meters) }
+        return .timed(index: TripLogic.currentIndexByTime(plan.places, now: now))
+    }
+
     func next(in plan: ActivePlan, now: Date) -> NextStop? {
         if let loc = location, let h = here(in: plan) {
             return TripLogic.nextStop(places: plan.places, currentIndex: h.index,
