@@ -33,7 +33,7 @@
 ## 4. 저장소 / PR 상태
 앱 `lkjh7609-sketch/tios`(`~/Desktop/Dev/triptic-ios`), 웹 `lkjh7609-sketch/Triptic`(`~/Triptic`, triptic.my 배포). **Xcode가 없다 — iOS 빌드는 Codemagic만.**
 
-main에 머지됨: #12–#24, #26–#28, #30(출시 뒤 할 일 문서). 웹: #41–#43(번역 약관, 운영자 이름) 머지·배포됨.
+main에 머지됨: #12–#24, #26–#28, #30, #32(이 문서). 웹: #41–#43(번역 약관, 운영자 이름), **#44(웹 문구 '무료 티어·무료 생성 N회' → '여행 생성 한도', 2026-10-15 머지)** 머지·배포됨.
 
 **열려 있는 것(전부 출시 승인 뒤)**
 | PR/브랜치 | 내용 | 적용 조건 |
@@ -41,14 +41,13 @@ main에 머지됨: #12–#24, #26–#28, #30(출시 뒤 할 일 문서). 웹: #4
 | #25 `app/widget-watch` (초안) | 홈/잠금 위젯 + 애플워치 앱. **한 번도 빌드 안 함** | §6-6 |
 | #29 `airport/incheon-cron` (초안) | 인천 전광판 5분 갱신(KST 06~24) | §6-5 |
 | #31 `airport/loading-ux` (초안) | 공항 로딩 문구·뼈대 줄·탭 누를 때 미리 받기(앱 코드만) | §6-4 |
-| `docs/free-wording` | 스토어 설명 문구 문서 반영 + 이 인수인계 문서 | 문서, 언제든 머지 |
 | `docs/app-review-reply` | 2.1 답장 초안 문서(비밀번호 없음) | 선택 |
 
 ## 5. 알아 둘 함정(요약 — 상세는 CLAUDE.md)
 1. 네이티브 판별은 `isNativePlatform()`(`window.Capacitor` 금지). 2. 약관·방침 원본은 **루트** `terms*.html`/`privacy*.html`(빌드가 public으로 복사). 3. WKWebView는 `target=_blank`를 무시 → 앱에서 약관 링크는 `staticPageUrl`·`externalLink` 사용. 4. Google Maps 키는 교체하지 않기로 결정(다시 묻지 말 것). 5. Apple Developer 사이트·App Group 등록은 사용자 로그인 필요. 6. Apple 로그인 계정 삭제 시 **토큰 폐기 미구현**(5.1.1(v)) — 출시 후 할 일. 7. 자동 모드 분류기가 ASC 입력 JS 등을 거부할 수 있음 — 우회하지 말고 사용자에게 허락을 구한다(이번엔 사용자가 "ASC 설명 수정 허용"이라고 해서 진행).
 
 ## 6. 승인 뒤 순서 (사용자가 "출시됐다"고 하면 바로 시작)
-1. **1.0.1 빌드**(main): 약관 링크 수정(#23)·번역 연결(#26)·한도 무제한 화면 처리(#22)가 이미 main에 있음 → Codemagic 빌드 → TestFlight 확인 → ASC에 새 버전.
+1. **1.0.1 빌드**(main): 약관 링크 수정(#23)·번역 연결(#26)·한도 무제한 화면 처리(#22)가 이미 main에 있음. **추가로 웹 #44와 같은 문구 변경을 앱 번역(`src/locales/{ko,en,ja,zh-TW}`의 `plan.tripCreatedToast`·`plan.errors.reopenLimit`·`common.importLimit`·`settings` 무료 티어 제목)에도 넣어야 한다**(앱은 번역을 빌드에 포함) → Codemagic 빌드 → TestFlight 확인 → ASC에 새 버전.
 2. **스마트 앱 배너**: 웹 `index.html`에 `<meta name="apple-itunes-app" content="app-id=6820429874">`(+`app-argument`) — 웹 저장소 PR.
 3. **ASC 개인정보처리방침 URL 언어별**: en `https://triptic.my/privacy-en.html`, ja `…/privacy-ja.html`, zh-Hant `…/privacy-zh-TW.html`, ko `…/privacy.html`.
 4. **#31 머지**(공항 로딩 개선).
