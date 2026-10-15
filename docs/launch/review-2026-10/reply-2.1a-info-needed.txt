@@ -1,0 +1,29 @@
+Hello App Review team, thank you for the feedback. Here is the information requested. Three screen recordings captured on a physical iPhone are attached.
+
+1) Screen recordings (each starts at the app's first screen)
+- video1_full_flow.mp4 (4:33): e-mail account registration with e-mail confirmation, creating a trip, posting in the community with a photo, creating a companion recruitment post, flight search and booking link in the in-app browser, notification settings, blocking a user from a post's menu, and account deletion (done with a separate test account).
+- video2_demo_login.mp4 (0:53): login with the demo account provided in App Review Information, push permission, home, airport tab, settings.
+- video3_apple_login_report.mp4 (0:47): Sign in with Apple, then reporting another user's post (reason selection and confirmation).
+The app has no paid content, subscriptions or in-app purchases.
+
+2) Purpose and target audience
+Triptic is a free travel-planning app for independent travelers (mainly adults in their 20s-40s in Korea, Japan, Taiwan and Australia). It solves the problem of travel plans scattered across notes, screenshots, chats and booking e-mails: users build a day-by-day itinerary on a map, import flight/hotel booking confirmations (OCR), co-edit trips with friends, search flights and hotels, find travel companions, and read/write short trip stories by destination.
+
+3) How to use the main features
+- Sign in with the demo e-mail account (apple.review@triptic.my; password is in App Review Information). Sign in with Apple, Google, Kakao and e-mail sign-up are also supported.
+- My trips: "New trip", then add places per day, see the route on the map, add hotel, flights and expenses.
+- Community: destination boards and a free board (posts, comments, likes). Companion tab: recruitment posts, applications, group chat after matching.
+- Flights tab: fare list; "Book" opens the partner site in an in-app browser. Hotels and tours also open partner sites in the in-app browser.
+- Settings (My tab): notifications, language (Korean/English/Japanese/Traditional Chinese), blocked users, and "Delete account" at the bottom.
+- User-generated content safeguards: every post, comment and companion listing has a "..." menu with Report and Block. The operator reviews reports within 24 hours and removes objectionable content and abusive users (zero tolerance, see Terms of Service). Contact: admin@triptic.my.
+
+4) External services
+Supabase (authentication, database, storage, edge functions); Vercel and Cloudflare (hosting/CDN); Sign in with Apple, Google Sign-In, Kakao Login; Apple Push Notification service; Apple WeatherKit; Google Maps Platform and Google Cloud Vision (maps, place search, OCR of booking documents); DeepSeek via OpenRouter (AI recommendations and booking-field extraction, sensitive numbers masked before sending); Resend (transactional e-mail); PostHog and Sentry (analytics and crash reports; no advertising identifiers, no tracking); Ignav (flight fares); partner sites in the in-app browser: Agoda, MyRealTrip, Trip.com, Kiwi.com, Klook, Usimsa; Incheon Airport and Korea Airports Corporation public flight-status APIs (data.go.kr).
+
+5) Regional differences
+The app is the same in every region; nothing is removed per country. Differences: (a) interface language follows the user's choice (Korean, English, Japanese, Traditional Chinese); (b) the flight "Book" button opens Trip.com for Korean and Kiwi.com for other languages; (c) the Airport tab shows live boards for Korean airports only; (d) partner offers (tours, SIM cards) vary by partner and language. Available in Korea, Australia, Japan and Taiwan.
+
+6) Regulated industry / protected material
+The app is not in a regulated industry and does not distribute protected third-party material. Prices come from partner APIs and sites; booking and payment happen on the partner's site, not in the app.
+
+Thank you.
