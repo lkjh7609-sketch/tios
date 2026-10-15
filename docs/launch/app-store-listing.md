@@ -49,7 +49,7 @@
 ■ 알림
 출발이 가까워지면 알려 드리고, 내 글에 댓글이 달리거나 동행 신청이 오면 푸시 알림으로 알려 드려요. 알림은 설정에서 묶음별로 끌 수 있어요.
 
-※ 서비스 이용은 무료예요. 일정 만들기에는 무료 이용 한도가 있어요.
+※ 서비스 이용은 무료예요. 결제나 구독 없이 모든 기능을 쓸 수 있어요.
 ※ 항공권·호텔·투어 예약은 제휴 사이트에서 이루어지며, 표시된 가격은 검색 시점의 참고 가격이에요.
 ```
 
@@ -101,7 +101,7 @@ Colour in the countries you've visited and look back at your spending and travel
 NOTIFICATIONS
 Get a heads-up as your trip gets closer, and push notifications for comments, replies and companion requests. Turn them off by group in Settings.
 
-Triptic is free to use. There is a free limit on how many trips you can create.
+Triptic is free to use, with no purchases or subscriptions.
 Flight and hotel bookings are completed on partner sites, and prices shown are reference prices at the time of search.
 ```
 Support/Marketing/Privacy URL은 한국어와 같다. (앱 UI는 영어 지원. 현재 호주 사용자에게 보이는 가격 통화·항공 검색 지역은 한국 기준이므로, 호주는 ‘한국 여행 정보를 보는 영어권 사용자’ 용도로 안내된다.)
@@ -174,6 +174,6 @@ Triptic is a free travel planner. Sign-in options: Sign in with Apple, Google, K
 - **부제**: 일본어 `旅の計画から同行者探しまで` / 중국어(번체) `從行程規劃到尋找旅伴`
 - **프로모션 문구**: 일본어 `航空券・ホテルの検索から旅程づくり、予約書類の自動読み取り、同行者探しまで。旅の準備はTripticひとつで。` / 중국어(번체) `從機票、飯店搜尋到行程規劃、訂位文件自動辨識與尋找旅伴，旅行準備一個 App 就搞定。`
 - **키워드**: 일본어 `旅行,旅行計画,旅程,プランナー,同行者,航空券,ホテル,海外旅行,空港,経費,チェックリスト,韓国旅行` / 중국어(번체) `旅遊,行程規劃,旅行計畫,旅伴,機票,飯店,出國,機場,記帳,清單,社群,韓國旅遊`
-- **설명**: 영어 설명(§3)을 번역한 9개 항목(旅程づくり/規劃行程 … 通知) + 무료 한도·제휴 사이트 안내.
+- **설명**: 영어 설명(§3)을 번역한 9개 항목(旅程づくり/規劃行程 … 通知) + 무료(결제·구독 없음)·제휴 사이트 안내.
 - **지원·마케팅 URL, 개인정보처리방침 URL**은 한국어와 같다(`terms.html`·`triptic.my`·`privacy.html`).
 - **스크린샷**은 한국어 것을 그대로 쓴다(언어별로 따로 올리지 않으면 기본 언어 것이 쓰인다). 일본·대만용으로 현지 화면을 따로 찍으려면 앱을 해당 언어로 바꿔 같은 방식으로 촬영한다.
