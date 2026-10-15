@@ -2,6 +2,10 @@
 
 > 이 저장소를 여는 Claude는 먼저 이 파일을 읽는다. 사용자(이재헌)와 admin·lkjh 두 계정이 같은 저장소를 쓴다(브랜치 `admin/*`, `lkjh/*` → PR → main). 문서는 `docs/updates/4-v1.1.0/changelog.md`(현재 단계 기록)에 날짜별로 쌓는다.
 
+## 🧭 먼저 읽기: 진행 현황
+
+**`docs/launch/STATUS.md`** — 1.0.0 심사 타임라인(2.1 두 번 답변·재제출), 제품 결정, PR 상태, 출시 뒤 순서가 한 파일에 있다. 심사 답장 원문은 `docs/launch/review-2026-10/`.
+
 ## 📱 이 폴더는 앱 전용 복제본 (2026-10-11)
 
 - 경로 `~/Desktop/Dev/triptic-ios`, 원격 `origin` = `lkjh7609-sketch/tios` (웹 저장소 `Triptic`과 **별개**). 웹 운영(triptic.my)은 `~/Triptic`에서 계속한다.

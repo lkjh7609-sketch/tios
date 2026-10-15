@@ -1,0 +1,11 @@
+Hello App Review team, thank you for the question.
+
+Triptic 1.0.0 is completely free. It has no in-app purchases, no subscriptions, no paid features and no paid digital content, and users are never asked to pay or to upgrade. There is nothing to buy inside the app, and no way to pay inside the app.
+
+The sentence you quoted ("The service is free. There is a free usage limit for creating schedules.") in our App Store description was left over from our original plan, which included paid features. We later decided to release the app free of charge, but that sentence was not updated. We apologize for the confusion. We have removed it from the description in all languages. In practice there is no payment-related limit: trip creation is currently unlimited for every user. The only remaining cap is an anti-abuse limit on re-opening an itinerary that was marked as finished, and it cannot be lifted by paying.
+
+Flight, hotel and tour bookings are completed on partner websites in an in-app browser. They are real-world travel services paid for on the partner's site, not digital content sold by our app, and we receive no payment inside the app.
+
+If we add paid features in the future, we will ship them in a later app update using Apple's in-app purchase, and we will update the App Review information accordingly.
+
+Thank you.
