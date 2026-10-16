@@ -21,7 +21,7 @@ struct ContentView: View {
         let lang = model.lang
         switch model.todayState {
         case .active(let plan):
-            pager {
+            pager(header: header(plan: plan, lang: lang)) {
                 hereScreen(plan: plan, lang: lang, now: now).tag(0)
                 nextScreen(plan: plan, lang: lang, now: now).tag(1)
             }
@@ -48,13 +48,26 @@ struct ContentView: View {
     }
 
     /// watchOS 10+는 위아래로 넘기는 세로 페이지(디지털 크라운), 9는 옆으로 넘기는 페이지
+    /// 10+에서는 머리글('1일차 / 11 · 여행 이름')을 맨 위 시계와 같은 줄(툴바 왼쪽)에 둔다 — 2026-10-17 실기기 확인 후 사용자 요청
     @ViewBuilder
-    private func pager<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+    private func pager<Header: View, Content: View>(header: Header, @ViewBuilder _ content: () -> Content) -> some View {
         if #available(watchOS 10.0, *) {
-            TabView(selection: $page) { content() }.tabViewStyle(.verticalPage)
+            NavigationStack {
+                TabView(selection: $page) { content() }
+                    .tabViewStyle(.verticalPage)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) { header }
+                    }
+            }
         } else {
             TabView(selection: $page) { content() }.tabViewStyle(.page)
         }
+    }
+
+    /// 머리글을 툴바(시계 줄)에 두는가 — watchOS 10+. 9는 본문 맨 위에 그대로 둔다
+    private var headerInToolbar: Bool {
+        if #available(watchOS 10.0, *) { return true }
+        return false
     }
 
     // MARK: 1쪽 — 현재 위치
@@ -70,8 +83,7 @@ struct ContentView: View {
     private func hereScreen(plan: ActivePlan, lang: String, now: Date) -> some View {
         let state = model.hereState(in: plan, now: now)
         return VStack(alignment: .leading, spacing: 4) {
-            header(plan: plan, lang: lang)
-            Spacer(minLength: 0)
+            if !headerInToolbar { header(plan: plan, lang: lang) }
             switch state {
             case .gps(let index, let meters):
                 Label(TripStrings.string("now", lang), systemImage: "mappin.and.ellipse")
@@ -114,8 +126,7 @@ struct ContentView: View {
             return brand
         }()
         return VStack(alignment: .leading, spacing: 4) {
-            header(plan: plan, lang: lang)
-            Spacer(minLength: 0)
+            if !headerInToolbar { header(plan: plan, lang: lang) }
             if let stop = stop {
                 Label(TripStrings.string("next", lang), systemImage: "arrow.right")
                     .font(.footnote.weight(.semibold)).foregroundColor(tint)
