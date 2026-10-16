@@ -67,5 +67,5 @@ check(TripStrings.distanceText(240) == "240m" && TripStrings.distanceText(1530) 
 let json = String(data: try! JSONEncoder().encode(payload), encoding: .utf8)!
 check(TripShareKeys.decode(json) == payload, "JSON 왕복")
 check(TripShareKeys.decode("{bad") == nil, "깨진 JSON nil")
-for k in ["now","nowTime","before","next","last","leaveBy","leaveNow","inMin","inHourMin","late","travel","away","dayOf","noTrip","upcoming","upcomingToday","openApp","locating","needLocation","widgetName","widgetDesc","leaveIn","allowForNearest","startsToday","dDay"] { for l in ["ko","en","ja","zh-TW"] { check(TripStrings.string(k, l) != k, "문구 \(k)/\(l)") } }
+for k in ["now","nowTime","before","next","last","leaveBy","leaveNow","inMin","inHourMin","late","travel","away","dayOf","day","noTrip","upcoming","upcomingToday","openApp","locating","needLocation","widgetName","widgetDesc","leaveIn","allowForNearest","startsToday","dDay"] { for l in ["ko","en","ja","zh-TW"] { check(TripStrings.string(k, l) != k, "문구 \(k)/\(l)") } }
 print(fails == 0 ? "ALL PASS" : "\(fails) FAILED"); exit(fails == 0 ? 0 : 1)

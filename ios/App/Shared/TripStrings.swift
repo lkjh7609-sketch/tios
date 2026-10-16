@@ -35,6 +35,7 @@ public enum TripStrings {
         "travel": ["ko": "이동 약 %d분", "en": "~%d min travel", "ja": "移動 約%d分", "zh-TW": "移動約 %d 分鐘"],
         "away": ["ko": "%@ 떨어짐", "en": "%@ away", "ja": "%@先", "zh-TW": "距離 %@"],
         "dayOf": ["ko": "%d일차 / %d", "en": "Day %d of %d", "ja": "%d日目 / %d", "zh-TW": "第 %d 天 / %d"],
+        "day": ["ko": "%d일차", "en": "Day %d", "ja": "%d日目", "zh-TW": "第 %d 天"],
         "noTrip": ["ko": "오늘은 일정이 없어요", "en": "No itinerary today", "ja": "今日の予定はありません", "zh-TW": "今天沒有行程"],
         "upcoming": ["ko": "%@ · D-%d", "en": "%@ · in %d days", "ja": "%@ · あと%d日", "zh-TW": "%@ · 還有 %d 天"],
         "upcomingToday": ["ko": "%@ · 오늘 출발", "en": "%@ · starts today", "ja": "%@ · 今日出発", "zh-TW": "%@ · 今天出發"],
