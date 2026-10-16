@@ -4,7 +4,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '@/shared/hooks/useSession';
 import { useProfile, useUpdateProfile } from '@/shared/hooks/useProfile';
-import { ProBadge } from '@/shared/ui/ProBadge';
 import { signOut } from '@/shared/api/authService';
 import { captureError } from '@/shared/monitoring';
 import { Settings, LogOut, Globe, Sun, Moon, Megaphone, BookOpen } from 'lucide-react';
@@ -132,7 +131,6 @@ export function HeaderDesktop() {
               </span>
             )}
             <span className={styles.userName}>{displayName}</span>
-            {profile?.plan === 'pro' ? <ProBadge /> : null}
           </button>
 
           <div className={`${styles.dropdown} ${dropdownOpen ? styles.open : ''}`} role="menu" hidden={!dropdownOpen}>
