@@ -95,7 +95,7 @@ unless watch
     c.build_settings['WATCHOS_DEPLOYMENT_TARGET'] = '9.0'
     c.build_settings['TARGETED_DEVICE_FAMILY'] = '4'
     c.build_settings['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon'
-    c.build_settings['SKIP_INSTALL'] = 'NO'
+    c.build_settings['SKIP_INSTALL'] = 'YES' # 앱 안에 넣는 워치 앱 — NO면 아카이브가 'Generic'이 돼 IPA 내보내기 실패(빌드 #15)
     c.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ['$(inherited)', '@executable_path/Frameworks']
     c.build_settings.delete('IPHONEOS_DEPLOYMENT_TARGET')
   end
