@@ -15,7 +15,7 @@ APP_BUNDLE = 'com.triptic.travel'
 WIDGET_BUNDLE = "#{APP_BUNDLE}.widget"
 WATCH_BUNDLE = "#{APP_BUNDLE}.watchkitapp"
 APP_GROUP = 'group.com.triptic.travel'
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 
 project = Xcodeproj::Project.open(PROJECT_PATH)
 app = project.targets.find { |t| t.name == 'App' } or abort('App 대상이 없다')
