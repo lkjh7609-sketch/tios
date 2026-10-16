@@ -365,6 +365,8 @@ struct LiveTexts {
     var dayLine: String { TripStrings.format("day", lang, attributes.day) }
     var hereLabel: String {
         if state.here == nil { return TripStrings.string("nowTime", lang) }
+        // 앱을 열었을 때 GPS로 잡은 거리가 있으면 '지금 · 350m', 없으면(서버 푸시) '지금 · 14:00'
+        if let m = state.hereMeters { return TripStrings.format("nowAt", lang, TripStrings.distanceText(m)) }
         return state.hereTime.map { TripStrings.format("nowAt", lang, $0) } ?? TripStrings.string("nowTime", lang)
     }
     var hereName: String { state.here ?? TripStrings.string("before", lang) }

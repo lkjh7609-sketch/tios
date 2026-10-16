@@ -5,6 +5,7 @@ import WidgetKit
 #if canImport(ActivityKit)
 import ActivityKit
 #endif
+import CoreLocation
 
 /// 앱이 받은 일정 JSON을 ① 위젯이 읽는 앱 그룹 저장소에 쓰고 ② 애플워치로 보낸다.
 /// 위젯·워치는 앱의 웹 화면과 로그인을 모르므로, 이 JSON(TripModels.swift의 SharedPayload)이 둘이 아는 전부다.
@@ -185,15 +186,28 @@ final class LiveActivityManager {
         let content = ActivityContent(state: TripActivityAttributes.ContentState(step: step, places: today.places), staleDate: nil)
         if let existing = Activity<TripActivityAttributes>.activities.first(where: { $0.attributes.tripId == today.trip.id && $0.attributes.day == today.day }) {
             Task { await existing.update(content) }
+            if appActive { updateWithLocation(existing, places: today.places) }
         } else if appActive {
             // 1-a: 여행 당일 앱을 열면 자동으로 켠다(앱이 앞에 있을 때만 켤 수 있다 — Apple)
             let attributes = TripActivityAttributes(tripId: today.trip.id, title: today.trip.title, day: today.day, lang: payload.lang)
             do {
                 let activity = try Activity.request(attributes: attributes, content: content, pushType: .token)
                 watch(activity)
+                updateWithLocation(activity, places: today.places)
             } catch {
                 NSLog("[LiveActivity] request failed: \(error.localizedDescription)")
             }
+        }
+    }
+
+    /// 앱을 열었을 때만(A안, 2026-10-17): 이미 '앱 사용 중' 위치를 허용했으면 한 번 위치를 받아 '지금 · 350m'로 바꾼다.
+    /// 새 권한은 묻지 않는다. 잠긴 동안 서버 푸시가 오면 시각 기준 내용으로 돌아간다(서버는 위치를 모른다).
+    private let locator = OneShotLocator()
+    private func updateWithLocation(_ activity: Activity<TripActivityAttributes>, places: [SharedPlace]) {
+        locator.request { location in
+            guard let loc = location,
+                  let state = TripActivityAttributes.ContentState(places: places, lat: loc.coordinate.latitude, lng: loc.coordinate.longitude) else { return }
+            Task { await activity.update(ActivityContent(state: state, staleDate: nil)) }
         }
     }
 
@@ -277,3 +291,36 @@ final class LiveActivityManager {
     }
 }
 #endif
+
+/// 위치 한 번 받기 — 이미 허용된 경우에만(권한을 묻지 않는다). 못 받으면 nil
+final class OneShotLocator: NSObject, CLLocationManagerDelegate {
+    private let manager = CLLocationManager()
+    private var completion: ((CLLocation?) -> Void)?
+
+    override init() {
+        super.init()
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+    }
+
+    func request(_ done: @escaping (CLLocation?) -> Void) {
+        let status: CLAuthorizationStatus
+        if #available(iOS 14.0, *) { status = manager.authorizationStatus } else { status = CLLocationManager.authorizationStatus() }
+        guard status == .authorizedWhenInUse || status == .authorizedAlways else {
+            done(nil)
+            return
+        }
+        completion = done
+        manager.requestLocation()
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        completion?(locations.last)
+        completion = nil
+    }
+
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        completion?(nil)
+        completion = nil
+    }
+}

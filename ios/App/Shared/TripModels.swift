@@ -74,6 +74,7 @@ public struct TripActivityAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
         public var here: String?        // 지금 일정(시각 기준), nil = 첫 일정 전
         public var hereTime: String?    // "HH:mm"
+        public var hereMeters: Double?  // 지금 장소까지 거리(m) — 앱을 열었을 때 GPS로만 채운다(서버 푸시에는 없음 → 시각 표시로 돌아간다)
         public var next: String?        // 다음 일정, nil = 마지막
         public var nextTime: String?    // 다음 일정 시각 "HH:mm"
         public var travel: Int          // 이동 시간(분, 추정)
@@ -81,9 +82,10 @@ public struct TripActivityAttributes: ActivityAttributes {
         public var urgent: Bool         // 곧 출발(20분 이하) — 주황
         public var go: Bool             // 출발 시각이 지났다 — '지금 출발'
 
-        public init(here: String?, hereTime: String?, next: String?, nextTime: String?, travel: Int, departAt: Double?, urgent: Bool, go: Bool) {
+        public init(here: String?, hereTime: String?, hereMeters: Double? = nil, next: String?, nextTime: String?, travel: Int, departAt: Double?, urgent: Bool, go: Bool) {
             self.here = here
             self.hereTime = hereTime
+            self.hereMeters = hereMeters
             self.next = next
             self.nextTime = nextTime
             self.travel = travel
@@ -117,6 +119,17 @@ public extension TripActivityAttributes.ContentState {
         self.init(here: here?.n, hereTime: here?.t, next: next?.n, nextTime: next?.t,
                   travel: step.travelMinutes, departAt: step.departAt?.timeIntervalSince1970,
                   urgent: step.urgent, go: step.go)
+    }
+
+    /// 앱을 열었을 때(GPS) — 가장 가까운 일정 장소를 '지금'으로, 거리와 그 자리에서 다음 장소까지 이동 시간으로 계산한다(워치와 같은 방식)
+    init?(places: [SharedPlace], lat: Double, lng: Double, now: Date = Date(), calendar cal: Calendar = .current) {
+        guard let near = TripLogic.nearest(lat: lat, lng: lng, in: places) else { return nil }
+        let next = TripLogic.nextStop(places: places, currentIndex: near.index, fromLat: lat, fromLng: lng, now: now, calendar: cal)
+        let minutes = next?.minutesUntilDeparture
+        self.init(here: places[near.index].n, hereTime: places[near.index].t, hereMeters: near.meters,
+                  next: next?.place.n, nextTime: next?.place.t, travel: next?.travelMinutes ?? 0,
+                  departAt: next?.departAt?.timeIntervalSince1970,
+                  urgent: minutes.map { $0 <= TripLogic.urgentMinutes } ?? false, go: minutes.map { $0 <= 0 } ?? false)
     }
 }
 #endif
