@@ -8,6 +8,7 @@ public class TripSharePlugin: CAPPlugin, CAPBridgedPlugin {
     public let jsName = "TripShare"
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "setTrips", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "refreshLive", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "clear", returnType: CAPPluginReturnPromise)
     ]
 
@@ -21,7 +22,19 @@ public class TripSharePlugin: CAPPlugin, CAPBridgedPlugin {
             call.reject("invalid payload")
             return
         }
+        // 라이브 액티비티 토큰을 백그라운드에서도 서버로 올릴 수 있게 Supabase 주소·공개 키를 넘겨 둔다
+        if #available(iOS 16.2, *) {
+            let endpoint = call.getString("liveEndpoint")
+            let key = call.getString("liveKey")
+            Task { @MainActor in LiveActivityManager.shared.configure(endpoint: endpoint, anonKey: key) }
+        }
         TripSync.shared.store(json: json)
+        call.resolve()
+    }
+
+    /// 일정은 그대로인데 앱을 다시 열었을 때 — 여행 당일이면 라이브 액티비티를 켠다
+    @objc func refreshLive(_ call: CAPPluginCall) {
+        TripSync.shared.refreshLive()
         call.resolve()
     }
 

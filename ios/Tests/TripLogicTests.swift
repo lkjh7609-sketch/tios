@@ -67,5 +67,21 @@ check(TripStrings.distanceText(240) == "240m" && TripStrings.distanceText(1530) 
 let json = String(data: try! JSONEncoder().encode(payload), encoding: .utf8)!
 check(TripShareKeys.decode(json) == payload, "JSON 왕복")
 check(TripShareKeys.decode("{bad") == nil, "깨진 JSON nil")
-for k in ["now","nowTime","before","next","last","leaveBy","leaveNow","inMin","inHourMin","late","travel","away","dayOf","day","nowAt","nextAt","noTrip","upcoming","upcomingToday","openApp","locating","needLocation","widgetName","widgetDesc","leaveIn","allowForNearest","startsToday","dDay"] { for l in ["ko","en","ja","zh-TW"] { check(TripStrings.string(k, l) != k, "문구 \(k)/\(l)") } }
+// 라이브 액티비티 일정(오사카 3일차: 09:00, 10:50, 13:00, 시각 없음)
+let live = TripLogic.liveSchedule(osaka, on: at("2026-11-15 00:00"), calendar: cal)
+check(live.first?.kind == .start && live.first?.at == at("2026-11-15 08:00"), "첫 일정 60분 전 켜기")
+check(live.last?.kind == .end && live.last?.at == at("2026-11-15 14:00"), "마지막 일정 60분 뒤 끄기")
+check(live.filter { $0.kind == .start }.count == 1, "6시간 하루는 한 번만 켠다")
+check(zip(live, live.dropFirst()).allSatisfy { $0.at <= $1.at }, "시각순")
+let departs = live.filter { $0.kind == .depart }
+check(departs.count == 2, "출발 알림 2번(오사카성·홋쿄쿠세이) — \(departs.count)")
+check(departs.first?.nextIndex == 1 && departs.first?.go == true && departs.first?.urgent == true, "첫 출발 알림은 오사카성으로, 지금 출발")
+if let d0 = departs.first?.departAt { check(d0 == departs.first?.at && d0 < at("2026-11-15 10:50"), "출발 시각 = 일정 시각 − 이동 시간") }
+check(live.contains { $0.kind == .update && $0.hereIndex == 1 && $0.at == at("2026-11-15 10:50") }, "10:50에 지금=오사카성으로 바뀜")
+check(live.contains { $0.kind == .update && $0.urgent && !$0.go && $0.nextIndex == 1 }, "출발 20분 전 주황으로 바뀜")
+check(TripLogic.liveSchedule([SharedPlace(n: "a", lat: 1, lng: 1, t: nil)], on: at("2026-11-15 00:00"), calendar: cal).isEmpty, "시각 없는 하루는 켜지 않음")
+let longDay = [SharedPlace(n: "a", lat: 35, lng: 139, t: "07:00"), SharedPlace(n: "b", lat: 35.01, lng: 139, t: "21:00")]
+check(TripLogic.liveSchedule(longDay, on: at("2026-11-15 00:00"), calendar: cal).filter { $0.kind == .start }.count == 3, "16시간 하루는 7시간 30분마다 다시 켬(3번)")
+if let a = TripLogic.activeTrip(payload, now: at("2026-11-15 09:30"), calendar: cal) { check(a.trip.id == "t1" && a.day == 3, "오늘 진행 중인 여행·일차") } else { check(false, "activeTrip") }
+for k in ["now","nowTime","before","next","last","leaveBy","leaveNow","inMin","inHourMin","late","travel","away","dayOf","day","nowAt","nextAt","leaveShort","liveStartBody","liveDepartTitle","liveDepartBody","noTrip","upcoming","upcomingToday","openApp","locating","needLocation","widgetName","widgetDesc","leaveIn","allowForNearest","startsToday","dDay"] { for l in ["ko","en","ja","zh-TW"] { check(TripStrings.string(k, l) != k, "문구 \(k)/\(l)") } }
 print(fails == 0 ? "ALL PASS" : "\(fails) FAILED"); exit(fails == 0 ? 0 : 1)

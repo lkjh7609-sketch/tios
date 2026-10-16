@@ -62,3 +62,61 @@ public enum TripShareKeys {
         return try? JSONDecoder().decode(SharedPayload.self, from: data)
     }
 }
+
+#if os(iOS) && canImport(ActivityKit)
+import ActivityKit
+
+/// 라이브 액티비티(잠금 화면·다이내믹 아일랜드·워치 스마트 스택) — 앱과 위젯 확장이 함께 쓴다.
+/// 서버(supabase/functions/live-activity)가 이 모양 그대로 JSON을 보낸다: 키 이름·타입을 바꾸면 서버 쪽도 같이 바꿔야 한다.
+/// 이름 'TripActivityAttributes'는 서버가 켤 때(push-to-start) 보내는 attributes-type이다.
+@available(iOS 16.1, *)
+public struct TripActivityAttributes: ActivityAttributes {
+    public struct ContentState: Codable, Hashable {
+        public var here: String?        // 지금 일정(시각 기준), nil = 첫 일정 전
+        public var hereTime: String?    // "HH:mm"
+        public var next: String?        // 다음 일정, nil = 마지막
+        public var nextTime: String?    // 다음 일정 시각 "HH:mm"
+        public var travel: Int          // 이동 시간(분, 추정)
+        public var departAt: Double?    // 출발 시각(Unix 초) — Date로 두면 JSON 날짜 기준(2001년)이 서버와 어긋나서 숫자로 둔다
+        public var urgent: Bool         // 곧 출발(20분 이하) — 주황
+        public var go: Bool             // 출발 시각이 지났다 — '지금 출발'
+
+        public init(here: String?, hereTime: String?, next: String?, nextTime: String?, travel: Int, departAt: Double?, urgent: Bool, go: Bool) {
+            self.here = here
+            self.hereTime = hereTime
+            self.next = next
+            self.nextTime = nextTime
+            self.travel = travel
+            self.departAt = departAt
+            self.urgent = urgent
+            self.go = go
+        }
+
+        public var departDate: Date? { departAt.map { Date(timeIntervalSince1970: $0) } }
+    }
+
+    public var tripId: String
+    public var title: String
+    public var day: Int
+    public var lang: String
+
+    public init(tripId: String, title: String, day: Int, lang: String) {
+        self.tripId = tripId
+        self.title = title
+        self.day = day
+        self.lang = lang
+    }
+}
+
+@available(iOS 16.1, *)
+public extension TripActivityAttributes.ContentState {
+    /// 일정 계산 결과(LiveStep) → 화면 상태
+    init(step: LiveStep, places: [SharedPlace]) {
+        let here = step.hereIndex >= 0 && step.hereIndex < places.count ? places[step.hereIndex] : nil
+        let next = step.nextIndex.flatMap { $0 < places.count ? places[$0] : nil }
+        self.init(here: here?.n, hereTime: here?.t, next: next?.n, nextTime: next?.t,
+                  travel: step.travelMinutes, departAt: step.departAt?.timeIntervalSince1970,
+                  urgent: step.urgent, go: step.go)
+    }
+}
+#endif

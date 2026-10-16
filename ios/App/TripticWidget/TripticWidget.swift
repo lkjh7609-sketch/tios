@@ -337,5 +337,176 @@ struct TripticNextStopWidget: Widget {
 struct TripticWidgetBundle: WidgetBundle {
     var body: some Widget {
         TripticNextStopWidget()
+        #if os(iOS) && canImport(ActivityKit)
+        if #available(iOS 16.1, *) {
+            TripLiveActivityWidget()
+        }
+        #endif
     }
 }
+
+#if os(iOS) && canImport(ActivityKit)
+import ActivityKit
+
+// MARK: 라이브 액티비티 — 시안 '라이브 2 · 경로 타임라인'(2026-10-17 사용자 결정)
+// 잠금 화면: 지금 ● ── 이동 약 N분 ── ○ 다음 일정, 아래 큰 출발 시각 + '출발 · N분'(시스템이 알아서 줄여 준다).
+// 다이내믹 아일랜드: 접힘 = ●─○ + 출발 시각, 펼침 = 지금 / 출발 시각 / 다음 일정. 워치(watchOS 11+) 스마트 스택은 시스템이 접힘 모양으로 보여 준다.
+// 내용은 서버가 푸시로 바꾼다(supabase/functions/live-activity) — 앱이 미리 계산해 올린 일정(TripLogic.liveSchedule) 그대로.
+
+private let liveBrand = Color(red: 0.40, green: 0.75, blue: 0.70)
+private let liveUrgent = Color(red: 1.0, green: 0.62, blue: 0.04)
+
+@available(iOS 16.1, *)
+struct LiveTexts {
+    let attributes: TripActivityAttributes
+    let state: TripActivityAttributes.ContentState
+    var lang: String { attributes.lang }
+    var tint: Color { state.urgent || state.go ? liveUrgent : liveBrand }
+    var dayLine: String { TripStrings.format("day", lang, attributes.day) }
+    var hereLabel: String {
+        if state.here == nil { return TripStrings.string("nowTime", lang) }
+        return state.hereTime.map { TripStrings.format("nowAt", lang, $0) } ?? TripStrings.string("nowTime", lang)
+    }
+    var hereName: String { state.here ?? TripStrings.string("before", lang) }
+    var nextLabel: String { state.nextTime.map { TripStrings.format("nextAt", lang, $0) } ?? TripStrings.string("next", lang) }
+    var nextName: String { state.next ?? TripStrings.string("last", lang) }
+    var travel: String? { state.travel > 0 ? TripStrings.format("travel", lang, state.travel) : nil }
+    var departHm: String? {
+        guard let d = state.departDate else { return nil }
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm"
+        return f.string(from: d)
+    }
+}
+
+/// ●──○ 작은 연결선
+@available(iOS 16.1, *)
+struct LiveConnector: View {
+    let tint: Color
+    var dot: CGFloat = 8
+    var body: some View {
+        HStack(spacing: 0) {
+            Circle().fill(liveBrand).frame(width: dot, height: dot)
+            Rectangle().fill(Color.white.opacity(0.35)).frame(height: 2)
+            Circle().strokeBorder(tint, lineWidth: 2).frame(width: dot, height: dot)
+        }
+    }
+}
+
+/// 큰 출발 시각 + '출발 · 18분'(남은 시간은 시스템이 줄여 준다). 출발 시각이 지났으면 '지금 출발'
+@available(iOS 16.1, *)
+struct LiveDepartRow: View {
+    let t: LiveTexts
+    var big: CGFloat = 34
+    var body: some View {
+        if t.state.go {
+            Text(TripStrings.string("leaveNow", t.lang))
+                .font(.system(size: big * 0.7, weight: .heavy, design: .rounded))
+                .foregroundColor(liveUrgent)
+        } else if let hm = t.departHm, let date = t.state.departDate {
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text(hm).font(.system(size: big, weight: .heavy, design: .rounded))
+                Text(TripStrings.string("leaveShort", t.lang) + " ·").font(.footnote.weight(.bold))
+                Text(date, style: .relative).font(.footnote.weight(.bold))
+            }
+            .foregroundColor(t.state.urgent ? liveUrgent : .white)
+        } else if t.state.next == nil {
+            Text(TripStrings.string("last", t.lang)).font(.footnote.weight(.semibold)).foregroundColor(.white)
+        }
+    }
+}
+
+@available(iOS 16.1, *)
+struct TripLiveLockView: View {
+    let t: LiveTexts
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Triptic · " + t.dayLine)
+                Spacer()
+                Text(t.attributes.title).lineLimit(1)
+            }
+            .font(.caption.weight(.semibold))
+            .foregroundColor(.white.opacity(0.7))
+
+            HStack(alignment: .center, spacing: 10) {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(t.hereLabel).font(.caption2.weight(.semibold)).foregroundColor(liveBrand)
+                    Text(t.hereName).font(.subheadline.weight(.bold)).foregroundColor(.white).lineLimit(2)
+                }
+                VStack(spacing: 2) {
+                    if let travel = t.travel {
+                        Text(travel).font(.caption2).foregroundColor(.white.opacity(0.7)).lineLimit(1)
+                    }
+                    LiveConnector(tint: t.tint)
+                }
+                .frame(maxWidth: .infinity)
+                VStack(alignment: .trailing, spacing: 1) {
+                    Text(t.nextLabel).font(.caption2.weight(.semibold)).foregroundColor(t.tint)
+                    Text(t.nextName).font(.subheadline.weight(.bold)).foregroundColor(.white).lineLimit(2)
+                        .multilineTextAlignment(.trailing)
+                }
+            }
+
+            LiveDepartRow(t: t)
+        }
+        .padding(16)
+    }
+}
+
+@available(iOS 16.1, *)
+struct TripLiveActivityWidget: Widget {
+    var body: some WidgetConfiguration {
+        ActivityConfiguration(for: TripActivityAttributes.self) { context in
+            TripLiveLockView(t: LiveTexts(attributes: context.attributes, state: context.state))
+                .activityBackgroundTint(Color.black.opacity(0.75))
+                .activitySystemActionForegroundColor(.white)
+        } dynamicIsland: { context in
+            let t = LiveTexts(attributes: context.attributes, state: context.state)
+            return DynamicIsland {
+                DynamicIslandExpandedRegion(.leading) {
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(t.hereLabel).font(.caption2.weight(.semibold)).foregroundColor(liveBrand)
+                        Text(t.hereName).font(.footnote.weight(.bold)).lineLimit(2)
+                    }
+                }
+                DynamicIslandExpandedRegion(.trailing) {
+                    VStack(alignment: .trailing, spacing: 1) {
+                        if t.state.go {
+                            Text(TripStrings.string("leaveNow", t.lang)).font(.footnote.weight(.heavy)).foregroundColor(liveUrgent)
+                        } else if let hm = t.departHm, let date = t.state.departDate {
+                            Text(hm).font(.system(size: 26, weight: .heavy, design: .rounded)).foregroundColor(t.tint)
+                            Text(date, style: .relative).font(.caption2.weight(.bold)).foregroundColor(t.tint)
+                        }
+                    }
+                }
+                DynamicIslandExpandedRegion(.bottom) {
+                    HStack(spacing: 8) {
+                        LiveConnector(tint: t.tint).frame(width: 44)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(t.nextLabel).font(.caption2.weight(.semibold)).foregroundColor(t.tint)
+                            Text(t.nextName).font(.footnote.weight(.bold)).lineLimit(1)
+                        }
+                        Spacer(minLength: 0)
+                        if let travel = t.travel {
+                            Text(travel).font(.caption2).foregroundColor(.secondary).lineLimit(1)
+                        }
+                    }
+                }
+            } compactLeading: {
+                LiveConnector(tint: t.tint, dot: 7).frame(width: 30)
+            } compactTrailing: {
+                if t.state.go {
+                    Text(TripStrings.string("leaveShort", t.lang)).font(.caption.weight(.heavy)).foregroundColor(liveUrgent)
+                } else {
+                    Text(t.departHm ?? "--:--").font(.caption.weight(.heavy)).foregroundColor(t.tint)
+                }
+            } minimal: {
+                Circle().strokeBorder(t.tint, lineWidth: 2.5).frame(width: 14, height: 14)
+            }
+            .keylineTint(t.tint)
+        }
+    }
+}
+#endif

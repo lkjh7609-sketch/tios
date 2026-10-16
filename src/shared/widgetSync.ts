@@ -34,7 +34,10 @@ export const LOOKAHEAD_DAYS = 14;
 const MAX_TRIPS = 4;
 
 interface TripSharePlugin {
-  setTrips(options: { json: string }): Promise<void>;
+  /** liveEndpoint·liveKey: 라이브 액티비티 토큰을 앱이 백그라운드에서도 서버(live-activity 함수)로 올리도록 Supabase 주소·공개 키를 넘긴다 */
+  setTrips(options: { json: string; liveEndpoint?: string; liveKey?: string }): Promise<void>;
+  /** 일정은 그대로지만 앱을 다시 열었을 때 — 여행 당일이면 라이브 액티비티를 켠다 */
+  refreshLive?(): Promise<void>;
   clear(): Promise<void>;
 }
 let plugin: TripSharePlugin | null = null;
@@ -109,8 +112,15 @@ export async function syncTripsToNative(lang: string): Promise<void> {
     const withContent = await Promise.all(list.map((t) => tripService.getTrip(t.id)));
     const payload = buildPayload(withContent.filter((t): t is TripRow => t !== null), lang, now);
     const key = JSON.stringify({ ...payload, updated: 0 });
-    if (key === lastJson) return;
-    await p.setTrips({ json: JSON.stringify(payload) });
+    if (key === lastJson) {
+      await p.refreshLive?.();
+      return;
+    }
+    await p.setTrips({
+      json: JSON.stringify(payload),
+      liveEndpoint: import.meta.env.VITE_SUPABASE_URL as string | undefined,
+      liveKey: import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined,
+    });
     lastJson = key;
   } catch (err) {
     captureError(err, { where: 'widgetSync' });

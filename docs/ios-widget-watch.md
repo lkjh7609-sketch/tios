@@ -30,7 +30,17 @@ TripSync (ios/App/App/TripSync.swift)
 - **곧 출발 = 20분 이하**(`TripLogic.urgentMinutes`)이면 ○·다음 라벨·출발 시각이 주황. **홈 화면 위젯도 같은 기준**(잠금 화면 위젯은 단색이라 색 없음).
 - **위치를 못 잡으면 시각 기준으로 대신 안내**: 1행이 시각이 지난 마지막 장소(없으면 '첫 일정 전')가 되고 아래에 '위치 확인 중…' 또는 '위치를 허용하면 가까운 곳을 알려줘요'를 작게.
 - 장소 이름은 줄바꿈(자르지 않음). 실제 모양은 TestFlight로 40mm·45mm 확인 필요.
-- **라이브 액티비티**(잠금 화면·다이내믹 아일랜드·워치 스마트 스택): 같은 캔버스의 '라이브 2 · 경로 타임라인' 선택(2026-10-17). 아직 구현 전 — 켜고 끄는 시점·갱신 방식은 사용자와 정한 뒤 만든다.
+
+## 라이브 액티비티 (2026-10-17 사용자 결정, 1.0.1에 포함)
+잠금 화면·다이내믹 아일랜드·워치 스마트 스택(watchOS 11+, 시스템이 접힘 모양으로 보여 줌). 디자인은 캔버스 '라이브 2 · 경로 타임라인'.
+- **켜기**: ① 여행 당일 앱을 열면 자동(1-a, `LiveActivityManager.refresh`) ② 서버가 첫 일정 60분 전에 push-to-start(iOS 17.2+). **8시간 제한** 때문에 서버가 7시간 30분마다 끄고 다시 켠다. iOS 16.2~17.1은 서버가 켤 수 없어 앱을 열 때만 켜진다.
+- **바꾸기·알림**: 일정 시각마다 '지금'이 바뀌고, 출발 20분 전 주황, **출발 시각에 알림(소리·진동, 우선순위 10)** — 워치를 차고 있으면 워치가 울린다. 나머지 갱신은 조용히(우선순위 5).
+- **끄기**: 마지막 일정 60분 뒤.
+- **구조**: 앱이 하루하루 '몇 시에 무엇을'(`TripLogic.liveSchedule`, 시각 기준 — GPS 없음)을 계산해 서버 함수 `live-activity`에 올리고(`live_activity_events`), DB 정기 실행(0116, 1분마다)이 그 시각에 APNs(`apns-push-type: liveactivity`, topic `com.triptic.travel.push-type.liveactivity`)로 보낸다. 서버는 다시 계산하지 않는다(시간대·출발 시각은 기기가 정답).
+- 기기는 앱이 만든 임의 키(`deviceKey`, 64자)로만 구분 — 백그라운드에서 깨어나 토큰을 올릴 때 웹 화면·로그인이 없어서. 토큰은 `push_tokens`와 따로(`live_activity_tokens`, `live_activity_devices.start_token`).
+- 데이터 모양: `TripActivityAttributes`(ios/App/Shared/TripModels.swift) ↔ 서버 `supabase/functions/live-activity/payload.ts`. 출발 시각은 Unix 초(숫자) — Date로 두면 JSON 날짜 기준(2001년)이 서버와 어긋난다.
+- **적용 순서(운영, 사용자 확인 뒤)**: ① `supabase functions deploy live-activity` ② `0116_live_activity.sql` 실행 ③ Codemagic 빌드·TestFlight 확인. 되돌리기는 0116 머리말.
+- ⚠️ Xcode 없이 작성 — ActivityKit·WidgetKit 코드는 문법 검사만 했다. 첫 Codemagic 빌드가 진짜 검증이다.
 
 ## 대상·번들 ID
 | 대상 | 번들 ID | 최소 OS | 비고 |

@@ -147,3 +147,88 @@ public enum TripLogic {
         return NextStop(place: next, travelMinutes: travel, departAt: departAt, minutesUntilDeparture: until)
     }
 }
+
+// MARK: 라이브 액티비티 일정(잠금 화면·다이내믹 아일랜드·워치 스마트 스택)
+
+/// 하루 일정에서 라이브 액티비티 내용이 바뀌는 순간 하나.
+/// 앱이 이 목록을 계산해 서버에 올리고, 서버는 그 시각에 그대로 푸시만 한다(시간대·계산은 기기 쪽이 정답 — 서버는 다시 계산하지 않는다).
+public struct LiveStep: Equatable {
+    public enum Kind: String {
+        case start    // 켜기(서버가 push-to-start). 8시간 제한 때문에 하루가 길면 중간에 다시 켠다
+        case update   // 내용만 바꾸기(조용히)
+        case depart   // 출발 시각 — 진동 알림을 붙인다
+        case end      // 끄기
+    }
+    public let kind: Kind
+    public let at: Date
+    public let hereIndex: Int        // 지금 일정(시각 기준), -1 = 첫 일정 전
+    public let nextIndex: Int?       // 다음 일정, nil = 마지막
+    public let travelMinutes: Int
+    public let departAt: Date?
+    public let urgent: Bool          // 출발까지 urgentMinutes 이하
+    public let go: Bool              // 출발 시각이 지났다(지금 출발)
+}
+
+extension TripLogic {
+    /// 첫 일정 몇 분 전에 켜고, 마지막 일정 몇 분 뒤에 끈다
+    public static let liveLeadMinutes = 60
+    public static let liveTailMinutes = 60
+    /// 라이브 액티비티는 켠 뒤 8시간까지만 갱신된다(Apple) — 여유를 두고 7시간 30분마다 다시 켠다
+    public static let liveRestartMinutes = 450
+
+    /// 오늘(now가 속한 날) 진행 중인 여행·일차·장소. 없으면 nil
+    public static func activeTrip(_ payload: SharedPayload, now: Date = Date(), calendar cal: Calendar = .current) -> (trip: SharedTrip, day: Int, places: [SharedPlace])? {
+        for trip in payload.trips {
+            guard let start = parseYmd(trip.start, cal), let end = parseYmd(trip.end, cal) else { continue }
+            let sinceStart = dayDiff(from: start, to: now, cal)
+            if sinceStart < 0 || dayDiff(from: now, to: end, cal) < 0 { continue }
+            let places = trip.days[String(sinceStart + 1)] ?? []
+            if !places.isEmpty { return (trip, sinceStart + 1, places) }
+        }
+        return nil
+    }
+
+    /// 그 시각(at)의 화면 상태 — 시각 기준(서버 푸시용이라 GPS는 쓰지 않는다)
+    public static func liveState(_ places: [SharedPlace], at: Date, kind: LiveStep.Kind, calendar cal: Calendar = .current) -> LiveStep {
+        let here = currentIndexByTime(places, now: at, calendar: cal)
+        let next = nextStop(places: places, currentIndex: here, now: at, calendar: cal)
+        let nextIndex = next == nil ? nil : here + 1
+        let minutes = next?.minutesUntilDeparture
+        return LiveStep(kind: kind, at: at, hereIndex: here, nextIndex: nextIndex,
+                        travelMinutes: next?.travelMinutes ?? 0, departAt: next?.departAt,
+                        urgent: minutes.map { $0 <= urgentMinutes } ?? false,
+                        go: minutes.map { $0 <= 0 } ?? false)
+    }
+
+    /// 하루(day 날짜)의 라이브 액티비티 순간들 — 시각순. 시각이 있는 장소가 하나도 없으면 빈 목록(켜지 않는다)
+    public static func liveSchedule(_ places: [SharedPlace], on day: Date, calendar cal: Calendar = .current) -> [LiveStep] {
+        let times = places.compactMap { time($0.t, on: day, cal) }
+        guard let first = times.min(), let last = times.max() else { return [] }
+        let open = first.addingTimeInterval(TimeInterval(-liveLeadMinutes * 60))
+        let close = last.addingTimeInterval(TimeInterval(liveTailMinutes * 60))
+
+        var steps: [LiveStep] = []
+        // 켜기 + 8시간 제한 전에 다시 켜기
+        var startAt = open
+        while startAt < close {
+            steps.append(liveState(places, at: startAt, kind: .start, calendar: cal))
+            startAt = startAt.addingTimeInterval(TimeInterval(liveRestartMinutes * 60))
+        }
+        // 각 일정 시각에 '지금'이 바뀐다 → 그 구간의 곧 출발(urgentMinutes 전)·출발 시각
+        var moments: [Date] = [open]
+        for (i, p) in places.enumerated() {
+            guard let t = time(p.t, on: day, cal), t > open, t < close else { continue }
+            if currentIndexByTime(places, now: t, calendar: cal) == i { moments.append(t) }
+        }
+        for (k, m) in moments.enumerated() {
+            if k > 0 { steps.append(liveState(places, at: m, kind: .update, calendar: cal)) }
+            let segmentEnd = k + 1 < moments.count ? moments[k + 1] : close
+            guard let departAt = liveState(places, at: m, kind: .update, calendar: cal).departAt else { continue }
+            let soon = departAt.addingTimeInterval(TimeInterval(-urgentMinutes * 60))
+            if soon > m && soon < segmentEnd { steps.append(liveState(places, at: soon, kind: .update, calendar: cal)) }
+            if departAt > m && departAt < segmentEnd { steps.append(liveState(places, at: departAt, kind: .depart, calendar: cal)) }
+        }
+        steps.append(liveState(places, at: close, kind: .end, calendar: cal))
+        return steps.sorted { $0.at < $1.at }
+    }
+}
