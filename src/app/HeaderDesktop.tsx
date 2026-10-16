@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '@/shared/hooks/useSession';
 import { useProfile, useUpdateProfile } from '@/shared/hooks/useProfile';
@@ -9,6 +10,7 @@ import { captureError } from '@/shared/monitoring';
 import { Settings, LogOut, Globe, Sun, Moon, Megaphone, BookOpen } from 'lucide-react';
 import { getStoredTheme, setTheme, ThemePreference } from '@/shared/theme';
 import { isHomeSectionPath } from '@/features/home/homeSections';
+import { prefetchAirportBoard } from '@/features/home/airport/useAirportBoard';
 import { openLoginPrompt } from '@/features/auth/loginPrompt';
 import { BrandLogo } from '@/shared/ui/BrandLogo';
 import { NotificationBell } from '@/features/notifications/NotificationBell';
@@ -24,6 +26,7 @@ export function HeaderDesktop() {
   const { data: profile } = useProfile();
   const updateProfile = useUpdateProfile();
   const { pathname } = useLocation();
+  const queryClient = useQueryClient();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -88,7 +91,12 @@ export function HeaderDesktop() {
           <Link to="/community" className={styles.navLink} aria-current={pathname.startsWith('/community') ? 'page' : undefined}>
             {t('tab.community')}
           </Link>
-          <Link to="/airports" className={styles.navLink} aria-current={pathname.startsWith('/airports') ? 'page' : undefined}>
+          <Link
+            to="/airports"
+            className={styles.navLink}
+            aria-current={pathname.startsWith('/airports') ? 'page' : undefined}
+            onPointerEnter={() => prefetchAirportBoard(queryClient)}
+          >
             {t('tab.airport')}
           </Link>
           <Link to="/stats" className={styles.navLink} aria-current={pathname.startsWith('/stats') ? 'page' : undefined}>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, type QueryClient } from '@tanstack/react-query';
 import { takePrefetch } from '@/shared/api/prefetch';
 import { getSupabaseClient } from '@/shared/api/supabaseClient';
 import { kstNow, type BoardFlight } from './boardParse';
@@ -50,6 +50,14 @@ export function useAirportBoard(enabled = true) {
     refetchIntervalInBackground: false,
     retry: 1,
   });
+}
+
+/**
+ * 공항 탭을 누르려는 순간(터치 시작·마우스 올림) 전광판을 미리 받아 둔다 — 화면이 열릴 때는 이미 도착해 있거나 도착 중이라 '빈 화면' 시간이 줄어든다.
+ * 같은 값이 BOARD_REFRESH_MS 안에 있으면 다시 받지 않는다(fetchQuery의 staleTime). 실패해도 조용히 넘어간다 — 화면이 열린 뒤 평소대로 다시 시도한다.
+ */
+export function prefetchAirportBoard(queryClient: QueryClient): void {
+  void queryClient.prefetchQuery({ queryKey: airportBoardQueryKey, queryFn: fetchAirportBoard, staleTime: BOARD_REFRESH_MS });
 }
 
 /** 지금 시각(ms) — 1분마다 갱신. 렌더 중에 Date.now()를 직접 부르지 않기 위한 것 */

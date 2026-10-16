@@ -89,7 +89,24 @@
 .skeleton {
   height: 320px;
   border-radius: 16px;
-  background: var(--h-sunken);
+  background: linear-gradient(90deg, var(--h-line-soft) 25%, var(--h-line) 50%, var(--h-line-soft) 75%);
+  background-size: 200% 100%;
+  animation: parkingShimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes parkingShimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
 }
 
 /* ── 배치: PC는 평면도 | 오른쪽 상세·목록, 모바일은 위아래 ── */
@@ -676,4 +693,10 @@ button.row:active {
     transition: none;
     animation: none;
   }
+}
+
+.loadingNote {
+  margin: 4px 0 10px;
+  font-size: 14px;
+  color: var(--h-ink-2);
 }
