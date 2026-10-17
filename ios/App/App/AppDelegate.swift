@@ -8,6 +8,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        // 애플워치와 일정을 주고받을 연결을 준비한다(워치 앱이 없는 기기에서는 아무 일도 하지 않는다)
+        TripSync.shared.activate()
         return true
     }
 

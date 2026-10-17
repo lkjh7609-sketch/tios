@@ -7,7 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		008A36604E4BE6EBBCEB17D8 /* TripLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5474B0173212A6B17638ACD5 /* TripLogic.swift */; };
+		0288F42603DF634266CA14BD /* TripStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA6CC114DE999DF14E96C32 /* TripStrings.swift */; };
+		10BE9CFF214C1DFA67E636DA /* TripticWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80573A3169E588454B72097 /* TripticWidget.swift */; };
+		148683AB32C99C65DF1C8EEC /* TripModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D365120AF5A99872C7CF229 /* TripModels.swift */; };
+		153EC27B51E817E732A02766 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68611E01ED9A6827881DADD /* ContentView.swift */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
+		45974581C02F7F5511931D51 /* WatchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4022354C4EE38EC4A067E46 /* WatchModel.swift */; };
 		4D22ABE92AF431CB00220026 /* CapApp-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 4D22ABE82AF431CB00220026 /* CapApp-SPM */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
 		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
@@ -15,13 +21,78 @@
 		504EC30F1FED79650016851F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30E1FED79650016851F /* Assets.xcassets */; };
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
+		52D1C814361E3862A71047C7 /* TripticWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = DD7680DF5F6918520C20D0E8 /* TripticWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5B5AC0532874CDEFE385DA97 /* TripModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D365120AF5A99872C7CF229 /* TripModels.swift */; };
+		5D1643F0C2A80D2C2987D364 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F91EBDE140E613159F97EE2 /* Assets.xcassets */; };
+		64A00E4375FD57EF29929AEF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6408F3EAADEF5BA81A927431 /* Foundation.framework */; };
+		771E21523771CF59DFEEA85F /* TripSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 185BA77D78F0D6704D4D5FC5 /* TripSync.swift */; };
+		7B907BB5CACBDE365E5B3147 /* TripSharePlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C3161E4B33A4FC7F67237D /* TripSharePlugin.swift */; };
+		8E0B2BEC6F8F3D00516B8672 /* TripticWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C434E4C4B93FC67462171A65 /* TripticWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9582B6822FE993A50072D4E8 /* SceneDelegate.swift */; };
 		9A1C00022FE9A0A100AA0002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9A1C00012FE9A0A100AA0001 /* PrivacyInfo.xcprivacy */; };
 		9B5E00062FEB00A100B50006 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9B5E00052FEB00A100B50005 /* InfoPlist.strings */; };
+		A02B6ABBAEE37AF1B4F0919D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5F1EBA581C6E5DA1B86CB699 /* PrivacyInfo.xcprivacy */; };
+		AC143F6DF7FFC11982E1C8F4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 39616EA67C1B673501B94398 /* InfoPlist.strings */; };
+		AD27DA52AC46035E51061454 /* WatchConnectivityReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABC041C8814AE1B5A60D2EC /* WatchConnectivityReceiver.swift */; };
+		B5DACB3C8547B6BDABC092C4 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860F5EFF0D1C0EDA9CA915CB /* MainViewController.swift */; };
+		BB8BD2739435D701A0B7807C /* TripticWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17BC02D42F232F9D80A5AFD8 /* TripticWatchApp.swift */; };
+		BD3C39D90AB2887D2C594DF9 /* TripModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D365120AF5A99872C7CF229 /* TripModels.swift */; };
+		BF073ABDD48091A6F1463DCA /* TripStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA6CC114DE999DF14E96C32 /* TripStrings.swift */; };
+		C94A107BC8041E3C2D1BC704 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 87F314C17D959C70513B7F6C /* PrivacyInfo.xcprivacy */; };
+		D3F62DC69D8456E25C0E75DE /* TripLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5474B0173212A6B17638ACD5 /* TripLogic.swift */; };
+		E855ED2C411E9F3A4C101589 /* TripLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5474B0173212A6B17638ACD5 /* TripLogic.swift */; };
+		F0A64E80CE0E4F0132063527 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBBA26138BD3703FA9ECBC69 /* Foundation.framework */; };
+		FF524212E2E8E00B214BDA06 /* TripStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA6CC114DE999DF14E96C32 /* TripStrings.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		115D3BB1EF4F229370A78C79 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 17A49579F9D04A47BC6DEB28;
+			remoteInfo = TripticWatch;
+		};
+		7D77CEBF42AD98BD30CD2F1F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 444AF2723FCB681BC41039AF;
+			remoteInfo = TripticWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4F8C66631152A5C416DFBF7D /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				52D1C814361E3862A71047C7 /* TripticWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5BE49AD62B61B5884C81B176 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				8E0B2BEC6F8F3D00516B8672 /* TripticWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		17BC02D42F232F9D80A5AFD8 /* TripticWatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripticWatchApp.swift; sourceTree = "<group>"; };
+		185BA77D78F0D6704D4D5FC5 /* TripSync.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripSync.swift; sourceTree = "<group>"; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
+		3AA6CC114DE999DF14E96C32 /* TripStrings.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripStrings.swift; sourceTree = "<group>"; };
+		4F91EBDE140E613159F97EE2 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		50379B222058CBB4000EE86E /* capacitor.config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = capacitor.config.json; sourceTree = "<group>"; };
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		504EC3071FED79650016851F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -30,6 +101,19 @@
 		504EC3111FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50B271D01FEDC1A000F3C39B /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
+		5474B0173212A6B17638ACD5 /* TripLogic.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripLogic.swift; sourceTree = "<group>"; };
+		5F1EBA581C6E5DA1B86CB699 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		63C3161E4B33A4FC7F67237D /* TripSharePlugin.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripSharePlugin.swift; sourceTree = "<group>"; };
+		6408F3EAADEF5BA81A927431 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		6E31AF650081971F5F78DDF3 /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		7ABC041C8814AE1B5A60D2EC /* WatchConnectivityReceiver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchConnectivityReceiver.swift; sourceTree = "<group>"; };
+		7D30DEA09294C07B900A290F /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7D365120AF5A99872C7CF229 /* TripModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripModels.swift; sourceTree = "<group>"; };
+		7F24291E5D03130D82619F7D /* ja */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		856C599F5D5C87D5B0B2D3EE /* zh-Hant */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		860F5EFF0D1C0EDA9CA915CB /* MainViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		87F314C17D959C70513B7F6C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		923BF91A58C6001E8892178B /* ko */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		9582B6822FE993A50072D4E8 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		9A1C00012FE9A0A100AA0001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -37,10 +121,26 @@
 		9B5E00012FEB00A100B50001 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		9B5E00022FEB00A100B50002 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		9B5E00032FEB00A100B50003 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		9B5E00042FEB00A100B50004 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = zh-Hant; path = zh-Hant.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		9B5E00042FEB00A100B50004 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		A80573A3169E588454B72097 /* TripticWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripticWidget.swift; sourceTree = "<group>"; };
+		B7C2CD57B3BF7680F38B6316 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C434E4C4B93FC67462171A65 /* TripticWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TripticWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C68611E01ED9A6827881DADD /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		CBBA26138BD3703FA9ECBC69 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		DD7680DF5F6918520C20D0E8 /* TripticWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TripticWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		ECA526CA2CD21ADA3A8B9100 /* TripticWidget.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = TripticWidget.entitlements; sourceTree = "<group>"; };
+		F4022354C4EE38EC4A067E46 /* WatchModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		001D59CCCD335964172073E7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				64A00E4375FD57EF29929AEF /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		504EC3011FED79650016851F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -49,15 +149,47 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		91300B6581FB5ACF70785450 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F0A64E80CE0E4F0132063527 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1948E20C2E6FCB159BC62E45 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5AC3F1FB49036B8F8947B082 /* iOS */,
+				782A5DC1F726838C0FD58E2B /* watchOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2734FD8DAB180E2DF348F0EA /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				7D365120AF5A99872C7CF229 /* TripModels.swift */,
+				5474B0173212A6B17638ACD5 /* TripLogic.swift */,
+				3AA6CC114DE999DF14E96C32 /* TripStrings.swift */,
+			);
+			name = Shared;
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		504EC2FB1FED79650016851F = {
 			isa = PBXGroup;
 			children = (
 				958DCC722DB07C7200EA8C5F /* debug.xcconfig */,
 				504EC3061FED79650016851F /* App */,
 				504EC3051FED79650016851F /* Products */,
+				2734FD8DAB180E2DF348F0EA /* Shared */,
+				1948E20C2E6FCB159BC62E45 /* Frameworks */,
+				E42501D526093C4BB0DB5441 /* TripticWidget */,
+				8554F37C38628D27F6E1BE4B /* TripticWatch */,
 			);
 			sourceTree = "<group>";
 		};
@@ -65,6 +197,8 @@
 			isa = PBXGroup;
 			children = (
 				504EC3041FED79650016851F /* App.app */,
+				C434E4C4B93FC67462171A65 /* TripticWidget.appex */,
+				DD7680DF5F6918520C20D0E8 /* TripticWatch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -84,13 +218,94 @@
 				9A1C00012FE9A0A100AA0001 /* PrivacyInfo.xcprivacy */,
 				9A1C00032FE9A0A100AA0003 /* App.entitlements */,
 				9B5E00052FEB00A100B50005 /* InfoPlist.strings */,
+				185BA77D78F0D6704D4D5FC5 /* TripSync.swift */,
+				63C3161E4B33A4FC7F67237D /* TripSharePlugin.swift */,
+				860F5EFF0D1C0EDA9CA915CB /* MainViewController.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		5AC3F1FB49036B8F8947B082 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				6408F3EAADEF5BA81A927431 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		782A5DC1F726838C0FD58E2B /* watchOS */ = {
+			isa = PBXGroup;
+			children = (
+				CBBA26138BD3703FA9ECBC69 /* Foundation.framework */,
+			);
+			name = watchOS;
+			sourceTree = "<group>";
+		};
+		8554F37C38628D27F6E1BE4B /* TripticWatch */ = {
+			isa = PBXGroup;
+			children = (
+				17BC02D42F232F9D80A5AFD8 /* TripticWatchApp.swift */,
+				C68611E01ED9A6827881DADD /* ContentView.swift */,
+				F4022354C4EE38EC4A067E46 /* WatchModel.swift */,
+				7ABC041C8814AE1B5A60D2EC /* WatchConnectivityReceiver.swift */,
+				7D30DEA09294C07B900A290F /* Info.plist */,
+				4F91EBDE140E613159F97EE2 /* Assets.xcassets */,
+				5F1EBA581C6E5DA1B86CB699 /* PrivacyInfo.xcprivacy */,
+				39616EA67C1B673501B94398 /* InfoPlist.strings */,
+			);
+			name = TripticWatch;
+			path = TripticWatch;
+			sourceTree = "<group>";
+		};
+		E42501D526093C4BB0DB5441 /* TripticWidget */ = {
+			isa = PBXGroup;
+			children = (
+				A80573A3169E588454B72097 /* TripticWidget.swift */,
+				B7C2CD57B3BF7680F38B6316 /* Info.plist */,
+				ECA526CA2CD21ADA3A8B9100 /* TripticWidget.entitlements */,
+				87F314C17D959C70513B7F6C /* PrivacyInfo.xcprivacy */,
+			);
+			name = TripticWidget;
+			path = TripticWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		17A49579F9D04A47BC6DEB28 /* TripticWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 199364277496C1A8672BEE68 /* Build configuration list for PBXNativeTarget "TripticWatch" */;
+			buildPhases = (
+				4FA280F35F92545635862A0D /* Sources */,
+				91300B6581FB5ACF70785450 /* Frameworks */,
+				FF62407B911364272EAAEDD7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TripticWatch;
+			productName = TripticWatch;
+			productReference = DD7680DF5F6918520C20D0E8 /* TripticWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		444AF2723FCB681BC41039AF /* TripticWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A96FC1267132FAD2AEF55572 /* Build configuration list for PBXNativeTarget "TripticWidget" */;
+			buildPhases = (
+				E7BDAF08A3700EAD024FE8CD /* Sources */,
+				001D59CCCD335964172073E7 /* Frameworks */,
+				25931180D82F2E0920FE80CB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TripticWidget;
+			productName = TripticWidget;
+			productReference = C434E4C4B93FC67462171A65 /* TripticWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		504EC3031FED79650016851F /* App */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 504EC3161FED79650016851F /* Build configuration list for PBXNativeTarget "App" */;
@@ -98,10 +313,14 @@
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
+				5BE49AD62B61B5884C81B176 /* Embed Foundation Extensions */,
+				4F8C66631152A5C416DFBF7D /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				129A8F33A167A74405B3A2B9 /* PBXTargetDependency */,
+				F0B762528572BA12477ED7A9 /* PBXTargetDependency */,
 			);
 			name = App;
 			packageProductDependencies = (
@@ -147,11 +366,21 @@
 			projectRoot = "";
 			targets = (
 				504EC3031FED79650016851F /* App */,
+				444AF2723FCB681BC41039AF /* TripticWidget */,
+				17A49579F9D04A47BC6DEB28 /* TripticWatch */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		25931180D82F2E0920FE80CB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C94A107BC8041E3C2D1BC704 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		504EC3021FED79650016851F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -167,21 +396,88 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FF62407B911364272EAAEDD7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5D1643F0C2A80D2C2987D364 /* Assets.xcassets in Resources */,
+				A02B6ABBAEE37AF1B4F0919D /* PrivacyInfo.xcprivacy in Resources */,
+				AC143F6DF7FFC11982E1C8F4 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4FA280F35F92545635862A0D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB8BD2739435D701A0B7807C /* TripticWatchApp.swift in Sources */,
+				153EC27B51E817E732A02766 /* ContentView.swift in Sources */,
+				45974581C02F7F5511931D51 /* WatchModel.swift in Sources */,
+				AD27DA52AC46035E51061454 /* WatchConnectivityReceiver.swift in Sources */,
+				148683AB32C99C65DF1C8EEC /* TripModels.swift in Sources */,
+				E855ED2C411E9F3A4C101589 /* TripLogic.swift in Sources */,
+				0288F42603DF634266CA14BD /* TripStrings.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		504EC3001FED79650016851F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */,
+				771E21523771CF59DFEEA85F /* TripSync.swift in Sources */,
+				7B907BB5CACBDE365E5B3147 /* TripSharePlugin.swift in Sources */,
+				B5DACB3C8547B6BDABC092C4 /* MainViewController.swift in Sources */,
+				5B5AC0532874CDEFE385DA97 /* TripModels.swift in Sources */,
+				008A36604E4BE6EBBCEB17D8 /* TripLogic.swift in Sources */,
+				BF073ABDD48091A6F1463DCA /* TripStrings.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E7BDAF08A3700EAD024FE8CD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				10BE9CFF214C1DFA67E636DA /* TripticWidget.swift in Sources */,
+				BD3C39D90AB2887D2C594DF9 /* TripModels.swift in Sources */,
+				D3F62DC69D8456E25C0E75DE /* TripLogic.swift in Sources */,
+				FF524212E2E8E00B214BDA06 /* TripStrings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		129A8F33A167A74405B3A2B9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = TripticWidget;
+			target = 444AF2723FCB681BC41039AF /* TripticWidget */;
+			targetProxy = 7D77CEBF42AD98BD30CD2F1F /* PBXContainerItemProxy */;
+		};
+		F0B762528572BA12477ED7A9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = TripticWatch;
+			target = 17A49579F9D04A47BC6DEB28 /* TripticWatch */;
+			targetProxy = 115D3BB1EF4F229370A78C79 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin PBXVariantGroup section */
+		39616EA67C1B673501B94398 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6E31AF650081971F5F78DDF3 /* en */,
+				923BF91A58C6001E8892178B /* ko */,
+				7F24291E5D03130D82619F7D /* ja */,
+				856C599F5D5C87D5B0B2D3EE /* zh-Hant */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
 		504EC30B1FED79650016851F /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -212,6 +508,64 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		0F95452C558DA981A663650F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = TripticWidget/TripticWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TripticWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.triptic.travel.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		4A4709B38D8976344DDF9EE3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TripticWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.triptic.travel.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Debug;
+		};
 		504EC3141FED79650016851F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 958DCC722DB07C7200EA8C5F /* debug.xcconfig */;
@@ -367,9 +721,78 @@
 			};
 			name = Release;
 		};
+		90A1F9950B1BEF667113C8AC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TripticWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.triptic.travel.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Release;
+		};
+		9E54F39B1DF49347BF28EB55 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = TripticWidget/TripticWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TripticWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.triptic.travel.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		199364277496C1A8672BEE68 /* Build configuration list for PBXNativeTarget "TripticWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				90A1F9950B1BEF667113C8AC /* Release */,
+				4A4709B38D8976344DDF9EE3 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		504EC2FF1FED79650016851F /* Build configuration list for PBXProject "App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -384,6 +807,15 @@
 			buildConfigurations = (
 				504EC3171FED79650016851F /* Debug */,
 				504EC3181FED79650016851F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A96FC1267132FAD2AEF55572 /* Build configuration list for PBXNativeTarget "TripticWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9E54F39B1DF49347BF28EB55 /* Release */,
+				0F95452C558DA981A663650F /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
