@@ -1,2 +1,2 @@
-"NSLocationWhenInUseUsageDescription" = "需要定位，才能找出離你最近的行程地點。";
+"NSLocationWhenInUseUsageDescription" = "需要定位，才能顯示是否已抵達今天的行程地點及剩餘距離。";
 "CFBundleDisplayName" = "Triptic";
