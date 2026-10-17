@@ -365,8 +365,8 @@ struct LiveTexts {
     var dayLine: String { TripStrings.format("day", lang, attributes.day) }
     var hereLabel: String {
         if state.here == nil { return TripStrings.string("nowTime", lang) }
-        // 앱을 열었을 때 GPS로 잡은 거리가 있으면 '지금 · 350m', 없으면(서버 푸시) '지금 · 14:00'
-        if let m = state.hereMeters { return TripStrings.format("nowAt", lang, TripStrings.distanceText(m)) }
+        // 앱을 열었을 때 GPS로 30km 안이면 '지금 · 350m'(다음 장소에 먼저 왔으면 '도착 · 120m'), 없으면(서버 푸시·멀리) '지금 · 14:00'
+        if let m = state.hereMeters { return TripStrings.format(state.arrived == true ? "arrivedAt" : "nowAt", lang, TripStrings.distanceText(m)) }
         return state.hereTime.map { TripStrings.format("nowAt", lang, $0) } ?? TripStrings.string("nowTime", lang)
     }
     var hereName: String { state.here ?? TripStrings.string("before", lang) }
@@ -408,7 +408,8 @@ struct LiveDepartRow: View {
         } else if let hm = t.departHm, let date = t.state.departDate {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(hm).font(.system(size: big, weight: .heavy, design: .rounded))
-                Text(TripStrings.string("leaveShort", t.lang) + " ·").font(.footnote.weight(.bold))
+                // 첫 일정 전이고 이동 시간을 모르면 출발이 아니라 '시작'
+                Text(TripStrings.string(t.state.here == nil && t.state.travel == 0 ? "startShort" : "leaveShort", t.lang) + " ·").font(.footnote.weight(.bold))
                 Text(date, style: .relative).font(.footnote.weight(.bold))
             }
             .foregroundColor(t.state.urgent ? liveUrgent : .white)

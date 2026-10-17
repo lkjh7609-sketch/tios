@@ -83,5 +83,23 @@ check(TripLogic.liveSchedule([SharedPlace(n: "a", lat: 1, lng: 1, t: nil)], on: 
 let longDay = [SharedPlace(n: "a", lat: 35, lng: 139, t: "07:00"), SharedPlace(n: "b", lat: 35.01, lng: 139, t: "21:00")]
 check(TripLogic.liveSchedule(longDay, on: at("2026-11-15 00:00"), calendar: cal).filter { $0.kind == .start }.count == 3, "16시간 하루는 7시간 30분마다 다시 켬(3번)")
 if let a = TripLogic.activeTrip(payload, now: at("2026-11-15 09:30"), calendar: cal) { check(a.trip.id == "t1" && a.day == 3, "오늘 진행 중인 여행·일차") } else { check(false, "activeTrip") }
-for k in ["now","nowTime","before","next","last","leaveBy","leaveNow","inMin","inHourMin","late","travel","away","dayOf","day","nowAt","nextAt","leaveShort","liveStartBody","liveDepartTitle","liveDepartBody","noTrip","upcoming","upcomingToday","openApp","locating","needLocation","widgetName","widgetDesc","leaveIn","allowForNearest","startsToday","dDay"] { for l in ["ko","en","ja","zh-TW"] { check(TripStrings.string(k, l) != k, "문구 \(k)/\(l)") } }
+// 지금·다음 — 시간 기준 + 도착 보정(2026-10-17): 오사카 3일차 09:00 구로몬, 10:50 오사카성, 13:00 홋쿄쿠세이, 시각 없음 우메다
+let t1130 = at("2026-11-15 11:30")
+let p0 = TripLogic.position(osaka, now: t1130, calendar: cal)
+check(p0.hereIndex == 1 && !p0.arrived && p0.hereMeters == nil && p0.next?.place.n == "홋쿄쿠세이", "위치 없음 → 시각 기준 지금 오사카성")
+let pFar = TripLogic.position(osaka, lat: 37.5665, lng: 126.9780, now: t1130, calendar: cal)
+check(pFar.hereIndex == 1 && pFar.hereMeters == nil && pFar.next?.travelMinutes == p0.next?.travelMinutes, "서울(멀리) → 거리 숨김, 이동 시간은 장소 사이(\(pFar.next?.travelMinutes ?? -1)분)")
+check((pFar.next?.travelMinutes ?? 999) < 60, "멀리 있어도 이동 수천 분 같은 값 없음")
+let pNear = TripLogic.position(osaka, lat: 34.69045, lng: 135.5262, now: t1130, calendar: cal)
+check(pNear.hereIndex == 1 && !pNear.arrived && (pNear.hereMeters ?? 0) > 300 && (pNear.hereMeters ?? 0) < 400, "오사카성 350m → 지금 · 350m(도착 아님) \(Int(pNear.hereMeters ?? -1))m")
+check(pNear.next?.travelMinutes != p0.next?.travelMinutes, "30km 안 → 이동 시간은 내 위치에서")
+let pEarly = TripLogic.position(osaka, lat: 34.6689, lng: 135.5013, now: t1130, calendar: cal)
+check(pEarly.hereIndex == 2 && pEarly.arrived && (pEarly.hereMeters ?? 999) < 300 && pEarly.next?.place.n == "우메다 공중정원", "13:00 장소에 11:30 도착 → 앞당김")
+let pHotel = TripLogic.position(osaka, lat: 34.7053, lng: 135.4900, now: at("2026-11-15 08:00"), calendar: cal)
+check(pHotel.hereIndex == -1 && !pHotel.arrived && pHotel.next?.place.n == "구로몬 시장", "아침에 마지막 장소(우메다) 옆이어도 '첫 일정 전' 그대로")
+let pFirst = TripLogic.position(osaka, lat: 34.6655, lng: 135.5063, now: at("2026-11-15 08:30"), calendar: cal)
+check(pFirst.hereIndex == 0 && pFirst.arrived && pFirst.next?.place.n == "오사카성", "첫 일정 장소에 먼저 도착 → 앞당김")
+check(TripStrings.durationText(minutes: 40, "ko") == "40분" && TripStrings.durationText(minutes: 65, "en") == "1h 5m", "걸린 시간 문구")
+check(TripStrings.format("earlyBy", "ko", "14:00", "40분") == "일정 14:00 · 40분 일찍", "일찍 도착 문구")
+for k in ["now","nowTime","before","next","last","tomorrowDay","arrivedAt","earlyBy","noTime","startIn","startsNow","startShort","minutes","hourMinutes","leaveBy","leaveNow","inMin","inHourMin","late","travel","away","dayOf","day","nowAt","nextAt","leaveShort","liveStartBody","liveDepartTitle","liveDepartBody","noTrip","upcoming","upcomingToday","openApp","locating","needLocation","widgetName","widgetDesc","leaveIn","allowForNearest","startsToday","dDay"] { for l in ["ko","en","ja","zh-TW"] { check(TripStrings.string(k, l) != k, "문구 \(k)/\(l)") } }
 print(fails == 0 ? "ALL PASS" : "\(fails) FAILED"); exit(fails == 0 ? 0 : 1)

@@ -6,7 +6,7 @@ private let urgent = Color(red: 1.0, green: 0.62, blue: 0.04)
 /// 한 화면(2026-10-17 사용자 결정 — 캔버스 시안 C '경로 타임라인'): 시계 줄 왼쪽 '1일차', 본문 맨 위 여행 이름,
 /// 그 아래 왼쪽 세로선(지금 ● → 다음 ○)과 지금 장소 → 이동 시간 → 다음 일정 시각·장소 → 큰 출발 시각.
 /// 큰 숫자는 '출발 시각'(다음 일정 시각 − 이동 시간)이라 일정 시각을 따로 '다음 일정 · 14:45'로 보여 준다.
-/// 곧 출발(20분 이하)은 주황. 위치를 못 잡으면 시각 기준으로 대신 안내한다. 길면 디지털 크라운으로 내린다.
+/// 곧 출발(20분 이하)은 주황. 지금·다음은 시각 기준, GPS는 도착(300m)·거리 표시(30km 안)에만 — TripLogic.position. 길면 디지털 크라운으로 내린다.
 struct ContentView: View {
     @ObservedObject var model: WatchModel
 
@@ -85,8 +85,9 @@ struct ContentView: View {
     }
 
     private func planBody(plan: ActivePlan, lang: String, now: Date) -> some View {
-        let here = model.hereState(in: plan, now: now)
-        let stop = model.next(in: plan, now: now)
+        let pos = model.position(in: plan, now: now)
+        let stop = pos.next
+        let started = pos.hereIndex >= 0 && pos.hereIndex < plan.places.count
         let isUrgent: Bool = {
             if let m = stop?.minutesUntilDeparture { return m <= TripLogic.urgentMinutes }
             return false
@@ -98,7 +99,11 @@ struct ContentView: View {
             // 1행: ● 지금 장소 (+ 이동 시간). 왼쪽 선이 이 행 끝까지 내려가 2행의 ○와 이어진다
             HStack(alignment: .top, spacing: 8) {
                 VStack(spacing: 3) {
-                    Circle().fill(brand).frame(width: 10, height: 10)
+                    if started {
+                        Circle().fill(brand).frame(width: 10, height: 10)
+                    } else {
+                        Circle().strokeBorder(Color.secondary, lineWidth: 2).frame(width: 10, height: 10)
+                    }
                     if stop != nil {
                         Rectangle().fill(Color.white.opacity(0.25)).frame(width: 2).frame(maxHeight: .infinity)
                     }
@@ -106,7 +111,7 @@ struct ContentView: View {
                 .padding(.top, 4)
                 .frame(width: 10)
                 VStack(alignment: .leading, spacing: 1) {
-                    hereBlock(here, plan: plan, lang: lang)
+                    hereBlock(pos, plan: plan, lang: lang, now: now)
                     if let stop = stop, stop.travelMinutes > 0 {
                         Text("↓ " + TripStrings.format("travel", lang, stop.travelMinutes))
                             .font(.caption2).foregroundColor(.secondary)
@@ -135,49 +140,62 @@ struct ContentView: View {
                                     .font(.system(size: 26, weight: .heavy, design: .rounded))
                                     .minimumScaleFactor(0.8)
                                     .lineLimit(1)
-                                Text(departLine(minutes: minutes, lang: lang))
+                                // 첫 일정 전이고 이동 시간을 모르면(멀리 있음) 출발이 아니라 '시작 · 24분 후'
+                                Text(started || stop.travelMinutes > 0 ? departLine(minutes: minutes, lang: lang) : startLine(minutes: minutes, lang: lang))
                                     .font(.caption2.weight(.bold))
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                             .foregroundColor(isUrgent ? urgent : .primary)
                             .padding(.top, 2)
+                        } else {
+                            Text(TripStrings.string("noTime", lang))
+                                .font(.caption2.weight(.semibold)).foregroundColor(.secondary)
+                                .padding(.top, 2)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
             } else {
-                Text(TripStrings.string("last", lang))
-                    .font(.footnote.weight(.semibold))
-                    .padding(.leading, 18)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(TripStrings.string("last", lang))
+                        .font(.footnote.weight(.semibold)).foregroundColor(.secondary)
+                    if plan.day < plan.totalDays {
+                        Text(TripStrings.format("tomorrowDay", lang, plan.day + 1))
+                            .font(.caption2).foregroundColor(.secondary)
+                    }
+                }
+                .padding(.leading, 18)
+                .padding(.top, 4)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 4)
     }
 
-    /// 지금 있는 곳 — GPS가 있으면 가장 가까운 일정 장소와 거리, 없으면 시각 기준 '지금 일정'
+    /// 지금 있는 곳 — 시각 기준 지금 일정. 30km 안이면 거리, 시각보다 먼저 다음 장소 300m 안에 오면 '도착 · 120m'
     @ViewBuilder
-    private func hereBlock(_ state: WatchModel.HereState, plan: ActivePlan, lang: String) -> some View {
-        switch state {
-        case .gps(let index, let meters):
-            Text(TripStrings.format("nowAt", lang, TripStrings.distanceText(meters)))
+    private func hereBlock(_ pos: TripLogic.Position, plan: ActivePlan, lang: String, now: Date) -> some View {
+        if pos.hereIndex >= 0, pos.hereIndex < plan.places.count {
+            let place = plan.places[pos.hereIndex]
+            Text(hereLabel(pos, place: place, lang: lang))
                 .font(.caption2.weight(.semibold)).foregroundColor(brand)
-            placeName(plan.places[min(index, plan.places.count - 1)].n)
-        case .timed(let index):
-            if index >= 0, index < plan.places.count {
-                Text(plan.places[index].t.map { TripStrings.format("nowAt", lang, $0) } ?? TripStrings.string("nowTime", lang))
-                    .font(.caption2.weight(.semibold)).foregroundColor(brand)
-                placeName(plan.places[index].n)
-            } else {
-                Text(TripStrings.string("nowTime", lang))
-                    .font(.caption2.weight(.semibold)).foregroundColor(brand)
-                Text(TripStrings.string("before", lang)).font(.footnote.weight(.semibold))
+            placeName(place.n)
+            if pos.arrived, let t = place.t, let at = TripLogic.time(t, on: now, .current), at > now {
+                Text(TripStrings.format("earlyBy", lang, t, TripStrings.durationText(minutes: Int(at.timeIntervalSince(now) / 60), lang)))
+                    .font(.caption2).foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            // 위치를 못 잡은 이유 — 시각 기준으로 대신 안내 중임을 알려 준다
-            Text(TripStrings.string(model.locationDenied ? "allowForNearest" : "locating", lang))
-                .font(.caption2).foregroundColor(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+        } else {
+            Text(TripStrings.string("before", lang))
+                .font(.caption2.weight(.semibold)).foregroundColor(.secondary)
         }
+    }
+
+    private func hereLabel(_ pos: TripLogic.Position, place: SharedPlace, lang: String) -> String {
+        if let m = pos.hereMeters {
+            return TripStrings.format(pos.arrived ? "arrivedAt" : "nowAt", lang, TripStrings.distanceText(m))
+        }
+        return place.t.map { TripStrings.format("nowAt", lang, $0) } ?? TripStrings.string("nowTime", lang)
     }
 
     /// 장소 이름 — 길면 줄바꿈(자르지 않음)
@@ -192,6 +210,11 @@ struct ContentView: View {
         if minutes < 0 { return TripStrings.string("late", lang) }
         if minutes == 0 { return TripStrings.string("leaveNow", lang) }
         return TripStrings.format("leaveIn", lang, TripStrings.untilText(minutes: minutes, lang))
+    }
+
+    /// 첫 일정 '시작 · 24분 후' / 0분 이하 '지금 시작'
+    private func startLine(minutes: Int, lang: String) -> String {
+        minutes <= 0 ? TripStrings.string("startsNow", lang) : TripStrings.format("startIn", lang, TripStrings.untilText(minutes: minutes, lang))
     }
 
     private func hm(_ date: Date) -> String {

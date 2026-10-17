@@ -20,9 +20,18 @@ public enum TripStrings {
     private static let table: [String: [String: String]] = [
         "now": ["ko": "현재 위치", "en": "Now at", "ja": "現在地", "zh-TW": "目前位置"],
         "nowTime": ["ko": "지금 일정", "en": "Now", "ja": "今の予定", "zh-TW": "目前行程"],
-        "before": ["ko": "첫 일정 전", "en": "Before first stop", "ja": "最初の予定の前", "zh-TW": "第一站之前"],
+        "before": ["ko": "오늘 첫 일정 전", "en": "Before today's first stop", "ja": "今日の最初の予定の前", "zh-TW": "今天第一站之前"],
         "next": ["ko": "다음", "en": "Next", "ja": "次", "zh-TW": "下一站"],
-        "last": ["ko": "마지막 일정이에요", "en": "That was the last stop", "ja": "最後の予定です", "zh-TW": "這是最後一站"],
+        "last": ["ko": "오늘 마지막 장소예요", "en": "Last stop today", "ja": "今日最後の場所です", "zh-TW": "今天最後一站"],
+        "tomorrowDay": ["ko": "내일 · %d일차", "en": "Tomorrow · Day %d", "ja": "明日 · %d日目", "zh-TW": "明天 · 第 %d 天"],
+        "arrivedAt": ["ko": "도착 · %@", "en": "Arrived · %@", "ja": "到着 · %@", "zh-TW": "已抵達 · %@"],
+        "earlyBy": ["ko": "일정 %@ · %@ 일찍", "en": "Planned %@ · %@ early", "ja": "予定 %@ · %@早く", "zh-TW": "預定 %@ · 提早 %@"],
+        "noTime": ["ko": "시간 미정", "en": "No time set", "ja": "時間未定", "zh-TW": "時間未定"],
+        "startIn": ["ko": "시작 · %@", "en": "Starts %@", "ja": "開始 · %@", "zh-TW": "開始 · %@"],
+        "startsNow": ["ko": "지금 시작", "en": "Starting now", "ja": "まもなく開始", "zh-TW": "即將開始"],
+        "startShort": ["ko": "시작", "en": "Starts", "ja": "開始", "zh-TW": "開始"],
+        "minutes": ["ko": "%d분", "en": "%d min", "ja": "%d分", "zh-TW": "%d 分鐘"],
+        "hourMinutes": ["ko": "%d시간 %d분", "en": "%dh %dm", "ja": "%d時間%d分", "zh-TW": "%d 小時 %d 分鐘"],
         "leaveBy": ["ko": "%@ 출발", "en": "Leave by %@", "ja": "%@ 出発", "zh-TW": "%@ 出發"],
         "leaveNow": ["ko": "지금 출발", "en": "Leave now", "ja": "今すぐ出発", "zh-TW": "現在出發"],
         "inMin": ["ko": "%d분 후", "en": "in %d min", "ja": "%d分後", "zh-TW": "%d 分鐘後"],
@@ -67,6 +76,12 @@ public enum TripStrings {
         if minutes <= 0 { return string("leaveNow", lang) }
         if minutes < 60 { return format("inMin", lang, minutes) }
         return format("inHourMin", lang, minutes / 60, minutes % 60)
+    }
+
+    /// 분 → "40분" / "1시간 5분"(후·전 없이)
+    public static func durationText(minutes: Int, _ lang: String) -> String {
+        if minutes < 60 { return format("minutes", lang, max(minutes, 0)) }
+        return format("hourMinutes", lang, minutes / 60, minutes % 60)
     }
 
     /// 거리(m) 표기 — 1km 미만은 m, 이상은 소수 한 자리 km

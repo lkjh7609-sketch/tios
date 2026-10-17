@@ -200,7 +200,8 @@ final class LiveActivityManager {
         }
     }
 
-    /// 앱을 열었을 때만(A안, 2026-10-17): 이미 '앱 사용 중' 위치를 허용했으면 한 번 위치를 받아 '지금 · 350m'로 바꾼다.
+    /// 앱을 열었을 때만(A안, 2026-10-17): 이미 '앱 사용 중' 위치를 허용했으면 한 번 위치를 받아 워치와 같은 규칙(TripLogic.position)으로 바꾼다 —
+    /// 30km 안이면 '지금 · 350m', 다음 장소 300m 안이면 '도착 · 120m'로 앞당김, 멀면 시각 기준 그대로.
     /// 새 권한은 묻지 않는다. 잠긴 동안 서버 푸시가 오면 시각 기준 내용으로 돌아간다(서버는 위치를 모른다).
     private let locator = OneShotLocator()
     private func updateWithLocation(_ activity: Activity<TripActivityAttributes>, places: [SharedPlace]) {

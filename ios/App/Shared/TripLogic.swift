@@ -146,6 +146,51 @@ public enum TripLogic {
         }
         return NextStop(place: next, travelMinutes: travel, departAt: departAt, minutesUntilDeparture: until)
     }
+
+    // MARK: 지금·다음 — 시간 기준 + 도착 보정 (사용자 결정 2026-10-17)
+    // 예전엔 GPS로 '가장 가까운 일정 장소'를 지금으로 잡아서, 멀리 있으면(공항·다른 도시) 828km·이동 2385분처럼 엉뚱하게 나왔다.
+    // 이제 지금·다음은 시각으로 정하고(위젯·라이브 액티비티와 같음), GPS는 ① 도착 판단 ② 가까울 때 거리 표시에만 쓴다.
+
+    /// 일정 장소 이 거리 안에 있으면 '도착' — 그 장소가 시각상 다음 일정이면 바로 앞당긴다
+    public static let arrivedMeters = 300.0
+    /// 이 거리 안일 때만 거리를 보여 주고 이동 시간도 내 위치에서 잰다. 멀면 거리를 숨기고 일정 장소 사이 이동 시간
+    public static let nearbyMeters = 30_000.0
+
+    public struct Position: Equatable {
+        public let hereIndex: Int        // 지금 일정, -1 = 첫 일정 전
+        public let arrived: Bool         // GPS로 시각보다 먼저 다음 장소에 도착해 앞당겼다
+        public let hereMeters: Double?   // 지금 장소까지 거리 — 30km 안일 때만
+        public let next: NextStop?
+    }
+
+    /// 지금·다음 장소. 위치(lat/lng)가 없으면 시각만으로.
+    /// 도착 판단은 지금 일정과 바로 다음 일정 장소만 본다 — 저녁 일정인 호텔 옆에서 아침을 맞아도 '마지막 장소'로 건너뛰지 않게.
+    public static func position(_ places: [SharedPlace], lat: Double? = nil, lng: Double? = nil, now: Date = Date(), calendar cal: Calendar = .current) -> Position {
+        let byTime = currentIndexByTime(places, now: now, calendar: cal)
+        var here = byTime
+        var hereMeters: Double?
+        if let la = lat, let ln = lng {
+            var best: (index: Int, meters: Double)?
+            for i in [byTime, byTime + 1] where i >= 0 && i < places.count {
+                let d = distanceMeters(la, ln, places[i].lat, places[i].lng)
+                if d <= arrivedMeters, best == nil || d < best!.meters { best = (i, d) }
+            }
+            if let b = best { here = b.index }
+            if here >= 0 && here < places.count {
+                let d = distanceMeters(la, ln, places[here].lat, places[here].lng)
+                if d <= nearbyMeters { hereMeters = d }
+            }
+        }
+        let nextIdx = here + 1
+        let next: NextStop?
+        if let la = lat, let ln = lng, nextIdx < places.count,
+           distanceMeters(la, ln, places[nextIdx].lat, places[nextIdx].lng) <= nearbyMeters {
+            next = nextStop(places: places, currentIndex: here, fromLat: la, fromLng: ln, now: now, calendar: cal)
+        } else {
+            next = nextStop(places: places, currentIndex: here, now: now, calendar: cal)
+        }
+        return Position(hereIndex: here, arrived: here != byTime, hereMeters: hereMeters, next: next)
+    }
 }
 
 // MARK: 라이브 액티비티 일정(잠금 화면·다이내믹 아일랜드·워치 스마트 스택)
