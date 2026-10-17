@@ -37,6 +37,6 @@
 	<key>WKCompanionAppBundleIdentifier</key>
 	<string>com.triptic.travel</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Find the itinerary stop closest to you.</string>
+	<string>Shows whether you have arrived at today&apos;s stops and how far away they are.</string>
 </dict>
 </plist>

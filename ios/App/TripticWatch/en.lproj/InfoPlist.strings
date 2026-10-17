@@ -1,2 +1,2 @@
-"NSLocationWhenInUseUsageDescription" = "Find the itinerary stop closest to you.";
+"NSLocationWhenInUseUsageDescription" = "Shows whether you have arrived at today's stops and how far away they are.";
 "CFBundleDisplayName" = "Triptic";

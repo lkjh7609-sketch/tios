@@ -1,2 +1,2 @@
-"NSLocationWhenInUseUsageDescription" = "일정 장소 중 지금 가장 가까운 곳을 찾으려면 위치가 필요해요.";
+"NSLocationWhenInUseUsageDescription" = "오늘 일정 장소에 도착했는지와 남은 거리를 보여 주려면 위치가 필요해요.";
 "CFBundleDisplayName" = "Triptic";

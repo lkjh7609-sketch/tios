@@ -1,5 +1,5 @@
 /* Triptic — 설치된 앱 이름(홈 화면)과 권한 요청 문구의 ja 판 */
 "CFBundleDisplayName" = "Triptic";
-"NSLocationWhenInUseUsageDescription" = "地図に現在地を表示し、周辺の場所を検索するために位置情報を使用します。";
+"NSLocationWhenInUseUsageDescription" = "地図に現在地を表示し、周辺の場所を検索し、ロック画面の日程（ライブアクティビティ）に次の場所までの距離を表示するために位置情報を使用します。";
 "NSPhotoLibraryUsageDescription" = "旅の記録や予約書類の写真をアップロードするために、写真ライブラリにアクセスします。";
 "NSCameraUsageDescription" = "同行者のQRコードを読み取って、同じグループのメンバーか確認するためにカメラを使用します。";
