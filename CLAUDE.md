@@ -4,7 +4,7 @@
 
 ## 🧭 먼저 읽기: 진행 현황
 
-**`docs/launch/STATUS.md`** — 1.0.0 심사 타임라인(2.1 두 번 답변·재제출), 제품 결정, PR 상태, 출시 뒤 순서가 한 파일에 있다. 심사 답장 원문은 `docs/launch/review-2026-10/`.
+**이 파일의 '🚀 iOS 앱' 절**이 최신 현황(2026-10-17)이다. `docs/launch/STATUS.md`는 1.0.0 승인(2026-10-16)까지의 심사 기록(2.1 두 번 답변·재제출, 제품 결정). 심사 답장 원문은 `docs/launch/review-2026-10/`. 위젯·워치·라이브 액티비티의 결정 기록은 `docs/ios-widget-watch.md`, 날짜별 변경은 `docs/updates/4-v1.1.0/changelog.md`.
 
 ## 📱 이 폴더는 앱 전용 복제본 (2026-10-11)
 
@@ -13,50 +13,51 @@
 - 웹 저장소와 헷갈리지 말 것: 여기서 push/PR 해도 웹은 배포되지 않는다. 웹에 필요한 수정은 `~/Triptic`에서 따로 한다.
 - 2026-10-11 Google Maps 키가 옛 커밋(2026-07-08 `index.html`)에 노출돼 두 저장소 히스토리에서 지우고 키를 폐기했다. **비밀값은 코드·문서·채팅에 쓰지 않는다.**
 
-## 🚀 iOS 앱 출시 — 1.0.0 MVP로 진행 (2026-10-12 결정, 이전의 '보류'를 대체)
+## 🚀 iOS 앱 — 1.0.0 출시됨(2026-10-16 승인), 지금은 1.0.1 준비 (2026-10-17 갱신)
 
-**결정(사용자)**: Kayak 운영 키를 기다리지 않고 **현재 구조(항공 = Ignav 운임 목록 + 예약은 Trip.com KR/Kiwi.com, 호텔 = Agoda, 투어 = 마이리얼트립·Klook)로 MVP 출시**. Kayak 키가 오면 그때 바꾼다(기존 계획 유지). **프로·인앱결제 없이** 출시(사업자 미정) — 앱에서 프로를 팔거나 외부 결제로 유도하지 않는다(Apple 3.1.1). 여행 생성 한도는 **일단 무제한**(2026-10-12, `trip_limit`=1000 — 사용자가 모이면 다시 둔다, 방법은 `0114_unlimited_free_trips.sql`; 리딤 코드는 폐기 — 메모 참고). **한국 + 호주** 스토어, 무료, iPhone 전용. 심사·메타데이터 입력값은 `docs/launch/app-store-listing.md`, 심사용 계정은 `~/Desktop/Triptic 보안/App Review/demo-account.txt`(저장소에 비밀번호 쓰지 않는다).
-**상태(2026-10-12)**: App Store Connect 앱 생성됨(1.0 Prepare for Submission, 번들 `com.triptic.travel`), 푸시(APNs) 서버·앱 실기기 확인, Supabase Redirect URL(`com.triptic.travel://auth/callback`) 등록 확인, `MARKETING_VERSION=1.0.0`(설정 화면 버전은 앱에서 설치된 앱 버전을 읽는다), 약관·개인정보처리방침 2026-10-12 반영(웹 저장소 PR로 배포), Universal Link용 AASA는 웹 저장소에서 배포(`~/Triptic` `public/.well-known/`).
-**남은 것**: Apple 입력(앱 정보·연령 등급·콘텐츠 권한·App Privacy·가격/국가·스크린샷·App Review 메모), 웹 PR 머지·AASA 응답 확인, 최종 빌드 선택 후 심사 제출. TestFlight 외부 테스트는 필수 아님.
+**제품 결정(사용자, 2026-10-12~)**: 항공 = Ignav 운임 목록 + 예약 Trip.com KR/Kiwi.com, 호텔 = Agoda, 투어 = 마이리얼트립·Klook(Kayak은 운영 키가 오면). **프로·인앱결제 없음**(Apple 3.1.1 — 앱에서 프로를 팔거나 외부 결제로 유도하지 않는다). 등급(프로) 화면은 앱·웹 모두 삭제(tios #34, 웹 #45) — DB `plan`/`trip_limit`·운영 콘솔은 남김, 약관 제5조 "한도를 둘 수 있다"는 유지(사용자 결정). 여행 생성 한도 **무제한**(`trip_limit`=1000, `0114`). 리딤 코드 폐기. 판매국 한국·호주·일본·대만, 무료, iPhone 전용. 심사·메타데이터는 `docs/launch/app-store-listing.md`, 심사용 계정은 `~/Desktop/Triptic 보안/App Review/demo-account.txt`(저장소에 비밀번호 쓰지 않는다).
 
-### 진행하다 만 것 (PR #10, 되돌려 main에서 빠짐 — 내용은 git 기록에 있다)
-- 브랜치 `admin/native-push`(origin에 남아 있음), 머지 커밋 `e0f2133`(PR #10) — **되살리려면 새 폴더에서 이 브랜치/커밋을 가져온다**.
-  - `3b76a8b` 푸시 서버: Edge Function `supabase/functions/send-push`(APNs, ES256 JWT를 WebCrypto로 서명) + `supabase/migrations/0103_push_delivery.sql`(댓글·답글 알림 트리거, 출발 3일 전 cron 09:05 한국, `push_log`). 함수 배포·APNs 비밀값(APNS_KEY·APNS_KEY_ID·APNS_TEAM_ID·APNS_TOPIC) 등록 **뒤에** 0103을 적용한다(운영 DB에는 **미적용**). 좋아요는 안 보낸다. 잠금 화면 문구엔 글 내용 없음.
-  - `0dd4cb3` 푸시 앱 쪽: 로그인하면 권한 묻고 기기 등록(`PushBootstrap`), 알림 탭 → 앱 안 경로 이동, 로그아웃 때 이 기기 토큰 삭제.
-  - `db349d9` iOS 설정: `App.entitlements`(푸시·Apple 로그인·`applinks:triptic.my`), `PrivacyInfo.xcprivacy`, Info.plist(원격 알림·사진 보관함 문구), AppDelegate 토큰 전달, pbxproj 연결, `public/.well-known/apple-app-site-association`(+vercel.json 헤더), `codemagic.yaml`.
-- **사용자 결정**: **iPhone 전용**(project.pbxproj `TARGETED_DEVICE_FAMILY = "1,2"` → `"1"`로 바꾸고 iPad 방향 키 정리 — 아직 안 바꿈), 푸시 알림 포함.
+**현황**
+- **1.0.0(빌드 11) 2026-10-16 승인** — 심사 기록 `docs/launch/STATUS.md`(승인 전까지), 답장 원문 `docs/launch/review-2026-10/`.
+- **1.0.1 = main** (`MARKETING_VERSION=1.0.1`). TestFlight 1.0.1 (16)까지 올라감 — 위젯·워치·라이브 액티비티 포함.
+- **남은 것**: TestFlight 확인 → 빌드 선택 → App Store Connect 언어별 개인정보처리방침 URL(영어 `https://triptic.my/privacy-en.html`, 일본어 `…/privacy-ja.html`, 중국어(번체) `…/privacy-zh-TW.html`, 한국어 `…/privacy.html`) → 심사 제출(사용자 승인).
+
+**빌드**: Codemagic 팀 "Triptic", 워크플로 "Triptic iOS (TestFlight)"(`codemagic.yaml`), 기기 **`mac_mini_m2`**(2026-10-17 사용자 요청), 빌드 번호 = TestFlight 마지막 + 1, TestFlight로 자동 업로드. **main에서** 빌드한다(위젯·워치가 main에 들어옴). Xcode가 이 컴퓨터에 없어 Swift 화면 코드는 Codemagic 빌드가 첫 컴파일 확인이다.
+
+### 🙋 작업 규칙 (사용자 지시 — 반드시 지킬 것)
+- **빌드·머지·운영 배포·외부 계정 작업(Apple Developer, App Store Connect, Codemagic, Supabase 운영)** 은 바로 그 직전에 사용자 허락을 받는다. "진행해"라고 해도 범위·대상·순서가 불확실하면 다시 묻는다. 맘대로 판단하지 않는다.
+- 빌드·머지 직전, 앞서 물었는데 답을 못 받은 질문이 있으면 먼저 다시 묻는다(2026-10-17 — 빌드 뒤에 물어 혼남).
+- 코드 수정·로컬 시험·PR 준비는 묻지 않고 해도 된다. 기록(이 파일·`docs/`·메모)을 먼저 읽고 천천히 생각한다.
+- 사용자에게 보이는 글은 **한국어로만**(진행 안내 포함). 비밀값(키·토큰·비밀번호)은 코드·문서·채팅에 쓰지 않는다.
+- 운영 DB 변경은 사용자가 적용한다(허락하면 `supabase db query --linked -f <파일>`로 대신 적용).
+- 웹·앱 공용 코드(`src/`)는 두 저장소에 같이 고친다(웹 `~/Triptic` PR은 머지 = triptic.my 배포, 앱 PR은 다음 빌드에 들어감).
+
+### 위젯 + 애플워치 + 라이브 액티비티 (PR #25, 2026-10-17 main 머지)
+- 구조·번들 ID·확인 목록 `docs/ios-widget-watch.md`, 프로젝트 파일 `scripts/ios-add-widget-watch.rb`, 순수 계산 시험 `sh ios/Tests/run.sh`.
+- 시안 캔버스: https://claude.ai/artifact/4QGxUzsUEwKUwy7yYkr8AA — 워치 = C '경로 타임라인' 한 화면, 라이브 액티비티 = '라이브 2', 맨 아래 줄 1~6 = '지금' 방식.
+- **'지금' 정하는 방식**(2026-10-17): 시간 기준 + 도착 보정 — `TripLogic.position`. GPS는 지금/바로 다음 일정 장소 **300m 안 '도착'**(앞당김)과 **30km 안 거리 표시**에만. 워치·라이브 액티비티 같음.
+- 라이브 액티비티: 여행 당일 앱을 열면 켜고, 다음 일정·출발 진동·8시간마다 다시 켜기는 서버 푸시. 함수 `live-activity` + `supabase/migrations/0116_live_activity.sql` **운영 적용됨**(2026-10-17, 1분 cron `live-activity-tick`, 되돌리기는 0116 머리말). iOS 17.2+만 서버가 켤 수 있다.
+- Apple Developer: App Group `group.com.triptic.travel`, App ID `com.triptic.travel.widget` 등록됨.
+
+### 출시 뒤 할 일
+- [x] 인천 전광판 정기 갱신(PR #29, 0115 운영 적용, cron `airport-board-refresh`, 되돌리기 `select cron.unschedule('airport-board-refresh');`)
+- [x] 공항 화면 로딩 표시 개선(tios #31)
+- [x] 위젯 + 애플워치 + 라이브 액티비티(PR #25)
+- [ ] 1.0.1 심사 제출(위 '남은 것')
+- [ ] 스마트 앱 배너 — 웹 `index.html`에 `<meta name="apple-itunes-app" content="app-id=6820429874">`(+`app-argument`), 웹 저장소 PR로
+- [ ] 계정 삭제 시 Apple 로그인 토큰 철회(가이드라인 5.1.1(v))
+- [ ] (검토) 워치 컴플리케이션·스마트 스택 위젯
 
 ### 이미 main에 있는 앱 관련 코드 (웹에서는 동작하지 않아야 한다)
-- PR #9 앱 소셜 로그인: `src/shared/api/nativeAuth.ts`(인앱 브라우저 → `com.triptic.travel://auth/callback?code=` 복귀, 앱에서만 PKCE), `@capacitor/app`·`@capacitor/browser`, Info.plist URL scheme. ⚠️ Supabase Authentication → URL Configuration → Redirect URLs에 `com.triptic.travel://auth/callback` 등록 필요(운영 설정, 사용자).
+- 앱 소셜 로그인(PR #9): `src/shared/api/nativeAuth.ts`(인앱 브라우저 → `com.triptic.travel://auth/callback?code=` 복귀, 앱에서만 PKCE). Supabase Redirect URL 등록됨.
+- 푸시(APNs): 함수 `send-push` + `0103_push_delivery.sql`, 앱 `PushBootstrap`(로그인 뒤 권한·기기 등록, 로그아웃 때 토큰 삭제). 좋아요는 안 보낸다, 잠금 화면에 글 내용 없음.
 - 앱에서 바깥 링크는 인앱 브라우저(`src/shared/externalLink.ts`), 호텔 탭은 웹=검색창 위젯 / 앱=구글 자동완성+우리 화면 결과(`HotelsScreen`).
-- **웹 항공 탭(2026-10-09)**: 모든 언어에서 우리 화면의 운임 목록(Ignav) + 예약은 Trip.com KR(한국어)/Kiwi.com(그 외, Travelpayouts) 딥링크. 앱 재개 때 이 구조를 쓸지는 사용자 결정(Kayak은 보류).
-- Kayak 연결은 **전부 제거됨**(PR #7, 커밋 `bae400c`) — Kayak 운영 키가 오면 그 이전 상태(항공 결과 목록은 `f09a626`에서 만들었다)를 되살려 항공에 붙인다. 호텔은 Agoda로 대체됨(화면에 제휴사 이름을 쓰지 않는다는 사용자 결정).
+- 공개 조회 API(CDN 캐시)는 `applyPublicCors`(ACAO `*`), 로그인 필요한 API는 `applyCors(..., 'Content-Type, Authorization')` — 앱(`capacitor://localhost`)은 다른 출처라 빠지면 앱에서만 실패한다(2026-10-17 항공 특가·AI 추천 사고, 웹 `api/_lib/http.test.js`가 검사).
 
 ### 반드시 기억할 함정
 1. **`isNativeApp()`**: `window.Capacitor`가 있는지만 보면 안 된다 — `@capacitor/core`를 번들에 넣으면 웹에서도 그 전역이 생긴다. 2026-10-08 푸시 코드를 메인 번들에 넣었다가 **웹 호텔 탭·소셜 로그인이 앱 방식으로 바뀌는 사고**가 났다. 지금은 `isNativePlatform()`을 본다(`src/shared/platform.ts`, 시험 있음). 앱 전용 코드를 웹 번들에 정적으로 import하기 전에 웹 동작을 꼭 확인할 것.
 2. **약관·개인정보처리방침 원본은 루트 `terms.html`/`privacy.html`** 이다. 빌드(`scripts/build.js`)가 루트 → `public/`으로 덮어쓰므로 `public/`만 고치면 운영에 안 나간다(두 번 겪음). (2026-10-08 루트에 반영 완료 — 제휴사·방침을 바꿀 때마다 루트부터 고칠 것.)
-3. Xcode가 이 컴퓨터에 없다(명령줄 도구만) — iOS 빌드는 **Codemagic**에서. pbxproj·plist는 문법(`plutil -lint`)·참조만 검증했고 실제 빌드는 못 했다.
+3. Xcode가 이 컴퓨터에 없다(명령줄 도구만) — iOS 빌드·Swift 화면 코드 컴파일 확인은 **Codemagic**에서만(빌드 #16~#20 성공). 로컬에서는 pbxproj·plist 문법(`plutil -lint`)과 순수 계산 시험(`sh ios/Tests/run.sh`)만.
 4. 앱에서 구글 지도 키의 '웹 주소 제한'이 `capacitor://localhost`에서 막힐 수 있다 — 첫 TestFlight에서 지도가 뜨는지 확인.
 5. 사용자 질문은 한두 번에 묶어서, 불확실하면 임의로 정하지 말고 묻는다. 비밀값(키·토큰)은 채팅에 쓰지 않는다.
-
-### ⏸ 보류 중 — 위젯 + 애플워치 앱 (1.1.0 후보, 사용자 결정 2026-10-12: **1.0.0 승인 뒤에 다시 논의**)
-- 요청: 애플워치에서 GPS로 일정 장소 중 가장 가까운 곳을 '현재 위치'로, 아래에 다음 장소·출발 시각. 폰에는 위젯(홈/잠금 화면).
-- 코드는 **브랜치 `app/widget-watch` · PR #25(초안, 머지 금지)**에 있다. 구조·번들 ID·확인 목록은 `docs/ios-widget-watch.md`(이 PR에 사본), 프로젝트 파일은 `scripts/ios-add-widget-watch.rb`.
-- ⚠️ **Xcode 없이 작성해 한 번도 빌드하지 못했다**(문법 검사·계산 시험 `sh ios/Tests/run.sh`만). 합치기 전에 Codemagic에서 그 브랜치를 먼저 빌드해 검증한다. 먼저 Apple Developer 사이트에서 앱 그룹 `group.com.triptic.travel` 등록 + `com.triptic.travel`·`.widget`에 App Groups 켜기(사용자 로그인 필요).
-- 워치 화면 디자인은 아직 못 봤다 — 코드를 다듬기 전에 기기 모양 시안(웹 미리보기)을 먼저 만들어 확정하자고 제안해 둠.
-- 심사 중에는 main에 합치지 않는다. 1.0.1은 main에서 만든다.
-
-### ⏭ 출시(승인) 뒤에 바로 진행할 것 (사용자 결정 2026-10-12 — **지금은 적용하지 않는다**)
-1. **인천 전광판 정기 갱신** — 한국 06:00~24:00에 5분마다 DB(pg_cron)가 `incheon-board`를 불러 미리 받아 둔다(첫 방문 3~4초 빈 화면 해소). 코드는 브랜치 `airport/incheon-cron` · 초안 PR #29(`supabase/migrations/0115_incheon_board_cron.sql`, `refreshPolicy.ts`). **순서: ① `supabase functions deploy incheon-board` ② 0115 SQL 실행**(운영 적용은 사용자). 되돌리기 `select cron.unschedule('airport-board-refresh');`. 하루 외부 호출 약 432회(상한 900). 한국공항공사(`kac-board`)는 같은 문제지만 이번 범위 아님.
-2. **공항 화면 로딩 표시 개선(선택 제안, 아직 미승인)** — '불러오는 중' 문구 + 뼈대 줄, 마지막 값을 기기에 저장해 먼저 보여 주기.
-3. **스마트 앱 배너**(웹, 앱 미설치 아이폰 Safari에 'VIEW') — 웹 `index.html`에 `<meta name="apple-itunes-app" content="app-id=6820429874">`(+`app-argument`로 현재 주소). 앱이 스토어에 올라간 **뒤에** 웹 저장소 PR로.
-4. **App Store Connect 개인정보처리방침 URL**을 언어별로 — 영어(호주) `https://triptic.my/privacy-en.html`, 일본어 `…/privacy-ja.html`, 중국어(번체) `…/privacy-zh-TW.html`(한국어는 `…/privacy.html`). 약관 번역본의 법적 효력은 한국어 원문, 번역 검수 권장.
-5. **1.0.1**(main에서): 앱 약관 링크 수정(#23)·번역 연결(#26)·한도 무제한 화면 처리(#22)가 이미 main에 있다 — 새 빌드로 올릴 때 위 3·4번과 함께.
-6. **위젯 + 애플워치**(바로 위 '보류 중' 항목).
-
-### 출시 체크리스트 (2026-10-12)
-- [x] 항공 MVP 구조 결정(Ignav + Trip.com/Kiwi.com) · 프로 없이 출시 · 한국+호주
-- [x] iPhone 전용 · 푸시(APNs) · Supabase Redirect URL · 심사용 데모 계정 · 약관/방침 최신화 · 1.0.0
-- [ ] 웹 저장소 PR(AASA + 약관) 머지·배포 후 `curl -sI https://triptic.my/.well-known/apple-app-site-association` 확인
-- [ ] 무료 한도 3개 + 추가 방법(협의 중) → 필요하면 마이그레이션(운영 적용은 사용자가 SQL 편집기에서)
-- [ ] App Store Connect 입력(`docs/launch/app-store-listing.md`), 스크린샷, 빌드 선택, 심사 제출
+6. CSS 편집을 스크립트로 할 때 `s[s.index(a):s.index(b)]`처럼 잘라 바꾸면, b가 a보다 앞에 있으면 빈 문자열이 되어 파일 전체가 망가진다(2026-10-17 `ReviewSheet.module.css` 8만 줄 사고 — 시험은 CSS를 안 봐서 통과). 바꿀 문자열이 정확히 한 번 있는지 확인하고 바꾼다.
