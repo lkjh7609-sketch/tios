@@ -1,5 +1,7 @@
 # Triptic iOS 1.0.0 — 진행 현황 인수인계 (2026-10-15 기준)
 
+> **2026-10-16 1.0.0 승인됨. 이 파일은 승인 전까지의 기록이다 — 최신 현황은 `CLAUDE.md`의 '🚀 iOS 앱' 절.**
+
 > 새 에이전트는 **CLAUDE.md → 이 파일 → `docs/launch/app-store-listing.md`** 순서로 읽는다.
 > 사용자(이재헌, Ben Lee)는 한국어로 대화하며 **간결한 답(caveman)** 을 선호한다. 자세한 설명은 "[explain]"을 붙였을 때만.
 > **비밀값(키·토큰·비밀번호)은 코드·문서·채팅·메모에 쓰지 않는다.** 데모 계정 비밀번호는 `~/Desktop/Triptic 보안/App Review/demo-account.txt`에만 있다.
