@@ -4,7 +4,7 @@
 
 ## 🧭 먼저 읽기: 진행 현황
 
-**이 파일의 '🚀 iOS 앱' 절**이 최신 현황(2026-10-18)이다. `docs/launch/STATUS.md`는 1.0.0 승인(2026-10-16)까지의 심사 기록(2.1 두 번 답변·재제출, 제품 결정). 심사 답장 원문은 `docs/launch/review-2026-10/`. 위젯·워치·라이브 액티비티의 결정 기록은 `docs/ios-widget-watch.md`, 날짜별 변경은 `docs/updates/4-v1.1.0/changelog.md`.
+**이 파일의 '🚀 iOS 앱' 절**이 최신 현황(2026-10-18)이다. 1.0.1 전체 경과(타임라인·운영 적용·빌드·스토어 입력값·결정·남은 일)는 `docs/launch/STATUS-1.0.1.md`. `docs/launch/STATUS.md`는 1.0.0 승인(2026-10-16)까지의 심사 기록(2.1 두 번 답변·재제출, 제품 결정). 심사 답장 원문은 `docs/launch/review-2026-10/`. 위젯·워치·라이브 액티비티의 결정 기록은 `docs/ios-widget-watch.md`, 날짜별 변경은 `docs/updates/4-v1.1.0/changelog.md`.
 
 ## 📱 이 폴더는 앱 전용 복제본 (2026-10-11)
 
