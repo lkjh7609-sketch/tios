@@ -135,15 +135,18 @@ struct ContentView: View {
                             .font(.caption2.weight(.semibold)).foregroundColor(tint)
                         placeName(stop.place.n)
                         if let at = stop.departAt, let minutes = stop.minutesUntilDeparture {
-                            HStack(alignment: .firstTextBaseline, spacing: 5) {
-                                Text(hm(at))
-                                    .font(.system(size: 26, weight: .heavy, design: .rounded))
-                                    .minimumScaleFactor(0.8)
-                                    .lineLimit(1)
-                                // 첫 일정 전이고 이동 시간을 모르면(멀리 있음) 출발이 아니라 '시작 · 24분 후'
-                                Text(started || stop.travelMinutes > 0 ? departLine(minutes: minutes, lang: lang) : startLine(minutes: minutes, lang: lang))
-                                    .font(.caption2.weight(.bold))
-                                    .fixedSize(horizontal: false, vertical: true)
+                            // 첫 일정 전이고 이동 시간을 모르면(멀리 있음) 출발이 아니라 '시작 · 24분 후'
+                            let line = started || stop.travelMinutes > 0 ? departLine(minutes: minutes, lang: lang) : startLine(minutes: minutes, lang: lang)
+                            // 큰 시각 옆에 한 줄로 들어가면 옆에, 안 들어가면 시각 아래 한 줄로 — 글이 '1시간 24 / 분 후'처럼 중간에서 끊기지 않게(2026-10-18 사용자)
+                            ViewThatFits(in: .horizontal) {
+                                HStack(alignment: .firstTextBaseline, spacing: 5) {
+                                    departTime(at)
+                                    Text(line).font(.caption2.weight(.bold)).lineLimit(1).fixedSize()
+                                }
+                                VStack(alignment: .leading, spacing: 0) {
+                                    departTime(at)
+                                    Text(line).font(.caption2.weight(.bold)).lineLimit(1).minimumScaleFactor(0.8)
+                                }
                             }
                             .foregroundColor(isUrgent ? urgent : .primary)
                             .padding(.top, 2)
@@ -203,6 +206,14 @@ struct ContentView: View {
         Text(name)
             .font(.headline)
             .fixedSize(horizontal: false, vertical: true)
+    }
+
+    /// 큰 출발 시각 "16:49"
+    private func departTime(_ at: Date) -> some View {
+        Text(hm(at))
+            .font(.system(size: 26, weight: .heavy, design: .rounded))
+            .minimumScaleFactor(0.8)
+            .lineLimit(1)
     }
 
     /// "출발 · 42분 후" / 0분 이하 "지금 출발" / 이미 늦음 "서둘러요"
