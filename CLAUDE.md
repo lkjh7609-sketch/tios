@@ -4,7 +4,7 @@
 
 ## 🧭 먼저 읽기: 진행 현황
 
-**이 파일의 '🚀 iOS 앱' 절**이 최신 현황(2026-10-17)이다. `docs/launch/STATUS.md`는 1.0.0 승인(2026-10-16)까지의 심사 기록(2.1 두 번 답변·재제출, 제품 결정). 심사 답장 원문은 `docs/launch/review-2026-10/`. 위젯·워치·라이브 액티비티의 결정 기록은 `docs/ios-widget-watch.md`, 날짜별 변경은 `docs/updates/4-v1.1.0/changelog.md`.
+**이 파일의 '🚀 iOS 앱' 절**이 최신 현황(2026-10-18)이다. `docs/launch/STATUS.md`는 1.0.0 승인(2026-10-16)까지의 심사 기록(2.1 두 번 답변·재제출, 제품 결정). 심사 답장 원문은 `docs/launch/review-2026-10/`. 위젯·워치·라이브 액티비티의 결정 기록은 `docs/ios-widget-watch.md`, 날짜별 변경은 `docs/updates/4-v1.1.0/changelog.md`.
 
 ## 📱 이 폴더는 앱 전용 복제본 (2026-10-11)
 
@@ -13,14 +13,14 @@
 - 웹 저장소와 헷갈리지 말 것: 여기서 push/PR 해도 웹은 배포되지 않는다. 웹에 필요한 수정은 `~/Triptic`에서 따로 한다.
 - 2026-10-11 Google Maps 키가 옛 커밋(2026-07-08 `index.html`)에 노출돼 두 저장소 히스토리에서 지우고 키를 폐기했다. **비밀값은 코드·문서·채팅에 쓰지 않는다.**
 
-## 🚀 iOS 앱 — 1.0.0 출시됨(2026-10-16 승인), 지금은 1.0.1 준비 (2026-10-17 갱신)
+## 🚀 iOS 앱 — 1.0.0 출시됨(2026-10-16 승인), 1.0.1 심사 대기 (2026-10-18 갱신)
 
 **제품 결정(사용자, 2026-10-12~)**: 항공 = Ignav 운임 목록 + 예약 Trip.com KR/Kiwi.com, 호텔 = Agoda, 투어 = 마이리얼트립·Klook(Kayak은 운영 키가 오면). **프로·인앱결제 없음**(Apple 3.1.1 — 앱에서 프로를 팔거나 외부 결제로 유도하지 않는다). 등급(프로) 화면은 앱·웹 모두 삭제(tios #34, 웹 #45) — DB `plan`/`trip_limit`·운영 콘솔은 남김, 약관 제5조 "한도를 둘 수 있다"는 유지(사용자 결정). 여행 생성 한도 **무제한**(`trip_limit`=1000, `0114`). 리딤 코드 폐기. 판매국 한국·호주·일본·대만, 무료, iPhone 전용. 심사·메타데이터는 `docs/launch/app-store-listing.md`, 심사용 계정은 `~/Desktop/Triptic 보안/App Review/demo-account.txt`(저장소에 비밀번호 쓰지 않는다).
 
 **현황**
 - **1.0.0(빌드 11) 2026-10-16 승인** — 심사 기록 `docs/launch/STATUS.md`(승인 전까지), 답장 원문 `docs/launch/review-2026-10/`.
-- **1.0.1 = main** (`MARKETING_VERSION=1.0.1`). TestFlight 1.0.1 (16)까지 올라감 — 위젯·워치·라이브 액티비티 포함.
-- **남은 것**: TestFlight 확인 → 빌드 선택 → App Store Connect 언어별 개인정보처리방침 URL(영어 `https://triptic.my/privacy-en.html`, 일본어 `…/privacy-ja.html`, 중국어(번체) `…/privacy-zh-TW.html`, 한국어 `…/privacy.html`) → 심사 제출(사용자 승인).
+- **1.0.1 (21) 심사 제출(2026-10-18 13:23 KST, 상태 Waiting for Review)** — main `6946aba`: 위젯·워치·라이브 액티비티, 도시 사진 DB만(#45·#46), 수정 4건(#47: 서류 종류 버튼별 빨간 표시·내 여행 구역 제목 삭제·탈퇴 시 Apple 토큰 철회·워치 출발 줄). 빌드 20으로 10-17에 냈다가 10-18 취소 후 다시 냄. 언어별 개인정보처리방침 URL(영어 `https://triptic.my/privacy-en.html`, 일본어 `…/privacy-ja.html`, 중국어(번체) `…/privacy-zh-TW.html`, 한국어 `…/privacy.html`) 함께 제출.
+- **남은 것**: 심사 결과 대응. Apple 토큰 철회 실사용 확인(Apple 가입 시험 계정 삭제 뒤 Vercel 로그 — 환경 변수 `APPLE_TEAM_ID`·`APPLE_KEY_ID`·`APPLE_CLIENT_ID`·`APPLE_PRIVATE_KEY` 운영에 있음).
 
 **빌드**: Codemagic 팀 "Triptic", 워크플로 "Triptic iOS (TestFlight)"(`codemagic.yaml`), 기기 **`mac_mini_m2`**(2026-10-17 사용자 요청), 빌드 번호 = TestFlight 마지막 + 1, TestFlight로 자동 업로드. **main에서** 빌드한다(위젯·워치가 main에 들어옴). Xcode가 이 컴퓨터에 없어 Swift 화면 코드는 Codemagic 빌드가 첫 컴파일 확인이다.
 
@@ -43,9 +43,9 @@
 - [x] 인천 전광판 정기 갱신(PR #29, 0115 운영 적용, cron `airport-board-refresh`, 되돌리기 `select cron.unschedule('airport-board-refresh');`)
 - [x] 공항 화면 로딩 표시 개선(tios #31)
 - [x] 위젯 + 애플워치 + 라이브 액티비티(PR #25)
-- [ ] 1.0.1 심사 제출(위 '남은 것')
+- [x] 1.0.1 심사 제출(2026-10-18, 빌드 21)
 - [ ] 스마트 앱 배너 — 웹 `index.html`에 `<meta name="apple-itunes-app" content="app-id=6820429874">`(+`app-argument`), 웹 저장소 PR로
-- [ ] 계정 삭제 시 Apple 로그인 토큰 철회(가이드라인 5.1.1(v))
+- [x] 계정 삭제 시 Apple 로그인 토큰 철회(가이드라인 5.1.1(v)) — 웹 #58·앱 #47, 실사용 확인은 남음
 - [ ] (검토) 워치 컴플리케이션·스마트 스택 위젯
 
 ### 이미 main에 있는 앱 관련 코드 (웹에서는 동작하지 않아야 한다)
