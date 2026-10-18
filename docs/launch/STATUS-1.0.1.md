@@ -150,4 +150,4 @@
 - 에이전트 메모리: `~/.claude/projects/-Users-benlee-Desktop-Dev-triptic-ios/memory/` — `project_widget-watch.md`(1.0.1 경과 전부), `project_post-release-todo.md`, `feedback_*.md`(작업 규칙).
 - 위젯·워치·라이브 액티비티 구조: `docs/ios-widget-watch.md`, 프로젝트 파일 생성 `scripts/ios-add-widget-watch.rb`, 순수 계산 시험 `sh ios/Tests/run.sh`.
 - 스토어 입력값(1.0.0 기준 전체): `docs/launch/app-store-listing.md`. 심사 답장: `docs/launch/review-2026-10/`.
-- 스크린샷 원본: 바탕화면 'Triptic 앱스토어 스크린샷 1.0.1' 폴더에 두었으나 **10-18 확인 때 바탕화면에 없음**. 올린 파일은 ASC에 있고, 위 미리보기 페이지에서 볼 수 있다.
+- 스크린샷 원본: 바탕화면 'Triptic 앱스토어 스크린샷 1.0.1' 폴더는 사용자가 지웠다(10-18, ASC에 올라가 있어 필요 없음). 다음 버전은 ASC가 이전 스크린샷을 이어 쓴다. 문구·화면을 바꿀 때만 새로 만든다(가짜 데이터로 로컬 앱 촬영 → 1320×2868).
